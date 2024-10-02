@@ -2,7 +2,7 @@
 % Please edit documentation in R/update_ICAR_RE.R
 \name{W1_sim_Gibbs_componentwise_JM}
 \alias{W1_sim_Gibbs_componentwise_JM}
-\title{Title}
+\title{Simulate iCAR Random Effects \code{W1} Using Gibbs Sampling for Joint Models}
 \usage{
 W1_sim_Gibbs_componentwise_JM(
   node_index,
@@ -18,26 +18,44 @@ W1_sim_Gibbs_componentwise_JM(
 )
 }
 \arguments{
-\item{node_index}{}
+\item{node_index}{An integer index indicating the specific node for which \code{W1} is being simulated.}
 
-\item{W1}{}
+\item{W1}{A numeric vector representing the current values of the latent variable \code{W1}.}
 
-\item{mean_eta_latent}{}
+\item{mean_eta_latent}{A numeric value representing the mean of the latent variable \code{eta}.}
 
-\item{mean_mu_latent}{}
+\item{mean_mu_latent}{A numeric value representing the mean of the latent variable \code{mu}.}
 
-\item{kappa_w1}{}
+\item{kappa_w1}{A numeric value representing the precision parameter associated with \code{W1}.}
 
-\item{kappa_eta}{}
+\item{kappa_eta}{A numeric value representing the precision parameter associated with \code{eta}.}
 
-\item{kappa_mu}{}
+\item{kappa_mu}{A numeric value representing the precision parameter associated with \code{mu}.}
 
-\item{beta}{}
+\item{beta}{A numeric value representing the effect size of the latent variable \code{mu} on \code{W1}.}
 
-\item{nbd_info}{}
+\item{nbd_info}{A list containing neighborhood information for each node, indicating which nodes are neighbors.}
 
-\item{no_of_nbd}{}
+\item{no_of_nbd}{A numeric vector representing the number of neighbors for each node.}
+}
+\value{
+A numeric value representing the simulated value for \code{W1} at the specified \code{node_index}.
 }
 \description{
-Title
+This function simulates the iCAR random effects \code{W1} for joint models using a component-wise Gibbs sampling approach. It updates \code{W1} based on the local neighborhood information and the latent means.
+}
+\examples{
+# Example data for the joint model
+W1 <- rnorm(100)
+mean_eta_latent <- 0.5
+mean_mu_latent <- 1.0
+kappa_w1 <- 1.0
+kappa_eta <- 1.0
+kappa_mu <- 2.0
+beta <- 0.8
+nbd_info <- list(1 = c(2, 3), 2 = c(1, 3), 3 = c(1, 2))
+no_of_nbd <- c(2, 2, 2)
+
+# Simulate W1 for a specific node index
+simulated_W1 <- W1_sim_Gibbs_componentwise_JM(1, W1, mean_eta_latent, mean_mu_latent, kappa_w1, kappa_eta, kappa_mu, beta, nbd_info, no_of_nbd)
 }

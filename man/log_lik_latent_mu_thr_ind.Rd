@@ -2,33 +2,38 @@
 % Please edit documentation in R/log_lik_latent.R
 \name{log_lik_latent_mu_thr_ind}
 \alias{log_lik_latent_mu_thr_ind}
-\title{Title}
+\title{Log-Likelihood for Latent (log-linear predictor) \code{mu} in the Indicator Model}
 \usage{
 log_lik_latent_mu_thr_ind(mu, intercept2, W2, beta2, kappa_mu, Z2)
 }
 \arguments{
-\item{mu}{}
+\item{mu}{A numeric vector representing the latent variable for which the log-likelihood is being calculated.}
 
-\item{intercept2}{}
+\item{intercept2}{A numeric value representing the intercept of the model.}
 
-\item{W2}{}
+\item{W2}{A numeric vector of random effects or additional covariates in \code{mu}.}
 
-\item{beta2}{}
+\item{beta2}{A numeric vector of coefficients for the covariates in \code{Z2}.}
 
-\item{kappa_mu}{}
+\item{kappa_mu}{A numeric value representing the precision parameter for \code{mu}.}
 
-\item{Z2}{}
-
-\item{A}{}
-
-\item{W1}{}
-
-\item{beta}{}
-
-\item{log.hyper.mu}{}
-
-\item{family}{}
+\item{Z2}{A matrix of covariates in \code{mu}.}
+}
+\value{
+A numeric vector representing the log-likelihood for each value of \code{mu}.
 }
 \description{
-Title
+This function computes the log-likelihood for the latent variable \code{mu} in the context of an indicator model.
+}
+\examples{
+\dontshow{if (FALSE) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+# Example usage (not meant to be run directly):
+mu <- rnorm(10)
+intercept2 <- 0.5
+W2 <- rnorm(10)
+beta2 <- c(0.3, -0.2)
+kappa_mu <- 2
+Z2 <- matrix(rnorm(20), nrow = 10, ncol = 2)
+loglik_values <- log_lik_latent_mu_thr_ind(mu, intercept2, W2, beta2, kappa_mu, Z2)
+\dontshow{\}) # examplesIf}
 }

@@ -2,23 +2,38 @@
 % Please edit documentation in R/log_lik_threshold-model.R
 \name{log_lik_thr}
 \alias{log_lik_thr}
-\title{log-likelihood of the mark-distribution process a the data level; i.e., the likelihood of density A | theta_A, mu}
+\title{Log-Likelihood for Threshold Family Distributions}
 \usage{
 log_lik_thr(cur_par, mu, A, thr.family, ind_zeros_counts, sum_dens = TRUE)
 }
 \arguments{
-\item{cur_par}{hyper-parameters vector of the continuous mark distributions}
+\item{cur_par}{A numeric vector representing the hyperparameters of the threshold family distribution. For gamma, this is the shape parameter \code{k}. For log-normal, this is the precision parameter \code{k}.}
 
-\item{mu}{log-median of the latent size process. More explicitly exp(mu) is the median of the size distribution A}
+\item{mu}{A numeric vector representing the log-median of the latent size process. Explicitly, \code{exp(mu)} is the median of the size distribution \code{A}.}
 
-\item{A}{the size data}
+\item{A}{A numeric vector representing the size data.}
 
-\item{thr.family}{}
+\item{thr.family}{A character string indicating the threshold family distribution. Can be either \code{"gamma"} or \code{"logNormal"}.}
 
-\item{ind_zeros_counts}{}
+\item{ind_zeros_counts}{A logical vector indicating which elements of \code{A} are zeros.}
 
-\item{sum_dens}{whether to calculate the log-density individually or the sum of log-likelihood}
+\item{sum_dens}{A logical value indicating whether to calculate the sum of the log-likelihood values (\code{TRUE}) or return the log-density values individually (\code{FALSE}).}
+}
+\value{
+If \code{sum_dens = TRUE}, returns a numeric value representing the sum of log-likelihood values. If \code{sum_dens = FALSE}, returns a numeric vector of log-density values for each element of \code{A}.
 }
 \description{
-log-likelihood of the mark-distribution process a the data level; i.e., the likelihood of density A | theta_A, mu
+This function calculates the log-likelihood of the mark-distribution process at the data level, i.e., the likelihood of density \code{A | theta_A, mu}. It supports both gamma and log-normal threshold families.
+}
+\examples{
+\dontshow{if (FALSE) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+# Example usage (not meant to be run directly):
+cur_par <- c(2) # Shape parameter for gamma distribution
+mu <- rnorm(10)
+A <- rgamma(10, shape = 2, scale = 1)
+ind_zeros_counts <- A == 0
+thr.family <- "gamma"
+sum_dens <- TRUE
+loglik_value <- log_lik_thr(cur_par, mu, A, thr.family, ind_zeros_counts, sum_dens)
+\dontshow{\}) # examplesIf}
 }

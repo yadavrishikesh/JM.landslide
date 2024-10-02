@@ -1,8 +1,7 @@
-
-#' MCMC Sampler for the Joint Spatial Modeling of Landslide Counts and Sizes used in book chapter Yadav et. al (2024): Statistics of extremes for natural hazards: landslides and earthquakes
+#' MCMC Sampler for Joint Spatial Modeling of Landslide Counts and Sizes
 #'
 #' @description
-#' This function implements an MCMC sampler to jointly model landslide count data and landslide size data using various covariates, cross-validation types, and distributional assumptions. The function is flexible and allows the user to conduct either real data analysis or simulation experiments.
+#' Implements an MCMC sampler for the joint modeling of landslide count data and landslide size data, as described in the book chapter by Yadav et al. (2024), "Statistics of Extremes for Natural Hazards: Landslides and Earthquakes." The function allows for various covariate inputs, cross-validation types, and distributional assumptions, offering flexibility for both real data analysis and simulation experiments.
 #'
 #' @param Y A vector of length `n` containing landslide count data.
 #' @param A A vector of length `n` containing landslide size data corresponding to the landslide counts.
@@ -146,9 +145,9 @@ mcmc_sampler<- function(Y,
   }
 
   ## sMCMC related fixed parameters
-  eta_adapt_seq2<-seq(from=adapt, to=N.MCMC, by=adapt) ##  sequences where we adapt the eta parameters (intensity of Poisson distribution)
-  mu_adapt_seq2<-seq(from=adapt, to=N.MCMC, by=adapt) ##  sequences where we adapt the mu parameters (median of the Marked process)
-  hyper.mu_adapt_seq2<-seq(from=adapt, to=N.MCMC, by=adapt) ##  sequences where we adapt the hyperparameters (hyper.mu) of the mark distribution (\theta_A)
+  eta_adapt_seq2<-seq(from=adapt, to=N.MCMC, by=adapt) 
+  mu_adapt_seq2<-seq(from=adapt, to=N.MCMC, by=adapt) 
+  hyper.mu_adapt_seq2<-seq(from=adapt, to=N.MCMC, by=adapt)
 
  #browser()
 

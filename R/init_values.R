@@ -1,6 +1,22 @@
-######################################################################################
-##########  Initial values for threshold model ##########################################
-######################################################################################
+#' Initialize Parameters for Threshold Model
+#'
+#' This function generates initial values for the parameters of a threshold model based on the specified family.
+#'
+#' @param thr.family A character string specifying the family of the threshold model. Can be `"gamma"` or `"logNormal"`.
+#' @param seed A numeric value used to set the seed for random number generation, ensuring reproducibility.
+#'
+#' @return A list containing:
+#' \item{log.hyper.mu.init}{A numeric vector representing the initialized value of the model parameter.}
+#' \item{log.hyper.mu.name}{An expression object with the name of the parameter (e.g., \code{expression(k)}).}
+#'
+#' @export
+#'
+#' @examplesIf FALSE
+#' # The following is an example usage of the function and is not meant to be run directly.
+#' thr.family <- "gamma"
+#' seed <- 123
+#' init_values <- init_fun_log.hyper.mu_thr_model(thr.family, seed)
+#'
 init_fun_log.hyper.mu_thr_model<-function(thr.family, seed){
   set.seed(seed)
   if(thr.family=="gamma"){
@@ -14,6 +30,32 @@ init_fun_log.hyper.mu_thr_model<-function(thr.family, seed){
   return(list(log.hyper.mu.init=log.hyper.mu, log.hyper.mu.name=log.hyper.mu.name))
 }
 
+
+#' Initialize All Other Parameters for Threshold Model
+#'
+#' This function generates initial values for the parameters of a threshold model based on the specified family and additional covariates. It handles both `"gamma"` and `"logNormal"` families.
+#'
+#' @param Z2 A matrix of covariates for the model.
+#' @param A A matrix (or data frame) representing additional covariates or transformations used in the model.
+#' @param thr.family A character string specifying the family of the threshold model. Can be `"gamma"` or `"logNormal"`.
+#' @param seed A numeric value used to set the seed for random number generation, ensuring reproducibility.
+#' @param simulation A logical value indicating whether the function is being run in simulation mode.
+#'
+#' @return A list containing:
+#' \item{init.all.other.param}{A numeric vector of initialized values for the model parameters, including kappas, intercepts, and covariate coefficients.}
+#' \item{model.param.name.all.other.param}{A character vector or expression list representing the names of the parameters (e.g., \code{expression(kappa[w])}).}
+#'
+#' @export
+#'
+#' @examplesIf FALSE
+#' # The following is an example usage of the function and is not meant to be run directly.
+#' Z2 <- matrix(runif(10), nrow = 5, ncol = 2)
+#' A <- matrix(runif(10), nrow = 5, ncol = 2)
+#' thr.family <- "gamma"
+#' seed <- 123
+#' simulation <- TRUE
+#' init_values <- init_fun_all_other_param_thr_model(Z2, A, thr.family, seed, simulation)
+#'
 init_fun_all_other_param_thr_model<-function(Z2, A, thr.family, seed, simulation){
   set.seed(seed)
   if(thr.family=="gamma"){
@@ -55,11 +97,27 @@ init_fun_all_other_param_thr_model<-function(Z2, A, thr.family, seed, simulation
   return(list(init.all.other.param=init1, model.param.name.all.other.param=model.param.name))
 }
 
-
-######################################################################################
-##########  Initial values for indicator model  ##########################################
-######################################################################################
-
+#' Initialize Parameters for Indicator Model
+#'
+#' This function generates initial values for the parameters of an indicator model, including coefficients for covariates and other model-specific parameters.
+#'
+#' @param Z2 A matrix of covariates for the model.
+#' @param A A matrix (or data frame) representing additional covariates or transformations used in the model.
+#' @param seed A numeric value used to set the seed for random number generation, ensuring reproducibility.
+#'
+#' @return A list containing:
+#' \item{init.all.other.param}{A numeric vector of initialized values for model parameters, including kappas, intercepts, and covariate coefficients.}
+#' \item{model.param.name.all.other.param}{A character vector or expression list representing the names of the parameters (e.g., \code{expression(kappa[w])}).}
+#'
+#' @export
+#'
+#' @examplesIf FALSE
+#' # The following is an example usage of the function and is not meant to be run directly.
+#' Z2 <- matrix(runif(10), nrow = 5, ncol = 2)
+#' A <- matrix(runif(10), nrow = 5, ncol = 2)
+#' seed <- 123
+#' init_values <- init_fun_all_other_param_indicator_model(Z2, A, seed)
+#'
 init_fun_all_other_param_indicator_model<-function(Z2, A, seed){
   set.seed(seed)
   kappa_w2_init<- runif(1, 1, 5)
@@ -85,20 +143,26 @@ init_fun_all_other_param_indicator_model<-function(Z2, A, seed){
 
 
 
-######################################################################################
-##########  Initial values for joint model  ##########################################
-######################################################################################
-
-
-#' Initial values and parameter names for hyperparameter in the bulk
+#' Initialize Parameters for Hyperparameter in the Bulk
 #'
-#' @param mark_dist 
-#' @param seed 
+#' This function initializes the values and names for the hyperparameters based on the specified marginal distribution.
 #'
-#' @return
+#' @param mark_dist A character string indicating the type of marginal distribution. Possible values are:
+#' `"eGPD"` for extended Generalized Pareto Distribution, `"bGPD"` for a mixture of beta-GPD, or `"tgGPD"` for a mixture of truncated gamma-GPD.
+#' @param seed A numeric value to set the seed for random number generation to ensure reproducibility.
+#'
+#' @return A list containing:
+#' \item{log.hyper.mu.init}{A named list of initial values for the hyperparameters, such as `k` and `xi`.}
+#' \item{log.hyper.mu.name}{An expression vector with the names of the parameters for better display in plots or tables.}
+#' 
 #' @export
 #'
-#' @examples
+#' @examplesIf FALSE
+#' # Example usage (not meant to be run directly):
+#' mark_dist <- "eGPD"
+#' seed <- 123
+#' init_values <- init_fun_hyper.mu_JM(mark_dist, seed)
+#'
 init_fun_hyper.mu_JM<-function(mark_dist, seed){
   set.seed(seed)
   if (mark_dist=="eGPD"){
@@ -116,15 +180,41 @@ init_fun_hyper.mu_JM<-function(mark_dist, seed){
 }
 
 
-#' Initial values and parameter names for hyperparameter for GP
+#' Initialize All Other Parameters for Joint Model
 #'
-#' @param mark_dist 
-#' @param seed 
+#' This function generates initial values for the parameters of a joint model that are independent of the choice of marginal distributions. It handles initialization for fixed effects (FE) and other model types.
 #'
-#' @return
+#' @param Z1 A matrix of covariates for the first part of the model.
+#' @param Z2 A matrix of covariates for the second part of the model.
+#' @param A A matrix (or data frame) representing additional covariates or transformations used in the model.
+#' @param Y A vector of response variables for the model.
+#' @param seed A numeric value to set the seed for random number generation to ensure reproducibility.
+#' @param simulation A logical value indicating whether the function is being run in simulation mode.
+#' @param threshold A numeric value or vector specifying the threshold for handling certain parameters in the model.
+#' @param mark_dist A character string indicating the type of marginal distribution. Accepts `"eGPD"` for extended Generalized Pareto Distribution, `"bGPD"` for a mixture of beta-GPD, or `"tgGPD"` for a mixture of truncated gamma-GPD.
+#' @param model_type A character string indicating the type of model. Can be `"FE"` for fixed effects or other specified model types.
+#' @param thr.acces.ind A logical vector indicating whether each observation exceeds the threshold.
+#'
+#' @return A list containing:
+#' \item{init.all.other.param}{A named list of initialized values for the model parameters, including kappas, intercepts, coefficients for covariates, and other model-specific parameters.}
+#' \item{model.param.name.all.other.param}{An expression vector or character vector representing the names of the parameters for better display in plots or tables.}
+#'
 #' @export
 #'
-#' @examples
+#' @examplesIf FALSE
+#' # Example usage (not meant to be run directly):
+#' Z1 <- matrix(runif(10), nrow = 5, ncol = 2)
+#' Z2 <- matrix(runif(10), nrow = 5, ncol = 2)
+#' A <- matrix(runif(10), nrow = 5, ncol = 2)
+#' Y <- rnorm(5)
+#' seed <- 123
+#' simulation <- TRUE
+#' threshold <- c(0.5, 0.8)
+#' mark_dist <- "eGPD"
+#' model_type <- "FE"
+#' thr.acces.ind <- c(TRUE, FALSE, TRUE, FALSE, TRUE)
+#' init_values <- init_fun_all_other_param_JM(Z1, Z2, A, Y, seed, simulation, threshold, mark_dist, model_type, thr.acces.ind)
+#'
 init_fun_hyper.GP_JM<-function(mark_dist, seed){
   set.seed(seed)
   if (mark_dist=="eGPD"){

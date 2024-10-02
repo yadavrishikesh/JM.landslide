@@ -2,19 +2,35 @@
 % Please edit documentation in R/update_mu_indicator_model.R
 \name{update_mu}
 \alias{update_mu}
-\title{Title}
+\title{Update the Latent Parameter \code{mu} for Indicator Model}
 \usage{
 update_mu(mu_mean, kappa.mu, ind_zero, ind.NA, CV)
 }
 \arguments{
-\item{mu_mean}{}
+\item{mu_mean}{A numeric vector representing the mean values for the latent parameter \code{mu}.}
 
-\item{kappa.mu}{}
+\item{kappa.mu}{A numeric value representing the precision parameter for the latent parameter \code{mu}.}
 
-\item{ind_zero}{}
+\item{ind_zero}{A logical vector indicating which entries of \code{mu} should be sampled from the left truncated normal distribution (i.e., mean ≤ 0).}
 
-\item{ind.NA}{}
+\item{ind.NA}{A logical vector indicating which entries of \code{mu} correspond to missing values (NA) that should be sampled from the normal distribution without truncation.}
+
+\item{CV}{A character string indicating the type of cross-validation. If it is set to "OOS", the function will sample for the NA indices as well.}
+}
+\value{
+A numeric vector of the same length as \code{mu_mean} containing the sampled values of the latent parameter \code{mu}.
 }
 \description{
-Title
+This function generates samples for the latent parameter \code{mu} from a full conditional truncated normal distribution for for Indicator Model.
+}
+\examples{
+# Example parameters
+mu_mean <- c(-1, 0.5, 1, -0.5)
+kappa.mu <- 2
+ind_zero <- c(TRUE, FALSE, FALSE, TRUE)
+ind.NA <- c(FALSE, FALSE, TRUE, FALSE)
+CV <- "OOS"
+
+# Update mu values
+updated_mu <- update_mu(mu_mean, kappa.mu, ind_zero, ind.NA, CV)
 }

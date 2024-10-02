@@ -2,20 +2,36 @@
 % Please edit documentation in R/other-supporting-functions.R
 \name{inv_transfo}
 \alias{inv_transfo}
-\title{Transform the parameters back to original scales}
+\title{Inverse Transformation to Original Parameter Scale}
 \usage{
 inv_transfo(tpar, lb, ub)
 }
 \arguments{
-\item{tpar}{underlying parameter}
+\item{tpar}{A scalar representing the transformed parameter, typically on the unconstrained scale.}
 
-\item{lb}{lower support of the parameters}
+\item{lb}{A scalar specifying the lower bound of the original parameter's support.}
 
-\item{ub}{upper support of the parameters}
+\item{ub}{A scalar specifying the upper bound of the original parameter's support.}
 }
 \value{
-transformed parameter
+The parameter transformed back to its original scale.
 }
 \description{
-Transform the parameters back to original scales
+This function reverses the transformations applied to parameters, converting them back to their original scale. It is used in conjunction with parameter transformations that constrain parameters within specific bounds.
+}
+\details{
+The function handles different types of transformations based on the bounds provided:
+\itemize{
+\item If both \code{lb} and \code{ub} are infinite, the transformation is the identity, and \code{tpar} is returned unchanged.
+\item If only \code{lb} is finite, the transformation is \code{exp(tpar) + lb}, which shifts and scales \code{tpar} to enforce the lower bound.
+\item If only \code{ub} is finite, the transformation is \code{ub - exp(tpar)}, shifting and scaling \code{tpar} to enforce the upper bound.
+\item If both \code{lb} and \code{ub} are finite, the transformation uses the logistic function: \code{lb + (ub - lb) * plogis(tpar)}. This maps \code{tpar} smoothly between \code{lb} and \code{ub}.
+}
+}
+\examples{
+# Inverse transformations for various bounds
+inv_transfo(tpar = 1, lb = -Inf, ub = Inf)   # No transformation
+inv_transfo(tpar = 0.5, lb = 0, ub = Inf)    # Lower-bound transformation
+inv_transfo(tpar = -1, lb = -Inf, ub = 5)    # Upper-bound transformation
+inv_transfo(tpar = 0.2, lb = 1, ub = 5)      # Transformation between finite bounds
 }

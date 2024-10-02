@@ -2,25 +2,55 @@
 % Please edit documentation in R/other-supporting-functions.R
 \name{dbGPD}
 \alias{dbGPD}
-\title{Density function of mixture of beta in (0, u.thr)  and GPD}
+\title{Density Function of Mixture of Truncated Beta and GPD}
 \usage{
 dbGPD(x, u.thr, k, xi, sigma, sigma.GP, thr.prob, log = TRUE)
 }
 \arguments{
-\item{x}{a vector of observations}
+\item{x}{A numeric vector of observations at which the density needs to be evaluated.}
 
-\item{u.thr}{}
+\item{u.thr}{A positive numeric value specifying the threshold that separates the truncated beta and GPD components.}
 
-\item{k}{shape1 parameter for the  beta distribution}
+\item{k}{A positive numeric value representing the shape1 parameter of the truncated beta distribution.}
 
-\item{xi}{shape parameter of GP}
+\item{xi}{A numeric value representing the shape parameter of the GPD.}
 
-\item{sigma}{a vectors of scale parameters with same length as the length of x}
+\item{sigma}{A numeric vector specifying the shape2 parameters of the truncated beta distribution; must be of the same length as \code{x}.}
 
-\item{thr.prob}{}
+\item{sigma.GP}{A positive numeric value representing the scale parameter of the GPD.}
 
-\item{log}{}
+\item{thr.prob}{A numeric value between 0 and 1 indicating the mixture probability for the GPD component (i.e., the probability that a sample exceeds the threshold \code{u.thr}).}
+
+\item{log}{A logical value; if \code{TRUE}, the log density is returned. If \code{FALSE}, the density is returned.}
+}
+\value{
+A numeric vector of the same length as \code{x}, containing the density (or log density) values of the mixture distribution evaluated at each element of \code{x}.
 }
 \description{
-Density function of mixture of beta in (0, u.thr)  and GPD
+This function computes the density of a mixture distribution consisting of a truncated beta distribution on the interval \code{(0, u.thr)} and a Generalized Pareto Distribution (GPD) for values exceeding the threshold \code{u.thr}.
+}
+\details{
+The function computes the density of a mixture distribution where:
+\itemize{
+\item For values of \code{x} in the interval \code{(0, u.thr)}, the density is derived from a truncated beta distribution with parameters \code{k} and \code{sigma}.
+\item For values of \code{x} greater than \code{u.thr}, the density is derived from a GPD with location \code{u.thr}, scale \code{sigma.GP}, and shape \code{xi}.
+The mixture is determined by \code{thr.prob}, which specifies the probability of being in the GPD component.
+}
+}
+\examples{
+# Example usage of dbGPD function
+set.seed(123)
+x <- seq(0, 10, length.out = 100)
+u.thr <- 5
+k <- 2
+xi <- 0.3
+sigma <- rep(1, length(x))
+sigma.GP <- 0.8
+thr.prob <- 0.3
+dens <- dbGPD(x, u.thr, k, xi, sigma, sigma.GP, thr.prob, log = FALSE)
+plot(x, dens, type = "l", main = "Density of Mixture of Truncated Beta and GPD")
+}
+\seealso{
+\code{\link{dbetat}} for the truncated beta distribution density function,
+\code{\link[evd]{dgpd}} for the Generalized Pareto Distribution density function.
 }

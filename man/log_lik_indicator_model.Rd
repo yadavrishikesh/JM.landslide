@@ -2,21 +2,30 @@
 % Please edit documentation in R/update_mu_indicator_model.R
 \name{log_lik_indicator_model}
 \alias{log_lik_indicator_model}
-\title{log-likelihood of the mark-distribution process a the data level; i.e., the likelihood of density A | theta_A, mu}
+\title{Log-Likelihood at the Data Level for Indicator Model}
 \usage{
 log_lik_indicator_model(mu, A)
 }
 \arguments{
-\item{mu}{log-median of the latent size process. More explicitly exp(mu) is the median of the size distribution A}
+\item{mu}{Numeric value representing the log-median of the latent size process. More explicitly, \(\exp(\mu)\) is the median of the size distribution \(A\).}
 
-\item{A}{the size data}
+\item{A}{Numeric vector representing the size data.}
 
-\item{cur_par}{hyper-parameters vector of the continuous mark distributions}
+\item{sum_dens}{Logical value indicating whether to calculate the log-density individually or the sum of log-likelihoods. Defaults to \code{FALSE}.}
 
-\item{sum_dens}{whether to calculate the log-density individually or the sum of log-likelihood}
-
-\item{ind_zeros_counts}{}
+\item{ind_zeros_counts}{Optional parameter for handling zero counts in the data. This can be used to specify which counts to include in the likelihood calculation.}
+}
+\value{
+A numeric vector containing the log-likelihood for each observation in \(A\).
 }
 \description{
-log-likelihood of the mark-distribution process a the data level; i.e., the likelihood of density A | theta_A, mu
+This function computes the log-likelihood of the size data \(A\) given the latent size process parameterized by \(\mu\). Specifically, it calculates the likelihood of density \(A | \theta_A, \mu\).
+}
+\examples{
+# Example size data
+A <- c(0, 1, 0, 1, 1)
+mu <- log(0.5)  # Assuming the median size is 0.5
+
+# Calculate the log-likelihood
+log_likelihood <- log_lik_indicator_model(mu, A)
 }

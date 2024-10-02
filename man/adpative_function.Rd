@@ -2,33 +2,7 @@
 % Please edit documentation in R/tuning_variance.R
 \name{adpative_function}
 \alias{adpative_function}
-\title{#' @index_MCMC_iter: index of MCMC iterations
-#' @sigma2_adapt: the tuning parameter in the MH and MALA algorithm
-#' @target_accept: target acceptance probability, which is 0.224 for random wala MH and 0.57 for MALA\
-#' @rate_adapt: acceptance rate in MCMC iterations calculated at every fixed number of iterations
-#' @burn_in1: the first burning period in MCMC algorithm
-#' @burn_in2: the second burning period in MCMC algorithm
-#' @adapt_seq: the sequence, at which we update the @sigma2_adapt
-#' @adpat: the number of MCMC iterations after which we update the @sigma2_adapt
-#' @adapt_param: the scale parameter in adaptive algorithm
-#' @lower.acc: The lower acceptance probability for RWM and MALA which is 0.15, and 0.50, respectively
-#' @upper.acc: The lower acceptance probability for RWM and MALA which is 0.30, and 0.65, respectively
-adpative_function<- function(index_MCMC_iter, sigma2_adapt, target_accept, rate_adapt, burn_in1, burn_in2, adapt, adpat_param, adapt_seq, lower.acc, upper.acc){
-if(index_MCMC_iter < burn_in1 + burn_in2){
-if(index_MCMC_iter \%in\% adapt_seq){
-if (index_MCMC_iter< burn_in1 ){
-sigma2_adapt<- exp(((rate_adapt/adapt)-target_accept)/adpat_param) * sigma2_adapt
-} else {
-sigma2_adapt<- ifelse((((rate_adapt/adapt)>upper.acc) | ((rate_adapt/adapt)<lower.acc)),
-exp(((rate_adapt/adapt)-target_accept)/adpat_param) * sigma2_adapt, sigma2_adapt)
-}
-}
-} else {
-sigma2_adapt<- sigma2_adapt
-}
-return(sigma2_adapt)
-}
-Adaptive function for updating the variance components of MH and MALA algorithm}
+\title{Adaptive Tuning of Variance Components in MH and MALA Algorithms}
 \usage{
 adpative_function(
   index_MCMC_iter,
@@ -45,54 +19,51 @@ adpative_function(
 )
 }
 \arguments{
-\item{index_MCMC_iter}{index of MCMC iterations}
+\item{index_MCMC_iter}{Integer. The index of the current MCMC iteration.}
 
-\item{sigma2_adapt}{the tuning parameter in the MH and MALA algorithm}
+\item{sigma2_adapt}{Numeric. The current tuning parameter in the MH and MALA algorithm, which determines the proposal variance.}
 
-\item{target_accept}{target acceptance probability, which is 0.224 for random wala MH and 0.57 for MALA}
+\item{target_accept}{Numeric. The target acceptance probability (e.g., 0.224 for Random Walk MH, 0.57 for MALA).}
 
-\item{rate_adapt}{acceptance rate in MCMC iterations calculated at every fixed number of iterations}
+\item{rate_adapt}{Numeric. The acceptance rate calculated at fixed intervals over MCMC iterations.}
 
-\item{burn_in1}{the first burning period in MCMC algorithm}
+\item{burn_in1}{Integer. The length of the first burn-in period in the MCMC algorithm.}
 
-\item{burn_in2}{the second burning period in MCMC algorithm}
+\item{burn_in2}{Integer. The length of the second burn-in period in the MCMC algorithm.}
 
-\item{adapt}{the sequence, at which we update the @sigma2_adapt}
+\item{adapt}{Integer. The sequence interval at which \code{sigma2_adapt} is updated.}
 
-\item{adpat_param}{the number of MCMC iterations after which we update the @sigma2_adapt}
+\item{adpat_param}{Numeric. A scaling parameter for the adaptive adjustment of \code{sigma2_adapt}.}
 
-\item{adapt_seq}{the scale parameter in adaptive algorithm}
+\item{adapt_seq}{Vector. A sequence indicating specific MCMC iterations for updating \code{sigma2_adapt}.}
 
-\item{lower.acc}{The lower acceptance probability for RWM and MALA which is 0.15, and 0.50, respectively}
+\item{lower.acc}{Numeric. The lower bound for the acceptance rate threshold (e.g., 0.15 for Random Walk MH, 0.50 for MALA).}
 
-\item{upper.acc}{The lower acceptance probability for RWM and MALA which is 0.30, and 0.65, respectively}
+\item{upper.acc}{Numeric. The upper bound for the acceptance rate threshold (e.g., 0.30 for Random Walk MH, 0.65 for MALA).}
+}
+\value{
+A numeric value representing the updated tuning parameter \code{sigma2_adapt}.
 }
 \description{
-#' @index_MCMC_iter: index of MCMC iterations
-#' @sigma2_adapt: the tuning parameter in the MH and MALA algorithm
-#' @target_accept: target acceptance probability, which is 0.224 for random wala MH and 0.57 for MALA\
-#' @rate_adapt: acceptance rate in MCMC iterations calculated at every fixed number of iterations
-#' @burn_in1: the first burning period in MCMC algorithm
-#' @burn_in2: the second burning period in MCMC algorithm
-#' @adapt_seq: the sequence, at which we update the @sigma2_adapt
-#' @adpat: the number of MCMC iterations after which we update the @sigma2_adapt
-#' @adapt_param: the scale parameter in adaptive algorithm
-#' @lower.acc: The lower acceptance probability for RWM and MALA which is 0.15, and 0.50, respectively
-#' @upper.acc: The lower acceptance probability for RWM and MALA which is 0.30, and 0.65, respectively
-adpative_function<- function(index_MCMC_iter, sigma2_adapt, target_accept, rate_adapt, burn_in1, burn_in2, adapt, adpat_param, adapt_seq, lower.acc, upper.acc){
-if(index_MCMC_iter < burn_in1 + burn_in2){
-if(index_MCMC_iter \%in\% adapt_seq){
-if (index_MCMC_iter< burn_in1 ){
-sigma2_adapt<- exp(((rate_adapt/adapt)-target_accept)/adpat_param) * sigma2_adapt
-} else {
-sigma2_adapt<- ifelse((((rate_adapt/adapt)>upper.acc) | ((rate_adapt/adapt)<lower.acc)),
-exp(((rate_adapt/adapt)-target_accept)/adpat_param) * sigma2_adapt, sigma2_adapt)
+This function adjusts the tuning parameter \code{sigma2_adapt} in the Metropolis-Hastings (MH) or MALA algorithm to reach a target acceptance rate.
 }
+\details{
+The function adapts the variance parameter \code{sigma2_adapt} based on the current acceptance rate relative to a target acceptance rate. During the first burn-in phase, the variance is adjusted to meet the target acceptance rate directly. During the second burn-in phase, updates occur only if the acceptance rate is outside of specified bounds (\code{lower.acc} and \code{upper.acc}).
 }
-} else {
-sigma2_adapt<- sigma2_adapt
-}
-return(sigma2_adapt)
-}
-Adaptive function for updating the variance components of MH and MALA algorithm
+\examples{
+# Initialize parameters for adaptive tuning
+index_MCMC_iter <- 100
+sigma2_adapt <- 0.1
+target_accept <- 0.224
+rate_adapt <- 25
+burn_in1 <- 500
+burn_in2 <- 500
+adapt <- 100
+adpat_param <- 10
+adapt_seq <- seq(100, 1000, by = 100)
+lower.acc <- 0.15
+upper.acc <- 0.30
+
+# Update the variance tuning parameter
+sigma2_adapt <- adpative_function(index_MCMC_iter, sigma2_adapt, target_accept, rate_adapt, burn_in1, burn_in2, adapt, adpat_param, adapt_seq, lower.acc, upper.acc)
 }

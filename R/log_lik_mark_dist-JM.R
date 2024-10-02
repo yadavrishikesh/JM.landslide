@@ -1,12 +1,28 @@
-#' log-likelihood of the mark-distribution process at the data level; i.e., the likelihood of density A | theta_A, mu
+#' Log-liikelihood of the use mark-distribution 
 #'
-#' @param cur_par  hyper-parameters vector of the continuous mark distributions 
-#' @param mu log-median of the latent size process. More explicitly exp(mu) is the median of the size distribution A
-#' @param A the size data 
-#' @param mark_dist choice of mark_dist of distributions for the size process.
-#' @param sum_dens whether to calculate the log-density individually or the sum of log-likelihood 
+#' This function computes the log-likelihood of the size distribution  given the parameters, latent size process, and data. It supports three types of mark distributions: extended Generalized Pareto Distribution (eGPD), mixture of beta-GPD (bGPD), and mixture of truncated gamma-GPD (tgGPD).
 #'
-#' @return 
+#' @param cur_par A numeric vector representing the hyperparameters of the continuous mark distributions. For example, \code{k} and \code{xi} in the case of eGPD.
+#' @param mu A numeric vector representing the log-median of the latent size process. Explicitly, \code{exp(mu)} is the median of the size distribution \code{A}.
+#' @param A A numeric vector representing the landslide size data.
+#' @param mark_dist A character string indicating the choice of mark distribution for the size process. Can be `"eGPD"`, `"bGPD"`, or `"tgGPD"`.
+#' @param threshold A numeric vector representing the threshold values for the size data \code{A}.
+#' @param sum_dens A logical value indicating whether to calculate the sum of the log-likelihood (\code{TRUE}) or return the log-density values individually (\code{FALSE}).
+#'
+#' @return A numeric value representing the sum of log-likelihood values if \code{sum_dens = TRUE}, or a numeric vector of log-density values if \code{sum_dens = FALSE}.
+#'
+#' @export
+#'
+#' @examplesIf FALSE
+#' # Example usage (not meant to be run directly):
+#' cur_par <- c(2, 0.1) # example parameters for eGPD
+#' mu <- rnorm(10)
+#' A <- rgamma(10, shape = 2, scale = 1)
+#' mark_dist <- "eGPD"
+#' threshold <- rep(1, 10)
+#' sum_dens <- TRUE
+#' loglik_value <- log_lik_shape_mixture(cur_par, mu, A, mark_dist, threshold, sum_dens)
+#'
 log_lik_shape_mixture<- function(
     cur_par,
     mu, 
@@ -71,23 +87,25 @@ log_lik_shape_mixture<- function(
 
 
 
-
-#' Title
+#' Log-Likelihood for Generalized Pareto Distribution (GPD) Parameters
 #'
-#' @param thr.exceed.ind 
-#' @param thr.prob 
-#' @param cur_par 
-#' @param mu 
-#' @param A 
-#' @param mark_dist 
-#' @param ind_zeros_counts 
-#' @param threshold 
-#' @param sum_dens 
+#' This function computes the log-likelihood of a Generalized Pareto Distribution (GPD) for given parameters and data, conditioned on exceeding a specified threshold.
 #'
-#' @return
+#' @param cur_par A numeric vector containing the GPD parameters: \code{sigma.GP} (scale parameter) and \code{xi} (shape parameter).
+#' @param A A numeric vector representing the size data for the GPD model.
+#' @param threshold A numeric vector representing the threshold values, above which the GPD is considered.
+#'
+#' @return A numeric value representing the sum of the log-likelihood for all elements of \code{A} that exceed the corresponding \code{threshold}.
+#'
 #' @export
 #'
-#' @examples
+#' @examplesIf FALSE
+#' # Example usage (not meant to be run directly):
+#' cur_par <- c(1, 0.2) # sigma.GP = 1, xi = 0.2
+#' A <- rnorm(10, mean = 5)
+#' threshold <- rep(4, 10)
+#' loglik_value <- log_lik_GPD_param(cur_par, A, threshold)
+#'
 log_lik_GPD_param<- function(
     cur_par,
     A, 
@@ -96,7 +114,6 @@ log_lik_GPD_param<- function(
   sigma.GP<- cur_par[1]
   xi<- cur_par[2]
   thr.exceed.ind<- A > threshold
-  #log.post_A<-  thr.prob[thr.exceed.ind] * evd::dgpd(x=A[thr.exceed.ind], loc = threshold[thr.exceed.ind], scale = sigma.GP, shape = xi, log = TRUE)
   log.post_A<- sum(evd::dgpd(x=A[thr.exceed.ind], 
                              loc = threshold[thr.exceed.ind],
                              scale = sigma.GP, shape = xi, log = TRUE))

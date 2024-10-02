@@ -1,6 +1,64 @@
-#############################################
-########## Main MCMC function  ##############
-#############################################
+#' MCMC Sampler for Threshold Model
+#'
+#' This function implements a Markov Chain Monte Carlo (MCMC) sampler for threshold models,
+#' handling Gibbs sampling and Metropolis-Hastings steps for parameter estimation. The model
+#' focuses on threshold-based data using covariates and includes tuning parameter adaptation.
+#'
+#' @param N.MCMC Integer. Number of MCMC iterations.
+#' @param A Numeric vector. Observed data (e.g., threshold exceedances).
+#' @param ind.NA Logical vector. Indicator for missing values in `A`.
+#' @param Z2 Matrix. Covariates matrix for the threshold data (dimensions `n2 x q`).
+#' @param thin Integer. Thinning interval for MCMC sampling.
+#' @param adapt Integer. Adaptation interval for tuning parameter updates.
+#' @param burn_in1 Integer. First burn-in period for MCMC sampling.
+#' @param burn_in2 Integer. Second burn-in period for MCMC sampling.
+#' @param tun.mu Numeric vector. Tuning parameter for proposal distribution of `mu`.
+#' @param tun.hyper.mu Numeric. Tuning parameter for hyperparameters related to `mu`.
+#' @param hyper_fixed List. Fixed hyperparameters for the model.
+#' @param print.result Logical. If `TRUE`, prints progress during MCMC.
+#' @param traceplot Logical. If `TRUE`, generates traceplots for parameter diagnostics.
+#' @param CV Character. Cross-validation type: `"WS"` for within-sample or `"OOS"` for out-of-sample.
+#' @param true.values Numeric vector. True parameter values for validation in simulation experiments.
+#' @param simulation Logical. If `TRUE`, indicates simulation run for parameter validation.
+#' @param nbd_info Matrix. Information on the adjacency structure of spatial units.
+#' @param no_of_nbd Integer. Number of neighbors for each spatial unit.
+#' @param node.set Matrix. Node connections used in spatial modeling.
+#' @param ind_zeros_counts Logical vector. Indicator for zero counts in `A`.
+#' @param q.probs Numeric vector. Quantiles of interest for posterior predictive distribution.
+#' @param thr.family Character. Specifies the threshold family distribution (e.g., `"gamma"` or `"logNormal"`).
+#' @param hyper.mu_adapt_seq2 Numeric vector. Adaptation sequence for hyperparameters related to `mu`.
+#' @param mu_adapt_seq2 Numeric vector. Adaptation sequence for `mu`.
+#' @param eta_adapt_seq2 Numeric vector. Adaptation sequence for `eta`.
+#' @param init.seed Integer. Seed for random number generation for reproducibility.
+#'
+#' @return A list containing:
+#' \item{samples}{Matrix. MCMC samples for the model parameters, including hyperparameters and latent variables.}
+#' \item{imputed.A.WSD}{Numeric vector. Imputed posterior mean values of `A` for within-sample diagnostics.}
+#' \item{imputed.A.squre}{Numeric vector. Sum of squared imputed values of `A`.}
+#' \item{post.sum.mean.mu}{Numeric vector. Posterior sum of means of the latent `mu` parameter.}
+#' \item{post.sum.squre.mu}{Numeric vector. Posterior sum of squared `mu` parameters.}
+#' \item{post.mean.quantile}{Matrix. Posterior means of quantiles for `A` based on `q.probs`.}
+#' \item{post.squre.quantile}{Matrix. Posterior sums of squared quantiles for `A` based on `q.probs`.}
+#' \item{post.sum.mean.w2}{Numeric vector. Posterior sum of means of latent `w2` parameter.}
+#' \item{post.sum.squre.w2}{Numeric vector. Posterior sum of squared `w2` parameters.}
+#' \item{tuning_param_x_hyper}{Matrix. Adaptive tuning parameters for MCMC proposal distributions.}
+#'
+#' @export
+#'
+#' @examples
+#' # Example of running the MCMC sampler for a threshold model
+#' result <- mcmc_sampler_threhshold_model(N.MCMC = 1000, A = threshold_data, ind.NA = is.na(threshold_data),
+#'                                       Z2 = covariate_matrix, thin = 10, adapt = 50,
+#'                                       burn_in1 = 100, burn_in2 = 200, tun.mu = rep(0.1, n1),
+#'                                       tun.hyper.mu = 0.01, hyper_fixed = list(), print.result = TRUE,
+#'                                       traceplot = FALSE, CV = "WS", true.values = NULL,
+#'                                       simulation = TRUE, nbd_info = adjacency_matrix,
+#'                                       no_of_nbd = 4, node.set = node_connections,
+#'                                       ind_zeros_counts = zero_counts_indicator, q.probs = c(0.05, 0.5, 0.95),
+#'                                       thr.family = "gamma", hyper.mu_adapt_seq2 = seq(0.05, 0.5, length.out = 100),
+#'                                       mu_adapt_seq2 = seq(0.05, 0.5, length.out = 100), 
+#'                                       eta_adapt_seq2 = seq(0.05, 0.5, length.out = 100), 
+#'                                       init.seed = 123)
 mcmc_sampler_threhshold_model<-function(N.MCMC, 
                                   A,
                                   ind.NA,

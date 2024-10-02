@@ -2,7 +2,7 @@
 % Please edit documentation in R/MH_updates.R
 \name{block_rw_update}
 \alias{block_rw_update}
-\title{Univariate (block) updates based on random walk proposals}
+\title{Block Random Walk Metropolis Update}
 \usage{
 block_rw_update(
   par_curr,
@@ -17,27 +17,54 @@ block_rw_update(
 )
 }
 \arguments{
-\item{par_curr}{current parameter values}
+\item{par_curr}{A vector of the current parameter values.}
 
-\item{par_name}{name of the parameter of interest. While writing the log-likelihood and log-prior the parameter of interest should have same parameter values}
+\item{par_name}{A character string representing the name of the parameter being updated. The log-likelihood
+and log-prior functions should use this name as their argument for the parameter of interest.}
 
-\item{loglik}{log-likelihood function}
+\item{loglik}{A function that computes the log-likelihood, depending on the parameter of interest.}
 
-\item{logprior}{log-prior function}
+\item{logprior}{A function that computes the log-prior for the parameter of interest.}
 
-\item{var_markdist}{variance of the random walk proposals}
+\item{var_markdist}{A vector of the variances for the normal random walk proposals.}
 
-\item{lb}{lower support of the parameter of interest}
+\item{lb}{A vector specifying the lower bounds of the parameter support.}
 
-\item{ub}{upper support of the parameter of interest}
+\item{ub}{A vector specifying the upper bounds of the parameter support.}
 
-\item{transform}{logical, if TRUE transformation are applied are to convert the current parameter space to whole real line and then performed Gaussian proposals. If FALSE then a truncated normal proposals are used in the (lb, ub)}
+\item{transform}{Logical; if \code{TRUE}, transformations are applied to convert the current parameter space
+to the entire real line before making Gaussian proposals. If \code{FALSE}, truncated normal proposals are used
+within the bounds \code{(lb, ub)}.}
 
-\item{...}{additional parameter}
+\item{...}{Additional arguments to be passed to the \code{loglik} and \code{logprior} functions.}
 }
 \value{
-return an updated values of parameter of interest
+A vector of updated parameter values.
 }
 \description{
-Univariate (block) updates based on random walk proposals
+This function performs block updates of parameters using random walk proposals within
+the bounds of the parameter support. It optionally applies transformations to ensure the proposals
+lie within the appropriate bounds.
+}
+\details{
+The function supports both constrained and unconstrained random walk proposals. When \code{transform = TRUE},
+the parameter is transformed to the real line before proposing new values, and the acceptance ratio is adjusted
+by the Jacobian of the transformation. When \code{transform = FALSE}, a truncated normal distribution is used
+for proposing new values within the given bounds \code{(lb, ub)}.
+}
+\examples{
+# Example usage of the block_rw_update function:
+set.seed(123)
+par_curr <- rnorm(5)
+par_name <- "param"
+loglik <- function(param) sum(dnorm(param, mean = 1, sd = 2, log = TRUE))
+logprior <- function(param) sum(dnorm(param, mean = 0, sd = 1, log = TRUE))
+var_markdist <- rep(0.1, length(par_curr))
+lb <- rep(-2, length(par_curr))
+ub <- rep(2, length(par_curr))
+updated_param <- block_rw_update(par_curr, par_name, loglik, logprior, var_markdist, lb, ub, transform = TRUE)
+
+}
+\seealso{
+Functions for constrained MCMC sampling.
 }

@@ -1,6 +1,94 @@
-#############################################
-########## Main MCMC function  ##############
-#############################################
+#' MCMC Sampler for Joint Spatial Model
+#'
+#' This function implements a Markov Chain Monte Carlo (MCMC) sampler for a joint spatial model
+#' designed to analyze count and size data. It performs Gibbs and Metropolis-Hastings sampling steps
+#' for parameter estimation and can handle both within-sample (WS) and out-of-sample (OOS) cross-validation.
+#'
+#' @param N.MCMC Integer. Number of MCMC iterations.
+#' @param Y Numeric vector. Count data of length `n1`.
+#' @param ind_NA_Y Logical vector. Indicator for missing values in `Y`.
+#' @param A Numeric vector. Size data of length `n2`.
+#' @param ind_NA_A Logical vector. Indicator for missing values in `A`.
+#' @param Z1 Matrix. Covariates for the count data (dimensions `n1 x p`).
+#' @param Z2 Matrix. Covariates for the size data (dimensions `n2 x q`).
+#' @param model_type Character. Type of model to fit (e.g., joint spatial model).
+#' @param Sim_data Logical. If `TRUE`, simulation data is used for testing.
+#' @param thin Integer. Thinning interval for MCMC sampling.
+#' @param adapt Integer. Adaptation interval for tuning parameter updates.
+#' @param burn_in1 Integer. First burn-in period for MCMC sampling.
+#' @param burn_in2 Integer. Second burn-in period for MCMC sampling.
+#' @param tun.eta Numeric. Tuning parameter for MH steps related to `eta`.
+#' @param tun.mu Numeric. Tuning parameter for MH steps related to `mu`.
+#' @param tun.hyper.mu Numeric. Tuning parameter for MH steps related to the hyperparameters of the mark distribution.
+#' @param tun.hyper.GP Numeric. Tuning parameter for MH steps related to the hyperparameters of the Generalized Pareto distribution (GP).
+#' @param mark_dist Character. Type of distribution used for `A` (e.g., `"eGPD"`, `"bGPD"`, `"tgGPD"`).
+#' @param hyper_fixed List. Fixed hyperparameters for the model.
+#' @param print.result Logical. If `TRUE`, prints progress and acceptance rates during MCMC.
+#' @param traceplot Logical. If `TRUE`, generates traceplots for parameter diagnostics.
+#' @param model.base Logical. If `TRUE`, models count and size data independently.
+#' @param CV Character. Cross-validation type: `"WS"` for within-sample or `"OOS"` for out-of-sample.
+#' @param true.values Numeric vector. True parameter values for validating simulation experiments.
+#' @param simulation Logical. If `TRUE`, runs the function as a simulation experiment.
+#' @param nbd_info Matrix. Information on the adjacency structure of spatial units.
+#' @param no_of_nbd Integer. Number of neighbors for each spatial unit.
+#' @param node.set Matrix. Node connections used in spatial modeling.
+#' @param ind_zeros_counts Logical vector. Indicator for zero entries in `A`.
+#' @param threshold Numeric vector. Threshold values for the size data.
+#' @param thr.acces.ind Logical vector. Indicator for threshold exceedance.
+#' @param thr.prob Numeric. Probability for threshold exceedance.
+#' @param q.probs Numeric vector. Quantiles at which to estimate risk probabilities.
+#' @param hyper.mu_adapt_seq2 Numeric vector. Adaptation sequence for `mu` parameters.
+#' @param mu_adapt_seq2 Numeric vector. Adaptation sequence for `mu`.
+#' @param eta_adapt_seq2 Numeric vector. Adaptation sequence for `eta`.
+#' @param samples.store Integer. Number of samples to store for posterior summaries.
+#' @param init.seed Integer. Seed for reproducibility of the random number generation.
+#'
+#' @return A list containing the following elements:
+#' \item{samples}{Matrix. MCMC samples for the model parameters.}
+#' \item{OOS_with_CIs}{List. Posterior estimates and confidence intervals for out-of-sample diagnostics.}
+#' \item{WS_with_CIs}{List. Posterior estimates and confidence intervals for within-sample diagnostics.}
+#' \item{OOS_qqplots}{List. Data for QQ-plots of the out-of-sample validation.}
+#' \item{WS_qqplots}{List. Data for QQ-plots of the within-sample validation.}
+#' \item{imputed.Y.WSD}{Numeric vector. Imputed values of `Y` in within-sample (WS) diagnostics.}
+#' \item{imputed.A.WSD}{Numeric vector. Imputed values of `A` in within-sample (WS) diagnostics.}
+#' \item{imputed.Y.OSD}{Numeric vector. Imputed values of `Y` in out-of-sample (OOS) diagnostics.}
+#' \item{imputed.A.OSD}{Numeric vector. Imputed values of `A` in out-of-sample (OOS) diagnostics.}
+#' \item{post.sum.mean.mu}{Numeric vector. Posterior sum of `mu` parameter means.}
+#' \item{post.sum.squre.mu}{Numeric vector. Posterior sum of squared `mu` parameters.}
+#' \item{post.sum.mean.eta}{Numeric vector. Posterior sum of `eta` parameter means.}
+#' \item{post.sum.squre.eta}{Numeric vector. Posterior sum of squared `eta` parameters.}
+#' \item{post.mean.condprob}{Matrix. Posterior mean of conditional probabilities for `Y` and `A`.}
+#' \item{post.mean.uncondprob}{Matrix. Posterior mean of unconditional probabilities for `Y` and `A`.}
+#' \item{post.squre.condprob}{Matrix. Posterior sum of squared conditional probabilities for `Y` and `A`.}
+#' \item{post.squre.uncondprob}{Matrix. Posterior sum of squared unconditional probabilities for `Y` and `A`.}
+#' \item{post.sum.mean.w1}{Numeric vector. Posterior sum of `W1` parameter means.}
+#' \item{post.sum.squre.w1}{Numeric vector. Posterior sum of squared `W1` parameters.}
+#' \item{post.sum.mean.w2}{Numeric vector. Posterior sum of `W2` parameter means.}
+#' \item{post.sum.squre.w2}{Numeric vector. Posterior sum of squared `W2` parameters.}
+#' \item{tuning_param_x_hyper}{Matrix. Adaptive tuning parameters for MCMC iterations.}
+#' \item{Acc.rate eta}{Numeric. Acceptance rate for `eta` updates.}
+#'
+#' @export
+#'
+#' @examples
+#' # Example of how to run the MCMC sampler
+#' result <- mcmc_sampler_joint_model_jSp(N.MCMC = 1000, Y = count_data, ind_NA_Y = is.na(count_data),
+#'                                       A = size_data, ind_NA_A = is.na(size_data), Z1 = covariate_matrix1,
+#'                                       Z2 = covariate_matrix2, model_type = "joint_spatial",
+#'                                       Sim_data = TRUE, thin = 10, adapt = 50, burn_in1 = 100,
+#'                                       burn_in2 = 200, tun.eta = 0.1, tun.mu = 0.1,
+#'                                       tun.hyper.mu = 0.05, tun.hyper.GP = 0.05,
+#'                                       mark_dist = "eGPD", hyper_fixed = list(),
+#'                                       print.result = TRUE, traceplot = FALSE, model.base = FALSE,
+#'                                       CV = "OOS", true.values = NULL, simulation = TRUE,
+#'                                       nbd_info = adjacency_matrix, no_of_nbd = 4,
+#'                                       node.set = node_connections, ind_zeros_counts = zero_indicator,
+#'                                       threshold = threshold_values, thr.acces.ind = threshold_indicator,
+#'                                       thr.prob = 0.1, q.probs = seq(0.1, 0.9, by = 0.1),
+#'                                       hyper.mu_adapt_seq2 = seq(0.05, 0.5, length.out = 100),
+#'                                       mu_adapt_seq2 = seq(0.05, 0.5, length.out = 100),
+#'                                       eta_adapt_seq2 = seq(0.05, 0.5, length.out = 100),
+#'                                       samples.store = 100, init.seed = 123)
 mcmc_sampler_joint_model_jSp<-function(N.MCMC, 
                                        Y,
                                        ind_NA_Y, 

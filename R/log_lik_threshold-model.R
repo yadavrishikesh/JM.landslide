@@ -1,13 +1,28 @@
-#' log-likelihood of the mark-distribution process a the data level; i.e., the likelihood of density A | theta_A, mu
+#' Log-Likelihood for Threshold Family Distributions
 #'
-#' @param cur_par  hyper-parameters vector of the continuous mark distributions 
-#' @param mu log-median of the latent size process. More explicitly exp(mu) is the median of the size distribution A
-#' @param A the size data 
-#' @param sum_dens whether to calculate the log-density individually or the sum of log-likelihood 
-#' @param ind_zeros_counts 
-#' @param thr.family 
+#' This function calculates the log-likelihood of the mark-distribution process at the data level, i.e., the likelihood of density \code{A | theta_A, mu}. It supports both gamma and log-normal threshold families.
 #'
-#' @return 
+#' @param cur_par A numeric vector representing the hyperparameters of the threshold family distribution. For gamma, this is the shape parameter \code{k}. For log-normal, this is the precision parameter \code{k}.
+#' @param mu A numeric vector representing the log-median of the latent size process. Explicitly, \code{exp(mu)} is the median of the size distribution \code{A}.
+#' @param A A numeric vector representing the size data.
+#' @param thr.family A character string indicating the threshold family distribution. Can be either \code{"gamma"} or \code{"logNormal"}.
+#' @param ind_zeros_counts A logical vector indicating which elements of \code{A} are zeros.
+#' @param sum_dens A logical value indicating whether to calculate the sum of the log-likelihood values (\code{TRUE}) or return the log-density values individually (\code{FALSE}).
+#'
+#' @return If \code{sum_dens = TRUE}, returns a numeric value representing the sum of log-likelihood values. If \code{sum_dens = FALSE}, returns a numeric vector of log-density values for each element of \code{A}.
+#'
+#' @export
+#'
+#' @examplesIf FALSE
+#' # Example usage (not meant to be run directly):
+#' cur_par <- c(2) # Shape parameter for gamma distribution
+#' mu <- rnorm(10)
+#' A <- rgamma(10, shape = 2, scale = 1)
+#' ind_zeros_counts <- A == 0
+#' thr.family <- "gamma"
+#' sum_dens <- TRUE
+#' loglik_value <- log_lik_thr(cur_par, mu, A, thr.family, ind_zeros_counts, sum_dens)
+#'
 log_lik_thr<- function(
     cur_par,
     mu, 

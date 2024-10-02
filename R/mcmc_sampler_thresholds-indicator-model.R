@@ -1,6 +1,57 @@
-#############################################
-########## Main MCMC function  ##############
-#############################################
+#' MCMC Sampler for Threshold Indicator Model
+#'
+#' This function implements a Markov Chain Monte Carlo (MCMC) sampler for a threshold indicator model.
+#' It handles Gibbs sampling and Metropolis-Hastings steps for parameter estimation, focusing on
+#' modeling binary indicators derived from size data.
+#'
+#' @param N.MCMC Integer. Number of MCMC iterations.
+#' @param A Numeric vector. Size data of length `n2`.
+#' @param ind.NA Logical vector. Indicator for missing values in `A`.
+#' @param CV Character. Cross-validation type: `"WS"` for within-sample or `"OOS"` for out-of-sample.
+#' @param Z2 Matrix. Covariates for the size data (dimensions `n2 x q`).
+#' @param thin Integer. Thinning interval for MCMC sampling.
+#' @param adapt Integer. Adaptation interval for tuning parameter updates.
+#' @param burn_in1 Integer. First burn-in period for MCMC sampling.
+#' @param burn_in2 Integer. Second burn-in period for MCMC sampling.
+#' @param ind_zero Logical vector. Indicator for zero entries in `A`.
+#' @param hyper_fixed List. Fixed hyperparameters for the model.
+#' @param print.result Logical. If `TRUE`, prints progress during MCMC.
+#' @param traceplot Logical. If `TRUE`, generates traceplots for parameter diagnostics.
+#' @param true.values Numeric vector. True parameter values for validating simulation experiments.
+#' @param simulation Logical. If `TRUE`, runs the function as a simulation experiment.
+#' @param nbd_info Matrix. Information on the adjacency structure of spatial units.
+#' @param no_of_nbd Integer. Number of neighbors for each spatial unit.
+#' @param node.set Matrix. Node connections used in spatial modeling.
+#' @param hyper.mu_adapt_seq2 Numeric vector. Adaptation sequence for `mu` parameters.
+#' @param mu_adapt_seq2 Numeric vector. Adaptation sequence for `mu`.
+#' @param eta_adapt_seq2 Numeric vector. Adaptation sequence for `eta`.
+#' @param init.seed Integer. Seed for reproducibility of the random number generation.
+#'
+#' @return A list containing the following elements:
+#' \item{samples}{Matrix. MCMC samples for the model parameters, including hyperparameters and latent variables.}
+#' \item{imputed.A.WSD}{Numeric vector. Imputed values of `A` in within-sample diagnostics.}
+#' \item{imputed.A.squre}{Numeric vector. Sum of squared imputed values of `A`.}
+#' \item{post.sum.mean.mu}{Numeric vector. Posterior sum of `mu` parameter means.}
+#' \item{post.sum.squre.mu}{Numeric vector. Posterior sum of squared `mu` parameters.}
+#' \item{post.sum.mean.w2}{Numeric vector. Posterior sum of `w2` parameter means.}
+#' \item{post.sum.squre.w2}{Numeric vector. Posterior sum of squared `w2` parameters.}
+#'
+#' @export
+#'
+#' @examples
+#' # Example of how to run the MCMC sampler
+#' result <- mcmc_sampler_indicator_model(N.MCMC = 1000, A = size_data, ind.NA = is.na(size_data),
+#'                                       CV = "WS", Z2 = covariate_matrix,
+#'                                       thin = 10, adapt = 50, burn_in1 = 100,
+#'                                       burn_in2 = 200, ind_zero = zero_indicator,
+#'                                       hyper_fixed = list(), print.result = TRUE,
+#'                                       traceplot = FALSE, true.values = NULL,
+#'                                       simulation = TRUE, nbd_info = adjacency_matrix,
+#'                                       no_of_nbd = 4, node.set = node_connections,
+#'                                       hyper.mu_adapt_seq2 = seq(0.05, 0.5, length.out = 100),
+#'                                       mu_adapt_seq2 = seq(0.05, 0.5, length.out = 100),
+#'                                       eta_adapt_seq2 = seq(0.05, 0.5, length.out = 100),
+#'                                       init.seed = 123)
 mcmc_sampler_indicator_model<-function(N.MCMC,
                                        A, 
                                        ind.NA,

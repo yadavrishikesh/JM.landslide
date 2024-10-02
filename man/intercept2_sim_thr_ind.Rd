@@ -2,23 +2,38 @@
 % Please edit documentation in R/update_cov_coeff.R
 \name{intercept2_sim_thr_ind}
 \alias{intercept2_sim_thr_ind}
-\title{Function to simulate the intercept2  for threshold indicator models}
+\title{Simulate the Intercept \code{intercept2} for Threshold Indicator Models}
 \usage{
 intercept2_sim_thr_ind(mu, beta2, W2, kappa_mu, Z2, hyper_fixed)
 }
 \arguments{
-\item{mu}{}
+\item{mu}{A numeric vector representing the latent mean parameter of the model.}
 
-\item{beta2}{}
+\item{beta2}{A numeric vector representing the coefficients of covariates in the model.}
 
-\item{W2}{}
+\item{W2}{A numeric vector indicating the latent (iCAR) random effects.}
 
-\item{kappa_mu}{}
+\item{kappa_mu}{A numeric value representing the precision parameter for the latent process \code{mu}.}
 
-\item{Z2}{}
+\item{Z2}{A numeric matrix of covariates corresponding to the latent process \code{mu}.}
 
-\item{beta}{}
+\item{hyper_fixed}{A list containing hyperparameters for the intercept, specifically the precision of the normal prior for \code{intercept2}.}
+}
+\value{
+A simulated value for \code{intercept2} from a normal distribution.
 }
 \description{
-Function to simulate the intercept2  for threshold indicator models
+This function simulates the intercept term \code{intercept2} for threshold indicator models using a normal full conditional distribution.
+}
+\examples{
+# Sample latent variables and covariates
+mu <- rnorm(100)
+beta2 <- rnorm(10)
+W2 <- rnorm(100)
+kappa_mu <- 1.5
+Z2 <- matrix(rnorm(1000), ncol = 10)
+hyper_fixed <- list(intercept2 = 0.1)
+
+# Simulate intercept2 for threshold indicator model
+intercept2_sim <- intercept2_sim_thr_ind(mu, beta2, W2, kappa_mu, Z2, hyper_fixed)
 }

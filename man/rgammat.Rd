@@ -2,19 +2,40 @@
 % Please edit documentation in R/other-supporting-functions.R
 \name{rgammat}
 \alias{rgammat}
-\title{simulation from truncated Gamma distribution function}
+\title{Simulation from Truncated Gamma Distribution}
 \usage{
 rgammat(n, upper.bound, shape, scale = 1)
 }
 \arguments{
-\item{n}{}
+\item{n}{An integer specifying the number of observations to generate.}
 
-\item{shape}{}
+\item{upper.bound}{A numeric value indicating the upper truncation bound for the Gamma distribution.}
 
-\item{scale}{}
+\item{shape}{A positive numeric value representing the shape parameter of the Gamma distribution.}
 
-\item{range}{}
+\item{scale}{A positive numeric value representing the scale parameter of the Gamma distribution. Defaults to 1.}
+}
+\value{
+A numeric vector of length \code{n} containing random samples drawn from the truncated Gamma distribution.
 }
 \description{
-simulation from truncated Gamma distribution function
+This function generates random samples from a Gamma distribution that is truncated at a specified upper bound.
+}
+\details{
+The Gamma distribution is truncated at an upper bound specified by \code{upper.bound}. The function generates samples from
+the truncated distribution by first sampling from a uniform distribution over the cumulative distribution function (CDF)
+range and then transforming these samples using the inverse Gamma CDF.
+}
+\examples{
+# Generate 100 samples from a truncated Gamma distribution
+n <- 100
+shape <- 2
+scale <- 1
+upper.bound <- 5
+samples <- rgammat(n, upper.bound, shape, scale)
+hist(samples, main = "Histogram of Truncated Gamma Samples", xlab = "Value")
+
+}
+\seealso{
+\code{\link{rgamma}} for sampling from the standard Gamma distribution.
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/MH_updates.R
 \name{latent_MH_update_parallel}
 \alias{latent_MH_update_parallel}
-\title{Update the latent parameters in parallel (matrix forms) using the Random Walk Metropolis (RWM) in parallel}
+\title{Update Latent Parameters Using  Random Walk Metropolis (RWM) in Parallel}
 \usage{
 latent_MH_update_parallel(
   par_cur,
@@ -16,45 +16,38 @@ latent_MH_update_parallel(
 )
 }
 \arguments{
-\item{par_cur}{A matrix of dimension ns x nt containing the current parameter values.}
+\item{par_cur}{A vector of length \code{n} containing the current values of the latent parameters.}
 
-\item{par_name}{Name of the latent parameter vectors being updated here.}
+\item{par_name}{A character string representing the name of the latent parameter vector being updated.}
 
-\item{loglik_data}{Log-likelihood at the data level, which depends on the underlying
-latent parameters.}
+\item{loglik_data}{A function representing the log-likelihood at the data level, depending on the latent parameters.}
 
-\item{loglik_latent}{Log-likelihood at the latent level (may be considered as a prior).}
+\item{loglik_latent}{A function representing the log-likelihood at the latent level, often acting as a prior.}
 
-\item{ns}{Number of spatial locations.}
-
-\item{nt}{Number of time points.}
-
-\item{var_prop}{Tuning parameter (variance) of the normal random walk proposals.}
+\item{var_prop}{A vector of length \code{n}, representing the variance for the normal random walk proposals.}
 
 \item{...}{Additional arguments to be passed to the log-likelihood functions.}
+
+\item{n}{Integer. The total number of latent parameters.}
 }
 \value{
-A list containing the updated parameter matrix and the number of times a
-parameter is accepted.
+A vector of updated latent parameter values, with length \code{n}.
 }
 \description{
-This function performs updates for latent parameters in a parallel manner using the
-Random Walk Metropolis (RWM) algorithm. It updates the latent parameters based on
-random walk proposals in a Gibbs sampling step to achieve convergence.
+This function updates latent parameters in parallel using the Random Walk Metropolis (RWM) algorithm.
+The updates are performed through a Gibbs sampling step with random walk proposals for each latent parameter.
 }
 \examples{
 # Example usage of the latent_MH_update_parallel function:
-par_cur <- matrix(rnorm(5 * 4), nrow = 5, ncol = 4)
+n <- 20
+par_cur <- rnorm(n)
 par_name <- "latent_parameter"
-ns <- 5
-nt <- 4
-var_prop <- 0.1
-acc_par <- matrix(runif(ns * nt), nrow = ns, ncol = nt)
-loglik_data <- function(latent_parameter) -0.5 * (latent_parameter - 1)^2
-loglik_latent <- function(latent_parameter) dnorm(latent_parameter, mean = 1, sd = 0.1, log = TRUE)
-updated_params <- latent_MH_update_parallel(par_cur, par_name, loglik_data, loglik_latent, ns, nt, var_prop, acc_par)
+var_prop <- rep(0.1, n) # Constant variance for simplicity
+loglik_data <- function(latent_parameter, ...) -0.5 * (latent_parameter - 1)^2
+loglik_latent <- function(latent_parameter, ...) dnorm(latent_parameter, mean = 1, sd = 0.1, log = TRUE)
+updated_params <- latent_MH_update_parallel(par_cur, par_name, loglik_data, loglik_latent, n, var_prop)
 
 }
 \seealso{
-Other functions used in the Gibbs sampling process.
+Other functions involved in the Gibbs sampling process.
 }

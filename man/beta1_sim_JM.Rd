@@ -2,21 +2,38 @@
 % Please edit documentation in R/update_cov_coeff.R
 \name{beta1_sim_JM}
 \alias{beta1_sim_JM}
-\title{function to simulate beta1 for joint model}
+\title{Simulate Coefficients \code{beta1} of \code{eta} for Joint Model}
 \usage{
 beta1_sim_JM(eta, intercept1, W1, kappa_eta, Z1, hyper_fixed)
 }
 \arguments{
-\item{eta}{}
+\item{eta}{A numeric vector representing the response variable for the first part of the model.}
 
-\item{intercept1}{}
+\item{intercept1}{A numeric value representing the intercept for the first part of the model.}
 
-\item{W1}{}
+\item{W1}{A numeric vector representing the latent random effects for the first part of the model.}
 
-\item{kappa_eta}{}
+\item{kappa_eta}{A numeric value representing the precision parameter associated with \code{eta}.}
 
-\item{Z1}{}
+\item{Z1}{A numeric matrix of covariates corresponding to the response variable \code{eta}.}
+
+\item{hyper_fixed}{A list containing hyperparameters, specifically the prior precision for \code{beta1}.}
+}
+\value{
+A numeric vector of simulated values for \code{beta1} from its full conditional distribution.
 }
 \description{
-function to simulate beta1 for joint model
+This function simulates the coefficients \code{beta1} for a joint model based on its full conditional distribution, which is derived from the latent variables and covariates.
+}
+\examples{
+# Example data for the joint model
+eta <- rnorm(100)
+intercept1 <- 0.5
+W1 <- rnorm(100)
+kappa_eta <- 2
+Z1 <- matrix(rnorm(500), 100, 5)
+hyper_fixed <- list(beta1 = 1)
+
+# Simulate beta1 for joint model
+beta1_sim <- beta1_sim_JM(eta, intercept1, W1, kappa_eta, Z1, hyper_fixed)
 }

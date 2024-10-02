@@ -2,7 +2,7 @@
 % Please edit documentation in R/main-mcmc_sampler.R
 \name{mcmc_sampler}
 \alias{mcmc_sampler}
-\title{MCMC Sampler for the Joint Spatial Modeling of Landslide Counts and Sizes used in book chapter Yadav et. al (2024): Statistics of extremes for natural hazards: landslides and earthquakes}
+\title{MCMC Sampler for Joint Spatial Modeling of Landslide Counts and Sizes}
 \usage{
 mcmc_sampler(
   Y,
@@ -113,7 +113,7 @@ mcmc_sampler(
 A list containing results of the MCMC sampling, including estimated parameters, risk quantiles, and any diagnostics.
 }
 \description{
-This function implements an MCMC sampler to jointly model landslide count data and landslide size data using various covariates, cross-validation types, and distributional assumptions. The function is flexible and allows the user to conduct either real data analysis or simulation experiments.
+Implements an MCMC sampler for the joint modeling of landslide count data and landslide size data, as described in the book chapter by Yadav et al. (2024), "Statistics of Extremes for Natural Hazards: Landslides and Earthquakes." The function allows for various covariate inputs, cross-validation types, and distributional assumptions, offering flexibility for both real data analysis and simulation experiments.
 }
 \examples{
 \dontrun{

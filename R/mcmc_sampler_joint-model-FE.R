@@ -1,6 +1,84 @@
-#############################################
-########## Main MCMC function  ##############
-#############################################
+#' MCMC Sampler for Joint Fixed Effects Model
+#'
+#' Implements a Markov Chain Monte Carlo (MCMC) sampler for a joint fixed effects model of landslide count data and size data. This function updates parameters sequentially using Gibbs sampling and Metropolis-Hastings (MH) steps, adapting tuning parameters for efficient sampling.
+#'
+#' @param N.MCMC An integer specifying the number of MCMC samples.
+#' @param Y A numeric vector of landslide count data.
+#' @param ind_NA_Y A logical vector indicating missing values in \code{Y}.
+#' @param A A numeric vector of landslide size data.
+#' @param ind_NA_A A logical vector indicating missing values in \code{A}.
+#' @param Z1 A design matrix for covariates in the log-linear predictor of counts.
+#' @param Z2 A design matrix for covariates in the log-linear predictor of sizes.
+#' @param model_type A character string specifying the model type.
+#' @param thin An integer specifying the thinning interval for the MCMC.
+#' @param adapt An integer specifying the interval for adaptation of tuning parameters.
+#' @param burn_in1 The first burn-in period for MCMC samples.
+#' @param burn_in2 The second burn-in period for MCMC samples.
+#' @param tun.eta A numeric value for tuning the normal MH steps for \code{eta}.
+#' @param tun.mu A numeric value for tuning the normal MH steps for \code{mu}.
+#' @param tun.hyper.mu A numeric value for tuning the MH steps for \code{mu} hyperparameters.
+#' @param tun.hyper.GP A numeric value for tuning the MH steps for GPD hyperparameters.
+#' @param mark_dist A character string specifying the size distribution. Choices:
+#' \itemize{
+#'   \item \code{"eGPD"}: Extended Generalized Pareto Distribution.
+#'   \item \code{"bGPD"}: Mixture of beta-GPD.
+#'   \item \code{"tgGPD"}: Mixture of truncated gamma-GPD.
+#' }
+#' @param hyper_fixed A list of fixed hyperparameters for the model priors.
+#' @param print.result A logical value. If \code{TRUE}, prints results at fixed intervals.
+#' @param traceplot A logical value. If \code{TRUE}, displays traceplots during MCMC.
+#' @param model.base A logical value. If \code{TRUE}, the counts and sizes are modeled independently.
+#' @param CV A character string specifying the cross-validation type. Either \code{"OOS"} (out-of-sample) or \code{"WS"} (within-sample).
+#' @param true.values A named list or vector of true parameter values for simulation experiments.
+#' @param simulation A logical value indicating if a simulation experiment is performed.
+#' @param nbd_info A list or matrix containing information about the neighbors (adjacency) of spatial units.
+#' @param no_of_nbd An integer vector with the number of neighbors for each spatial unit.
+#' @param ind_zeros_counts A logical vector indicating which elements of \code{A} are zero.
+#' @param threshold A numeric vector representing threshold values for the size data.
+#' @param thr.acces.ind A logical vector indicating if the size data exceeds the threshold.
+#' @param thr.prob A numeric vector of probabilities for threshold exceedance.
+#' @param q.probs A numeric vector of quantiles at which to calculate landslide risk.
+#' @param hyper.mu_adapt_seq2 A sequence for adapting the hyperparameters for \code{mu}.
+#' @param mu_adapt_seq2 A sequence for adapting the \code{mu} parameter.
+#' @param eta_adapt_seq2 A sequence for adapting the \code{eta} parameter.
+#' @param init.seed An optional integer for setting the seed for random number generation.
+#'
+#' @return A list containing:
+#' \item{samples}{A matrix of MCMC samples for the parameters.}
+#' \item{imputed.Y.WSD}{Imputed posterior mean of \code{Y} in within-sample (WS) diagnostics.}
+#' \item{imputed.A.WSD}{Imputed posterior mean of \code{A} in within-sample (WS) diagnostics.}
+#' \item{imputed.Y.OSD}{Imputed posterior mean of \code{Y} in out-of-sample (OOS) diagnostics.}
+#' \item{imputed.A.OSD}{Imputed posterior mean of \code{A} in out-of-sample (OOS) diagnostics.}
+#' \item{post.sum.mean.mu}{Posterior sum of means for \code{mu}.}
+#' \item{post.sum.squre.mu}{Posterior sum of squared \code{mu}.}
+#' \item{post.sum.mean.eta}{Posterior sum of means for \code{eta}.}
+#' \item{post.sum.squre.eta}{Posterior sum of squared \code{eta}.}
+#' \item{post.mean.condprob}{Posterior mean conditional probabilities.}
+#' \item{post.mean.uncondprob}{Posterior mean unconditional probabilities.}
+#' \item{post.squre.condprob}{Posterior squared conditional probabilities.}
+#' \item{post.squre.uncondprob}{Posterior squared unconditional probabilities.}
+#' \item{tuning_param_x_hyper}{Matrix of adaptive tuning parameters.}
+#' \item{Acc.rate eta}{Acceptance rate for \code{eta}.}
+#'
+#' @export
+#'
+#' @examplesIf FALSE
+#' # Example usage (not meant to be run directly):
+#' mcmc_sampler_joint_model_FE(N.MCMC = 10000, Y = count_data, ind_NA_Y = is.na(count_data),
+#'                             A = size_data, ind_NA_A = is.na(size_data), Z1 = covariates_counts,
+#'                             Z2 = covariates_sizes, model_type = "FE", thin = 10, adapt = 100,
+#'                             burn_in1 = 2500, burn_in2 = 2500, tun.eta = 1, tun.mu = 1,
+#'                             tun.hyper.mu = 0.01, tun.hyper.GP = 0.01, mark_dist = "eGPD",
+#'                             hyper_fixed = hyperparameters, print.result = TRUE,
+#'                             traceplot = FALSE, model.base = FALSE, CV = "WS",
+#'                             simulation = FALSE, nbd_info = adjacency_info, 
+#'                             no_of_nbd = num_neighbors, ind_zeros_counts = size_data == 0, 
+#'                             threshold = thresholds, thr.acces.ind = exceedance_indicators,
+#'                             thr.prob = threshold_probs, q.probs = seq(0.50, 0.99, by = 0.05),
+#'                             hyper.mu_adapt_seq2 = seq(100, 10000, by = 100),
+#'                             mu_adapt_seq2 = seq(100, 10000, by = 100),
+#'                             eta_adapt_seq2 = seq(100, 10000, by = 100), init.seed = 123)
+#'
 mcmc_sampler_joint_model_FE<-function(N.MCMC, 
                                       Y, 
                                       ind_NA_Y, 

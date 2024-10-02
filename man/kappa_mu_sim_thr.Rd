@@ -2,23 +2,39 @@
 % Please edit documentation in R/update_cov_coeff.R
 \name{kappa_mu_sim_thr}
 \alias{kappa_mu_sim_thr}
-\title{Function to simulate the kappa_mu for threshold model}
+\title{Simulate the Precision Parameter of \code{mu} in Threshold Model}
 \usage{
 kappa_mu_sim_thr(mu, intercept2, beta2, W2, Z2, hyper_fixed)
 }
 \arguments{
-\item{mu}{}
+\item{mu}{A numeric vector representing the current state of the latent mean parameters.}
 
-\item{intercept2}{}
+\item{intercept2}{A numeric value representing the intercept term in the model.}
 
-\item{beta2}{}
+\item{beta2}{A numeric vector of coefficients corresponding to the covariate matrix \code{Z2}.}
 
-\item{W2}{}
+\item{W2}{A numeric vector representing the random effects for the model.}
 
-\item{Z2}{}
+\item{Z2}{A matrix of covariates, where each row corresponds to an observation.}
 
-\item{beta}{}
+\item{hyper_fixed}{A list containing hyperparameters for the Gamma prior distribution of \code{kappa_mu}, specifically the shape and rate parameters (\code{kappa_mu[1]} for shape and \code{kappa_mu[2]} for rate).}
+}
+\value{
+A simulated value for \code{kappa_mu} from the Gamma distribution.
 }
 \description{
-Function to simulate the kappa_mu for threshold model
+This function simulates the parameter \code{kappa_mu}, representing the precision of \code{mu} in a threshold model, from a full conditional Gamma distribution.
+}
+\examples{
+# Sample parameters
+mu <- rnorm(100)
+intercept2 <- 0.5
+beta2 <- rnorm(5)
+W2 <- rnorm(100)
+Z2 <- matrix(rnorm(500), ncol=5)
+hyper_fixed <- list(kappa_mu = c(shape = 2, rate = 1))
+
+# Simulate kappa_mu for threshold model
+kappa_sim <- kappa_mu_sim_thr(mu, intercept2, beta2, W2, Z2, hyper_fixed)
+
 }
