@@ -114,7 +114,7 @@ impute.NA.A<-function(CV,
                              threshold * rbeta(n=1, shape1 = k, shape2 = sigma))
     }
     
-  } else if (family=="tgGPD"){
+  } else if (mark_dist=="tgGPD"){
     k<- cur_par[1]
     sigma.GP<- cur_par[2]
     xi<- cur_par[3]
