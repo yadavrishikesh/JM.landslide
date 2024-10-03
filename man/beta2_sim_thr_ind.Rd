@@ -28,6 +28,8 @@ beta2_sim_thr_ind(
 
 \item{Z2}{A numeric matrix of covariates corresponding to the latent process \code{mu}.}
 
+\item{Z2.crossprd}{A pre-computed cross-product matrix of \code{Z2} \(\code{t(Z2) Z2}\) for computational efficiency.}
+
 \item{hyper_fixed}{A list containing hyperparameters, specifically the precision of the normal prior for \code{beta2}.}
 }
 \value{

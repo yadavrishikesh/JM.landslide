@@ -231,21 +231,33 @@ init_fun_hyper.GP_JM<-function(mark_dist, seed){
               log.hyper.mu.name=log.hyper.mu.name))
 }
 
-#' nitial values of all the other parameters, that does not depends on the choice of mark distributions 
+#' Initialize Values for Model Parameters in Joint Model
 #'
-#' @param Z1 
-#' @param Z2 
-#' @param A 
-#' @param Y 
-#' @param seed 
-#' @param simulation 
-#' @param threshold 
-#' @param thr.acces.ind 
+#' Generates initial values for model parameters that are independent of the choice of mark distributions.
 #'
-#' @return
+#' @param Z1 A design matrix for covariates associated with the first set of parameters.
+#' @param Z2 A design matrix for covariates associated with the second set of parameters.
+#' @param A A matrix representing spatial relationships or adjacency information.
+#' @param Y A vector or matrix of response variables (e.g., landslide counts or sizes).
+#' @param seed An integer to set the random seed for reproducibility.
+#' @param simulation A logical indicating if the function is being used in a simulation setting.
+#' @param threshold A numeric value representing the threshold for the model.
+#' @param thr.acces.ind A vector of indices indicating which data points exceed the threshold.
+#'
+#' @return A list containing initial values of parameters required for the model.
 #' @export
 #'
 #' @examples
+#' # Example usage:
+#' Z1 <- matrix(rnorm(100), 20, 5)
+#' Z2 <- matrix(rnorm(200), 20, 10)
+#' A <- matrix(1, nrow = 20, ncol = 20)
+#' Y <- rpois(20, lambda = 5)
+#' seed <- 123
+#' simulation <- TRUE
+#' threshold <- 3
+#' thr.acces.ind <- which(Y > threshold)
+#' initialize_parameters(Z1, Z2, A, Y, seed, simulation, threshold, thr.acces.ind)
 init_fun_all_other_param_JM<-function(Z1, Z2, A, Y, seed, simulation, threshold, mark_dist, model_type, thr.acces.ind){
    #browser()
   set.seed(seed)

@@ -62,19 +62,31 @@ kappa_mu_sim_thr<-function(mu, intercept2, beta2, W2, Z2, hyper_fixed){
 }
 
 
-#' Function to simulate the intercept2 for threshold model
+##' Simulate the Intercept for a Threshold Model
 #'
-#' @param mu 
-#' @param beta2 
-#' @param beta 
-#' @param W2 
-#' @param kappa_mu 
-#' @param Z2 
+#' This function simulates the intercept for a threshold model based on provided parameters.
 #'
-#' @return
+#' @param mu A numeric vector of means.
+#' @param beta2 A vector of regression coefficients associated with covariates in `Z2`.
+#' @param beta A numeric vector of coefficients for random effects.
+#' @param W2 A vector or matrix representing random effects.
+#' @param kappa_mu A numeric value representing the precision for the mean `mu`.
+#' @param Z2 A design matrix for covariates associated with `beta2`.
+#' @param hyper_fixed A list containing hyperparameters for the model, particularly the fixed precision for the intercept.
+#'
+#' @return A simulated value of the intercept for the threshold model.
 #' @export
 #'
 #' @examples
+#' # Example usage:
+#' mu <- rnorm(100, 0, 1)
+#' beta2 <- rnorm(5, 0, 1)
+#' beta <- rnorm(5, 0, 1)
+#' W2 <- rnorm(100, 0, 1)
+#' kappa_mu <- 0.5
+#' Z2 <- matrix(rnorm(500), 100, 5)
+#' hyper_fixed <- list(intercept2 = 0.01)
+#' intercept2_sim_thr(mu, beta2, beta, W2, kappa_mu, Z2, hyper_fixed)
 intercept2_sim_thr<-function(mu, beta2, beta,W2, kappa_mu, Z2, hyper_fixed){
   n2<-length(mu)
   # prec.intercept2<-hyper_fixed[11]+n2*kappa_mu
@@ -235,7 +247,7 @@ intercept2_sim_thr_ind<-function(mu, beta2, W2, kappa_mu, Z2, hyper_fixed){
 #' @param kappa_mu A numeric value representing the precision parameter for the latent process \code{mu}.
 #' @param W2 A numeric vector indicating the latent (iCAR) random effects.
 #' @param Z2 A numeric matrix of covariates corresponding to the latent process \code{mu}.
-#' @param Z2.crossprd A pre-computed cross-product matrix of \code{Z2} (\code{t(Z2) %*% Z2}) for computational efficiency.
+#' @param Z2.crossprd A pre-computed cross-product matrix of \code{Z2} \(\code{t(Z2) Z2}\) for computational efficiency.
 #' @param hyper_fixed A list containing hyperparameters, specifically the precision of the normal prior for \code{beta2}.
 #'
 #' @return A numeric vector of proposed values for \code{beta2}.

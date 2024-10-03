@@ -419,13 +419,13 @@ dtgGPD<- function(x, u.thr, k, xi, sigma, sigma.GP, thr.prob, log=TRUE){
   if(log){
     dens<- rep(0, length(x))
     ind<- (x < u.thr) & (x >0)
-    dens[ind]<- log(1 - thr.prob) + dgammat(x = x[ind], range = c(0,u.thr), shape = k, scale = sigma[ind], log=TRUE)
+    dens[ind]<- log(1 - thr.prob) + dgammat(x = x[ind], upper.bound = u.thr , shape = k, scale = sigma[ind], log=TRUE)
     ind.e<- x>u.thr
     dens[ind.e]<- log(thr.prob) + evd::dgpd(x=x[ind.e], loc= u.thr, scale = sigma.GP, shape=xi, log=TRUE)
   } else{
     dens<- rep(0, length(x))
     ind<- (x < u.thr) & (x >0)
-    dens[ind]<- log(1 - thr.prob) * dgammat(x = x[ind], range = c(0,u.thr), shape = k, scale = sigma[ind])
+    dens[ind]<- log(1 - thr.prob) * dgammat(x = x[ind], upper.bound = u.thr, shape = k, scale = sigma[ind])
     ind.e<- x>u.thr
     dens[ind.e]<- (thr.prob) * evd::dgpd(x=x[ind.e], loc= u.thr, scale = sigma.GP, shape=xi)
   }
@@ -476,13 +476,14 @@ ptgGPD<- function(x, u.thr, k, xi, sigma, sigma.GP, thr.prob, log.p=TRUE){
   if(log.p){
     cdf<- rep(0, length(x))
     ind<- (x < u.thr) & (x >0)
-    cdf[ind]<- log(1 - thr.prob) + pgammat(x = x[ind], range = c(0,u.thr), shape = k, scale = sigma[ind], log.p=TRUE)
+    #cdf[ind]<- log(1 - thr.prob) + pgammat(x = x[ind], range = c(0, u.thr), shape = k, scale = sigma[ind], log.p=TRUE)
+    cdf[ind]<- log(1 - thr.prob) + pgammat(x = x[ind],  upper.bound = u.thr, shape = k, scale = sigma[ind], log.p=TRUE)
     ind.e<- x>u.thr
     cdf[ind.e]<- log((1 - thr.prob) + thr.prob  * evd::pgpd(x=x[ind.e], loc= u.thr, shape=xi, scale = sigma.GP))
   } else{
     cdf<- rep(0, length(x))
     ind<- (x < u.thr) & (x >0)
-    cdf[ind]<- (1 - thr.prob) * pgammat(x = x[ind], range = c(0,u.thr), shape = k, scale = sigma[ind])
+    cdf[ind]<- (1 - thr.prob) * pgammat(x = x[ind], upper.bound = u.thr, shape = k, scale = sigma[ind])
     ind.e<- x>u.thr
     cdf[ind.e]<- (1 - thr.prob)  + (thr.prob) * evd::pgpd(x=x[ind.e], loc= u.thr, scale = sigma.GP, shape=xi)
   }
@@ -509,7 +510,7 @@ ptgGPD<- function(x, u.thr, k, xi, sigma, sigma.GP, thr.prob, log.p=TRUE){
 #' @details
 #' The mixture distribution is modeled conditionally based on the threshold \code{u.thr}. Specifically:
 #' - If \code{x > u.thr}, the conditional CDF is computed using the GPD with a certain probability mass, while the truncated Gamma distribution contributes when \code{exp(mu)} is less than \code{u.thr}.
-#' - If \code{x \leq u.thr}, the conditional CDF is calculated using only the truncated Gamma distribution.
+#' - If \code{x <= u.thr}, the conditional CDF is calculated using only the truncated Gamma distribution.
 #'
 #' @seealso
 #' \code{\link[evd]{pgpd}} for the CDF of the standard GPD,
@@ -540,7 +541,7 @@ cond.ptgGPD<- function(x, mu, u.thr, k, xi, sigma, sigma.GP, thr.prob){
   } else{
     ind<- exp(as.numeric(mu)) > u.thr
     cdf[ind]<- 0 
-    cdf[!ind]<-  (1 - thr.prob) * pgammat(x = x, range = c(0,u.thr), shape = k, scale = sigma[!ind]) 
+    cdf[!ind]<-  (1 - thr.prob) * pgammat(x = x, upper.bound = u.thr, shape = k, scale = sigma[!ind]) 
   }
   return(cdf)
   
@@ -587,7 +588,7 @@ cond.ptgGPD<- function(x, mu, u.thr, k, xi, sigma, sigma.GP, thr.prob){
 rtgGPD<- function(n, u.thr, k, xi, sigma, sigma.GP, ind){
   n1<- sum(ind)
   x<- ifelse(ind, evd::rgpd(n=n1, loc=u.thr, scale = sigma.GP, shape = xi), 
-             rgammat(n=n-n1, range = c(0, u.thr), shape = k, scale = sigma))
+             rgammat(n=n-n1, upper.bound = u.thr, shape = k, scale = sigma))
   return(x)
 }
 

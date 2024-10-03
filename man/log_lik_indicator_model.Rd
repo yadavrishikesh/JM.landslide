@@ -7,7 +7,7 @@
 log_lik_indicator_model(mu, A)
 }
 \arguments{
-\item{mu}{Numeric value representing the log-median of the latent size process. More explicitly, \(\exp(\mu)\) is the median of the size distribution \(A\).}
+\item{mu}{Numeric value representing the log-median of the latent size process. More explicitly, \(exp(mu)\) is the median of the size distribution \(A\).}
 
 \item{A}{Numeric vector representing the size data.}
 
@@ -19,7 +19,7 @@ log_lik_indicator_model(mu, A)
 A numeric vector containing the log-likelihood for each observation in \(A\).
 }
 \description{
-This function computes the log-likelihood of the size data \(A\) given the latent size process parameterized by \(\mu\). Specifically, it calculates the likelihood of density \(A | \theta_A, \mu\).
+This function computes the log-likelihood of the size data \(A\) given the latent size process parameterized by \(mu\). Specifically, it calculates the likelihood of density \(A | theta_A, mu\).
 }
 \examples{
 # Example size data

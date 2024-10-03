@@ -83,7 +83,6 @@ gamma_prior_markdist_thr<- function(cur_par,
 #' mark_dist <- "tgGPD"
 #' hyper.mu_fixed <- c(2, 1)
 #' gamma_prior_markdist_JM(cur_par, mark_dist, hyper.mu_fixed)
-#' @examples
 gamma_prior_markdist_JM<- function(cur_par,
                                 mark_dist,
                                 hyper.mu_fixed){

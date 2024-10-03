@@ -34,7 +34,7 @@ The CDF is computed based on whether the input value \code{x} is greater than or
 The mixture distribution is modeled conditionally based on the threshold \code{u.thr}. Specifically:
 \itemize{
 \item If \code{x > u.thr}, the conditional CDF is computed using the GPD with a certain probability mass, while the truncated Gamma distribution contributes when \code{exp(mu)} is less than \code{u.thr}.
-\item If \code{x \leq u.thr}, the conditional CDF is calculated using only the truncated Gamma distribution.
+\item If \code{x <= u.thr}, the conditional CDF is calculated using only the truncated Gamma distribution.
 }
 }
 \examples{

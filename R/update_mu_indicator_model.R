@@ -1,8 +1,8 @@
 #' Log-Likelihood at the Data Level for Indicator Model 
 #'
-#' This function computes the log-likelihood of the size data \(A\) given the latent size process parameterized by \(\mu\). Specifically, it calculates the likelihood of density \(A | \theta_A, \mu\).
+#' This function computes the log-likelihood of the size data \(A\) given the latent size process parameterized by \(mu\). Specifically, it calculates the likelihood of density \(A | theta_A, mu\).
 #'
-#' @param mu Numeric value representing the log-median of the latent size process. More explicitly, \(\exp(\mu)\) is the median of the size distribution \(A\).
+#' @param mu Numeric value representing the log-median of the latent size process. More explicitly, \(exp(mu)\) is the median of the size distribution \(A\).
 #' @param A Numeric vector representing the size data.
 #' @param sum_dens Logical value indicating whether to calculate the log-density individually or the sum of log-likelihoods. Defaults to \code{FALSE}.
 #' @param ind_zeros_counts Optional parameter for handling zero counts in the data. This can be used to specify which counts to include in the likelihood calculation.

@@ -3,7 +3,7 @@ title: "Joint Modeling of Landslide Counts and Sizes Using Sub-Asymptotic Distri
 author: "Rishikesh Yadav"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Simulating Mark Distributions}
+  %\VignetteIndexEntry{Joint Modeling of Landslide Counts and Sizes Using Sub-Asymptotic Distributions for Landslide Size}
   %\VignetteEncoding{UTF-8}
 ---
 
