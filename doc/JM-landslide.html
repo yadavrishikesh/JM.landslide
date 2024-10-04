@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Joint Modeling of Landslide Counts and Sizes Using Sub-Asymptotic Distributions for Landslide Size</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Joint Modeling of Landslide Counts and
+Sizes Using Sub-Asymptotic Distributions for Landslide Size</h1>
+
+
+
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(JM.landslide)</span></code></pre></div>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>In this vignette, we will demonstrate how to jointly model landslide
+counts and sizes using a sub-asymptotic distribution for the sizes,
+following the joint modeling approach of Yadav et al. (2024) through the
+<code>JM.landslide</code> package. The model considers various
+covariates and spatial dependencies, allowing for an effective analysis
+of landslide counts and sizes. Briefly, the model is defined as
+follows:</p>
+<p><span class="math display">\[
+\begin{aligned}
+Y_i \mid \boldsymbol \eta &amp;\sim \text{Poisson}\left[e_i
+\exp\{\eta_i\}\right], \quad i=1,\ldots,n; \\
+\boldsymbol\eta &amp;= \gamma_1 \mathbf{1}_n + \boldsymbol \beta_1
+\mathbf{Z}_{1} + \boldsymbol W_{1} + \boldsymbol \varepsilon_{\eta}; \\
+A_j \mid \boldsymbol \mu, \boldsymbol \Theta_A &amp;\sim
+F_A\left[\cdot;\exp\{\mu_j\},\boldsymbol \Theta_{A}\right], \quad
+j:Y_j&gt;0; \\
+\boldsymbol\mu &amp;= \gamma_2 \mathbf{1}_n + \boldsymbol \beta_2
+\mathbf{Z}_{2} + \beta \boldsymbol W_1 + \boldsymbol W_{2} + \boldsymbol
+\varepsilon_{\mu}.
+\end{aligned}
+\]</span></p>
+<p>In this model:</p>
+<ul>
+<li><span class="math inline">\(\boldsymbol \eta\)</span> represents the
+linear predictor for landslide counts.</li>
+<li><span class="math inline">\(A_j\)</span> denotes the size of
+landslides.</li>
+<li><span class="math inline">\(e_i\)</span> are offset terms, which can
+be set to one or the specific slope unit area.</li>
+</ul>
+<p>Further details about the model can be found in the Yadav et
+al. (2024).</p>
+<div id="synthetic-data-simulation" class="section level3">
+<h3>Synthetic data Simulation</h3>
+<div id="loading-required-libraries-and-data" class="section level4">
+<h4>2. Loading Required Libraries and Data</h4>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># Load necessary libraries</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="fu">library</span>(JM.landslide)</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="fu">library</span>(spdep)</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="fu">library</span>(INLA)</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co"># Load Wenchuan landslides data</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;Wenchuan_info_used_for_simulation&quot;</span>)</span></code></pre></div>
+<ul>
+<li><strong>Purpose</strong>: This section loads the necessary R
+packages and the dataset used for simulation.</li>
+<li><strong>Libraries</strong>:
+<ul>
+<li><code>JM.landslide</code>: Contains functions for joint modeling of
+landslide data.</li>
+<li><code>spdep</code>: Provides functions for spatial dependence
+analysis.</li>
+<li><code>INLA</code>: Used for approximate Bayesian inference for
+latent models.</li>
+</ul></li>
+<li><strong>Data</strong>: The
+<code>Wenchuan_info_used_for_simulation</code> dataset contains the
+necessary covariates for the simulation.</li>
+</ul>
+</div>
+<div id="creating-the-adjacency-graph" class="section level4">
+<h4>3. Creating the Adjacency Graph</h4>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># Create adjacency graph file</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="fu">nb2INLA</span>(<span class="st">&quot;adjgraph-sim.txt&quot;</span>, <span class="fu">poly2nb</span>(shp_selected, <span class="at">queen =</span> <span class="cn">FALSE</span>, <span class="at">row.names =</span> shp_selected<span class="sc">$</span>SU_ID))</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>adjacensy <span class="ot">&lt;-</span> <span class="fu">inla.read.graph</span>(<span class="at">filename =</span> <span class="st">&quot;adjgraph-sim.txt&quot;</span>)</span></code></pre></div>
+<ul>
+<li><strong>Purpose</strong>: This section generates an adjacency graph
+based on the spatial structure of the data.</li>
+<li><strong>Functionality</strong>:
+<ul>
+<li><code>nb2INLA</code>: Converts neighborhood structures into a format
+compatible with INLA.</li>
+<li><code>poly2nb</code>: Generates a list of neighbors for each spatial
+polygon.</li>
+<li><code>inla.read.graph</code>: Reads the adjacency graph file into R
+for further analysis.</li>
+</ul></li>
+</ul>
+</div>
+<div id="creating-the-precision-matrix" class="section level4">
+<h4>4. Creating the Precision Matrix</h4>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># Create the precision matrix</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>N <span class="ot">&lt;-</span> adjacensy<span class="sc">$</span>n</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>diag.Q <span class="ot">&lt;-</span> <span class="fu">diag</span>(adjacensy<span class="sc">$</span>nnbs, N)</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>A.Q <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>, <span class="at">nrow =</span> N, <span class="at">ncol =</span> N)</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>N) {</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>  A.Q[i, adjacensy<span class="sc">$</span>nbs[[i]]] <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>}</span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>Q <span class="ot">&lt;-</span> diag.Q <span class="sc">-</span> A.Q  <span class="co"># Precision matrix</span></span></code></pre></div>
+<ul>
+<li><strong>Purpose</strong>: This section constructs the precision
+matrix <code>Q</code>, which is crucial for defining the spatial
+dependency structure of the model.</li>
+<li><strong>Explanation</strong>:
+<ul>
+<li><code>diag.Q</code>: Creates a diagonal matrix where the diagonal
+elements represent the number of neighbors for each node.</li>
+<li><code>A.Q</code>: Initializes an adjacency matrix where connections
+between nodes are indicated.</li>
+<li>The final precision matrix <code>Q</code> is derived by subtracting
+the adjacency matrix from the diagonal matrix.</li>
+</ul></li>
+</ul>
+</div>
+<div id="setting-fixed-parameters" class="section level4">
+<h4>5. Setting Fixed Parameters</h4>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># Set fixed parameters</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>kappa_w1 <span class="ot">&lt;-</span> <span class="dv">10</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>kappa_w2 <span class="ot">&lt;-</span> <span class="dv">5</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>kappa_eta <span class="ot">&lt;-</span> <span class="dv">10</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>kappa_mu <span class="ot">&lt;-</span> <span class="dv">5</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>intercept1 <span class="ot">&lt;-</span> <span class="dv">2</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>intercept2 <span class="ot">&lt;-</span> <span class="dv">4</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>beta <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>other.hyper <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>  <span class="at">kappa_w1 =</span> kappa_w1,</span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>  <span class="at">kappa_w2 =</span> kappa_w2,</span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>  <span class="at">kappa_eta =</span> kappa_eta,</span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>  <span class="at">kappa_mu =</span> kappa_mu,</span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>  <span class="at">intercept1 =</span> intercept1,</span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>  <span class="at">intercept2 =</span> intercept2,</span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a>  <span class="at">beta =</span> beta</span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a>)</span></code></pre></div>
+<ul>
+<li><strong>Purpose</strong>: This section initializes hyperparameters
+that will be used in the model.</li>
+<li><strong>Hyperparameters</strong>:
+<ul>
+<li><code>kappa_w1</code>, <code>kappa_w2</code>,
+<code>kappa_eta</code>, <code>kappa_mu</code>: Precision parameters for
+the spatial random effects.</li>
+<li><code>intercept1</code>, <code>intercept2</code>, <code>beta</code>:
+Intercept and regression coefficients for the model.</li>
+</ul></li>
+</ul>
+</div>
+<div id="simulating-covariates" class="section level4">
+<h4>6. Simulating Covariates</h4>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># Simulate covariates</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>Z1 <span class="ot">&lt;-</span> mvtnorm<span class="sc">::</span><span class="fu">rmvnorm</span>(N, <span class="at">mean =</span> <span class="fu">rep</span>(<span class="dv">0</span>, <span class="dv">3</span>))</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>Z2 <span class="ot">&lt;-</span> mvtnorm<span class="sc">::</span><span class="fu">rmvnorm</span>(N, <span class="at">mean =</span> <span class="fu">rep</span>(<span class="dv">0</span>, <span class="dv">2</span>))</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>hyper.mu<span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">20</span>,<span class="fl">0.1</span>)</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>beta1 <span class="ot">&lt;-</span> <span class="fu">runif</span>(<span class="fu">ncol</span>(Z1), <span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>beta2 <span class="ot">&lt;-</span> <span class="fu">runif</span>(<span class="fu">ncol</span>(Z2), <span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>)</span></code></pre></div>
+<ul>
+<li><strong>Purpose</strong>: Simulates covariate matrices
+<code>Z1</code> and <code>Z2</code> which contain fixed effects for the
+landslide counts and sizes.</li>
+<li><strong>Explanation</strong>:
+<ul>
+<li><code>rmvnorm</code>: Generates multivariate normal random
+variables.</li>
+<li><code>runif</code>: Generates uniform random variables for the
+regression coefficients.</li>
+</ul></li>
+</ul>
+</div>
+<div id="simulating-data" class="section level4">
+<h4>7. Simulating Data</h4>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>model_type <span class="ot">&lt;-</span> <span class="st">&quot;FE&quot;</span>  <span class="co"># Fixed Effects</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="co"># Simulate data using the function</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>Sim_mark_data <span class="ot">&lt;-</span> <span class="fu">sim_mark_function</span>(</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>  <span class="at">Q =</span> Q,</span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>  <span class="at">hyper.mu =</span>  hyper.mu,</span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>  <span class="at">other.hyper =</span> other.hyper,</span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>  <span class="at">beta1 =</span> beta1, <span class="at">beta2 =</span> beta2,</span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>  <span class="at">Z1 =</span> <span class="fu">as.matrix</span>(Z1), <span class="at">Z2 =</span> <span class="fu">as.matrix</span>(Z2),</span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>  <span class="at">mark_dist =</span> <span class="st">&quot;eGPD&quot;</span>,</span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>  <span class="at">model_type =</span> model_type</span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a>)</span></code></pre></div>
+<ul>
+<li><strong>Purpose</strong>: This section simulates the landslide count
+and size data using the specified model.</li>
+<li><strong>Functionality</strong>:
+<ul>
+<li><code>sim_mark_function</code>: A custom function that simulates the
+data based on the defined model, precision matrix, hyperparameters, and
+covariates.</li>
+</ul></li>
+</ul>
+</div>
+<div id="accessing-results" class="section level4">
+<h4>8. Accessing Results</h4>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># Access results</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>Y <span class="ot">&lt;-</span> Sim_mark_data<span class="sc">$</span>Y</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>A <span class="ot">&lt;-</span> Sim_mark_data<span class="sc">$</span>A</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>mu <span class="ot">&lt;-</span> Sim_mark_data<span class="sc">$</span>mu</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>eta <span class="ot">&lt;-</span> Sim_mark_data<span class="sc">$</span>eta</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>W1 <span class="ot">&lt;-</span> Sim_mark_data<span class="sc">$</span>W1</span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>W2 <span class="ot">&lt;-</span> Sim_mark_data<span class="sc">$</span>W2</span></code></pre></div>
+<ul>
+<li><strong>Purpose</strong>: This section extracts the simulated
+results from the output of the simulation function.</li>
+<li><strong>Explanation</strong>:
+<ul>
+<li><code>Y</code>: Simulated landslide counts.</li>
+<li><code>A</code>: Simulated landslide sizes.</li>
+<li><code>mu</code>, <code>eta</code>: Latent variables representing the
+predictors for counts and sizes.</li>
+<li><code>W1</code>, <code>W2</code>: Spatially structured latent random
+effects.</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="fitting-the-model" class="section level2">
+<h2>Fitting the Model</h2>
+<p>After simulating the data, we can proceed to fit the model using the
+MCMC sampler provided in the <code>JM.landslide</code> package. This
+allows us to analyze the simulated landslide counts and sizes,
+estimating the model parameters based on the generated data.</p>
+<div id="code-to-fit-the-model" class="section level4">
+<h4>Code to Fit the Model</h4>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co"># Define the model type</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>model_type <span class="ot">&lt;-</span> <span class="st">&quot;jSp&quot;</span></span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="co"># Load the simulated data</span></span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="fu">load</span>(<span class="fu">paste0</span>(<span class="st">&quot;SimulatedData_&quot;</span>, model_type, <span class="st">&quot;.RData&quot;</span>))</span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co"># Load the JM.landslide library</span></span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="fu">library</span>(JM.landslide)</span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a></span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="co"># Access the help documentation for the mcmc_sampler function</span></span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a>?JM.landslide<span class="sc">::</span>mcmc_sampler</span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a></span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a><span class="co"># Fit the model using the MCMC sampler</span></span>
+<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a>outputs <span class="ot">&lt;-</span> <span class="fu">mcmc_sampler</span>(</span>
+<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a>  <span class="at">Y =</span> Y,               <span class="co"># Simulated landslide counts</span></span>
+<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a>  <span class="at">A =</span> A,               <span class="co"># Simulated landslide sizes</span></span>
+<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a>  <span class="at">Z1 =</span> Z1,             <span class="co"># Covariates for counts</span></span>
+<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a>  <span class="at">Z2 =</span> Z2,             <span class="co"># Covariates for sizes</span></span>
+<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a>  <span class="at">CV =</span> <span class="st">&quot;WS&quot;</span>,          <span class="co"># Type of cross-validation (within sample)</span></span>
+<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a>  <span class="at">mark_dist =</span> <span class="st">&quot;eGPD&quot;</span>, <span class="co"># Distribution of the mark process</span></span>
+<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a>  <span class="at">thr.family =</span> <span class="st">&quot;gamma&quot;</span>, <span class="co"># Family of the threshold model</span></span>
+<span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a>  <span class="at">model_type =</span> model_type, <span class="co"># Model type used in the simulation</span></span>
+<span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a>  <span class="at">adjacensy =</span> adjacensy <span class="co"># Adjacency structure for the spatial model</span></span>
+<span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a>)</span></code></pre></div>
+</div>
+<div id="explanation" class="section level4">
+<h4>Explanation</h4>
+<ul>
+<li><p><strong>Defining the Model Type</strong>: The
+<code>model_type &lt;- &quot;jSp&quot;</code> line specifies that we are working
+with a joint model with spatial components.</p></li>
+<li><p><strong>Loading the Simulated Data</strong>: The
+<code>load(paste0(&quot;SimulatedData_&quot;, model_type, &quot;.RData&quot;))</code>
+command loads the simulated data generated earlier. This allows us to
+use the simulated counts and sizes in the model fitting
+process.</p></li>
+<li><p><strong>Loading Required Libraries</strong>: The
+<code>library(JM.landslide)</code> statement loads the
+<code>JM.landslide</code> package, which contains the functions needed
+for fitting the model.</p></li>
+<li><p><strong>Model Fitting</strong>: The <code>mcmc_sampler</code>
+function is then called to fit the model:</p>
+<ul>
+<li><strong>Parameters</strong>:
+<ul>
+<li><code>Y</code> and <code>A</code>: These are the simulated landslide
+counts and sizes, respectively.</li>
+<li><code>Z1</code> and <code>Z2</code>: Covariate matrices used to
+model the effects on counts and sizes.</li>
+<li><code>CV</code>: Specifies the type of cross-validation method used,
+here set to “WS” for within-sample.</li>
+<li><code>mark_dist</code>: Indicates the distribution for the mark
+process, set to “eGPD” (extended Generalized Pareto Distribution).</li>
+<li><code>thr.family</code>: Specifies the family of the threshold
+model, in this case, “gamma”.</li>
+<li><code>model_type</code>: Indicates the type of model being used,
+which aligns with the previously defined <code>model_type</code>.</li>
+<li><code>adjacensy</code>: Provides the adjacency structure for the
+spatial dependencies in the model.</li>
+</ul></li>
+</ul></li>
+</ul>
+</div>
+<div id="conclusion" class="section level3">
+<h3>10. Conclusion</h3>
+<p>With the model now fitted, we can proceed to analyze the results and
+assess the performance of the simulated data under the chosen model. The
+MCMC sampler estimates the parameters, allowing us to evaluate the
+impact of various covariates on landslide occurrences and sizes.</p>
+<p>In this vignette, we have demonstrated the complete process from
+simulating landslide data to fitting a statistical model using the
+<code>JM.landslide</code> package. This structured approach allows
+researchers to analyze spatial data effectively, accounting for
+dependencies and covariates.</p>
+</div>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
