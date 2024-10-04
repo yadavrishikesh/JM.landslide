@@ -25,7 +25,7 @@ Y_i \mid \boldsymbol \eta \sim \text{Poisson}[e_i \exp\{\eta_i\}], \quad i=1,\ld
 \]
 
 \[
-\boldsymbol\eta = \gamma_1 \mathbf{1}_n + \boldsymbol \beta_1 \mathbf{Z}_{1} + \boldsymbol W_{1} + \boldsymbol \varepsilon_{\eta};
+\boldsymbol\eta = \gamma_1 \boldsymbol{1}_n + \boldsymbol \beta_1 \mathbf{Z}_{1} + \boldsymbol W_{1} + \boldsymbol \varepsilon_{\eta};
 \]
 
 \[
@@ -33,8 +33,9 @@ A_j \mid \boldsymbol \mu, \boldsymbol \Theta_A \sim F_A[\cdot;\exp\{\mu_j\},\bol
 \]
 
 \[
-\boldsymbol\mu = \gamma_2 \mathbf{1}_n + \boldsymbol \beta_2 \mathbf{Z}_{2} + \beta \boldsymbol W_1 + \boldsymbol W_{2} + \boldsymbol \varepsilon_{\mu}.
+\boldsymbol\mu = \gamma_2 \boldsymbol{1}_n + \boldsymbol \beta_2 \mathbf{Z}_{2} + \beta \boldsymbol W_1 + \boldsymbol W_{2} + \boldsymbol \varepsilon_{\mu}.
 \]
+
 
 In this model:
 
