@@ -11,7 +11,7 @@ mcmc_sampler(
   Z2,
   CV,
   mark_dist,
-  thr.family,
+  thr.family = "gamma",
   model_type,
   adjacensy,
   q.probs = as.numeric(quantile(sqrt(A), probs = seq(0.5, 0.99, 0.05))),
@@ -32,6 +32,7 @@ mcmc_sampler(
   print.result = TRUE,
   traceplot = FALSE,
   samples.store,
+  fit_thr_model_only = FALSE,
   init.seed = NULL
 )
 }
@@ -107,7 +108,9 @@ mcmc_sampler(
 
 \item{samples.store}{An integer specifying the number of samples stored for calculating summary statistics (e.g., QQ-plots, uncertainty quantification).}
 
-\item{init.seed}{An optional integer specifying the initial seed for random number generation to ensure reproducibility.}
+\item{fit_thr_model_only}{A logical value. If \code{TRUE} fit only threshold and threshold indicator models only.}
+
+\item{init.seed}{initial seed (leave it to default NULL Set it NULL all the time)}
 }
 \value{
 A list containing results of the MCMC sampling, including estimated parameters, risk quantiles, and any diagnostics.
@@ -122,5 +125,11 @@ mcmc_sampler(Y = count_data, A = size_data, Z1 = covariates_counts, Z2 = covaria
              CV = "OOS", mark_dist = "eGPD", thr.family = "gamma", model_type = "jSp",
              adjacensy = adj_matrix, q.probs = seq(0.50, 0.99, by = 0.05),
              N.MCMC = 20000, simulation = TRUE, init.seed = 123)
+}
+}
+\references{
+\enumerate{
+\item Yadav, R., Lombardo, L., & Huser, R. (2024). \emph{Statistics of Extremes for Natural Hazards: Landslides and Earthquakes}. arXiv preprint. \href{https://arxiv.org/abs/2404.09156}{arXiv:2404.09156}.
+\item Yadav, R., Huser, R., Opitz, T., & Lombardo, L. (2024). \emph{Joint modeling of landslide counts and sizes using spatial marked point processes with sub-asymptotic mark distributions}. Journal of the Royal Statistical Society Series C (JRSSC): Applied Statistics, qlad077. \url{https://doi.org/10.1093/jrsssc/qlad077}
 }
 }
