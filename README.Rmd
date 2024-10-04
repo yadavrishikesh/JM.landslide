@@ -249,12 +249,6 @@ With the model now fitted, we can proceed to analyze the results and assess the 
 
 In this vignette, we have demonstrated the complete process from simulating landslide data to fitting a statistical model using the `JM.landslide` package. This structured approach allows researchers to analyze spatial data effectively, accounting for dependencies and covariates.
 
-```{r pressure, echo = FALSE}
-plot(pressure)
-```
-
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub and CRAN.
-
 
 ## References
 

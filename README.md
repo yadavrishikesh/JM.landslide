@@ -287,11 +287,6 @@ simulating landslide data to fitting a statistical model using the
 analyze spatial data effectively, accounting for dependencies and
 covariates.
 
-<img src="man/figures/README-pressure-1.png" width="100%" />
-
-In that case, don’t forget to commit and push the resulting figure
-files, so they display on GitHub and CRAN.
-
 ## References
 
 1.  Yadav, R., Lombardo, L., & Huser, R. (2024). *Statistics of extremes
