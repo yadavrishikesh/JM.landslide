@@ -17,9 +17,9 @@ follows:
 
 $$
 \begin{aligned}
-Y_i \mid \boldsymbol \eta &\sim \text{Poisson}[e_i \exp\{\eta_i\}], \quad i=1,\ldots,n; \\
+Y_i \mid \boldsymbol \eta &\sim \text{Poisson}\left[e_i \exp\{\eta_i\}\right], \quad i=1,\ldots,n; \\
 \boldsymbol\eta &= \gamma_1 \mathbf{1}_n + \boldsymbol \beta_1 \mathbf{Z}_{1} + \boldsymbol W_{1} + \boldsymbol \varepsilon_{\eta}; \\
-A_j \mid \boldsymbol \mu, \boldsymbol \Theta_A &\sim F_A[\cdot;\exp\{\mu_j\},\boldsymbol \Theta_{A}], \quad j:Y_j>0; \\
+A_j \mid \boldsymbol \mu, \boldsymbol \Theta_A &\sim F_A\left[\cdot;\exp\{\mu_j\},\boldsymbol \Theta_{A}\right], \quad j:Y_j>0; \\
 \boldsymbol\mu &= \gamma_2 \mathbf{1}_n + \boldsymbol \beta_2 \mathbf{Z}_{2} + \beta \boldsymbol W_1 + \boldsymbol W_{2} + \boldsymbol \varepsilon_{\mu}.
 \end{aligned}
 $$
