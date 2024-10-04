@@ -30,6 +30,7 @@ mcmc_sampler_threhshold_model(
   hyper.mu_adapt_seq2,
   mu_adapt_seq2,
   eta_adapt_seq2,
+  ind_miss,
   init.seed
 )
 }

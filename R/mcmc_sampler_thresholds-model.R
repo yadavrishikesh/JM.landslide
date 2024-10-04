@@ -84,6 +84,7 @@ mcmc_sampler_threhshold_model<-function(N.MCMC,
                                   hyper.mu_adapt_seq2,
                                   mu_adapt_seq2,
                                   eta_adapt_seq2, 
+                                  ind_miss,
                                   init.seed)
 { 
  
@@ -371,7 +372,33 @@ mcmc_sampler_threhshold_model<-function(N.MCMC,
   }
   
   
-  return(list("samples"=samples, ### saving the sample for the hyperparameters to see the traceplots
+  burnin<- burn_in1 + burn_in2
+  fitted_thr<- post.mean.quantile/(N.MCMC - burnin)
+  ### extracting the thresholds level and estimated threshold that gives the 0.05 exceedances at least
+  u<- rep(Inf, length(A))
+  u[!ind_zeros_counts]<- fitted_thr
+  ind<- (A - u)>0
+  thr_ind<- rep(0, length(A))
+  thr_ind[ind]<- 1
+  
+  ### data for threshold indicator model
+  if(CV=="WS"){
+    A_data_frame_size_thr_ind<- data.frame(original_A = thr_ind, A_with_NA = thr_ind)
+    ind_zero<- A_data_frame_size_thr_ind$A_with_NA==0
+  } else if(CV=="OOS"){
+    A_data_frame_size_thr_ind<- data.frame(original_A = thr_ind, A_with_NA = thr_ind)
+    A_data_frame_size_thr_ind[ind_miss,2]<- NA
+    ind_zero<- A_data_frame_size_thr_ind$A_with_NA==0
+    ind_zero[is.na(ind_zero)]<- FALSE
+  }
+
+  
+  return(list(
+              "threshold" = u,
+              "thr.acces.ind" = thr_ind,
+              "ind_zero" = ind_zero,
+              "A_data_frame_size_thr_ind" = A_data_frame_size_thr_ind,
+              "samples"=samples, ### saving the sample for the hyperparameters to see the traceplots
               "imputed.A.WSD"=imputed.A.WSD,
               "imputed.A.squre"=imputed.A.squre,
               "post.sum.mean.mu" = post.sum.mean.mu,  

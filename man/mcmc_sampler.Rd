@@ -15,7 +15,7 @@ mcmc_sampler(
   model_type,
   adjacensy,
   q.probs = as.numeric(quantile(sqrt(A), probs = seq(0.5, 0.99, 0.05))),
-  q.probs.thr = seq(0.8, 0.98, by = 0.01),
+  q.probs.thr = 0.83,
   no.rm.obs = 2000,
   N.MCMC = 20000,
   model.base = FALSE,
@@ -73,7 +73,7 @@ mcmc_sampler(
 
 \item{q.probs}{A numeric vector of quantiles at which to calculate the landslide risk. Default is \code{quantile(sqrt(A), probs = seq(0.50, 0.99, 0.05))}.}
 
-\item{q.probs.thr}{A numeric vector specifying the threshold quantiles to extract threshold exceedances. Default is \code{seq(0.80, 0.98, by = 0.01)}.}
+\item{q.probs.thr}{A numeric vector specifying the threshold quantiles to extract threshold exceedances. Default is \code{0.83}.}
 
 \item{no.rm.obs}{The number of observations randomly removed when performing the out-of-sample (OOS) experiment.}
 

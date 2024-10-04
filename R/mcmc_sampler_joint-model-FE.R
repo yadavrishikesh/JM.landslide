@@ -113,6 +113,7 @@ mcmc_sampler_joint_model_FE<-function(N.MCMC,
                                       hyper.mu_adapt_seq2,
                                       mu_adapt_seq2,
                                       eta_adapt_seq2, 
+                                      samples.store,
                                       init.seed)
 { 
   #browser()
@@ -122,15 +123,26 @@ mcmc_sampler_joint_model_FE<-function(N.MCMC,
   p<-ncol(Z1)
   q<-ncol(Z2)
   
+  
   ####### Imputation in case of within sample diagnostics
   imputed.Y.WSD<-rep(0, n1)  # Imputed post. mean of Y in case of within sample diganostics=Impute.Y.WSD / N-(burn_in1+burn_in2)
-  imputed.A.WSD<-rep(0, sum(!ind_zeros_counts)) # Imputed post. mean of Y in case of within sample diganostics=Impute.A.WSD/ N-(burn_in1+burn_in2)
+  imputed.Y2.WSD<-rep(0, n1)  # Imputed post. mean of Y in case of within sample diganostics=Impute.Y.WSD / N-(burn_in1+burn_in2)
+  data.mean.A<- mean(A, na.rm=TRUE)
+  data.mean.Y<- mean(Y, na.rm=TRUE)
+  imputed.A.WSD<- rep(0, sum(!ind_zeros_counts)) # Imputed post. mean of Y in case of within sample diganostics=Impute.A.WSD/ N-(burn_in1+burn_in2)
+  imputed.A2.WSD<-rep(0, sum(!ind_zeros_counts)) # Imputed post. mean of Y in case of within sample diganostics=Impute.A.WSD/ N-(burn_in1+burn_in2)
   
+  no.samples<- samples.store
+  samples.save<-  floor(seq(from=burn_in1+burn_in2+1, to=N.MCMC, length.out=no.samples))
+  samples.save[no.samples]<- samples.save[no.samples]-1 ### last samples 
+  
+  imputed.Y.WSD.samples<- array(NA, dim = c(no.samples, n1))
+  imputed.A.WSD.samples<- array(NA, dim = c(no.samples,  sum(!ind_zeros_counts)))
   ####### Imputation in case of out of sample diagnostics
-  imputed.Y.OSD<-rep(0, times=sum(ind_NA_Y))  # Imputed  summation values for Y
+  imputed.Y.OSD<- rep(0, times=sum(ind_NA_Y))  # Imputed  summation values for Y
   imputed.A.OSD<-rep(0, times=sum(ind_NA_A))  # Imputed  summation values for A
-  imputed.Y.OSD.samples<-c() # Imputed  summation^2 values for Y
-  imputed.A.OSD.samples<-c() # Imputed  summation^2 values for  A
+  imputed.Y.OSD.samples<- array(NA, dim = c(no.samples, sum(ind_NA_Y)))
+  imputed.A.OSD.samples<- array(NA, dim = c(no.samples,  sum(ind_NA_Y)))
   
   ####### posterior summary of latent parameters
   post.sum.mean.mu <- rep(0, times=n2)
@@ -189,6 +201,7 @@ mcmc_sampler_joint_model_FE<-function(N.MCMC,
   l<-1
   m<-1
   k<-1
+  ls<- 1
   for (i in 1:(N.MCMC-1)){
     if(((i%%(adapt))-1==0) & (i< (burn_in1+burn_in2+2))){ #to calculate the acceptance rate based on only current samples, burning+2 to calculate the acceptance rate after the burning samples
       rate.eta<- rep(0, n1)
@@ -217,7 +230,7 @@ mcmc_sampler_joint_model_FE<-function(N.MCMC,
                       "--------------------------------------------------------------------------", "\n",
                       sep=""))
         } else{
-          cat(paste0(" IXED EFFECT MODEL:", "\n", 
+          cat(paste0(" FIXED EFFECT MODEL:", "\n", 
                      " Iteration: ",i, "\n",
                      " Accep rate eta[1] = ",round(rate.eta[1]/(i-(burn_in1+burn_in2+2)), digits = 3),
                      " | sigma eta[1] = ",round(tun.eta[1], digits = 5), "\n",
@@ -287,8 +300,14 @@ mcmc_sampler_joint_model_FE<-function(N.MCMC,
       A[ind_NA_A]<- as.numeric(imputed_A$imputed_NA_A)
       
       if(i>burn_in1+burn_in2){ ## storing the samples: Posterior predictive mean and standard variability
-        imputed.Y.OSD<-imputed.Y.OSD+imputed_Y
-        imputed.A.OSD<-imputed.A.OSD+imputed_A$imputed_NA_A
+        imputed.Y.OSD<-imputed.Y.OSD + imputed_Y / data.mean.Y
+        imputed.A.OSD<-imputed.A.OSD + sqrt(imputed_A$imputed_NA_A)
+      }
+      
+      if(i == samples.save[ls]){
+        imputed.Y.OSD.samples[ls,]<- imputed_Y
+        imputed.A.OSD.samples[ls,]<- imputed_A$imputed_NA_A
+        ls<- ls + 1
       }
     }
     
@@ -298,9 +317,19 @@ mcmc_sampler_joint_model_FE<-function(N.MCMC,
         imputed_Y<- impute.NA.Y(ind_NA_Y = ind_NA_Y, eta = cur.samples.eta, CV=CV)
         imputed_A<- impute.NA.A(CV=CV, ind_NA_A = ind_NA_A, ind_zeros_counts=ind_zeros_counts, mu=cur.samples.mu, thr.prob=thr.prob,
                                 cur_par = c(cur.samples.log.hyper.mu,cur.samples.hyper.GP), mark_dist = mark_dist, threshold=threshold)
-        imputed.Y.WSD<-imputed.Y.WSD+imputed_Y
-        imputed.A.WSD<-imputed.A.WSD+imputed_A$imputed_NA_A
+        imputed.Y.WSD<- imputed.Y.WSD + imputed_Y/data.mean.Y
+        imputed.Y2.WSD<- imputed.Y2.WSD + (imputed_Y^2)/(data.mean.Y^2)
+        
+        imputed.A.WSD<-imputed.A.WSD + sqrt(imputed_A$imputed_NA_A)/data.mean.A
+        imputed.A2.WSD<-imputed.A2.WSD + (sqrt(imputed_A$imputed_NA_A)^2)/(data.mean.A^2)
       }
+      
+      if(i == samples.save[ls]){
+        imputed.Y.WSD.samples[ls,]<- imputed_Y
+        imputed.A.WSD.samples[ls,]<- imputed_A$imputed_NA_A
+        ls<- ls + 1
+      }
+      
     }
     
     
@@ -612,7 +641,90 @@ mcmc_sampler_joint_model_FE<-function(N.MCMC,
       m=m+1
     }
   }
+  
+  
+  
+  ######### saving results for qqplots ################
+  # WS
+  if(CV=="WS"){
+    true_sorted.Y <- sort(Y, decreasing = FALSE)
+    estimated_samples_sorted.Y <- t(apply(imputed.Y.WSD.samples, 1, sort, decreasing = FALSE))
+    estimated_mean.Y <- apply(estimated_samples_sorted.Y, 2, FUN = mean, na.rm=TRUE)
+    lower_ci.Y <- apply(estimated_samples_sorted.Y, 2, function(x) quantile(x, 0.025, na.rm=TRUE))
+    upper_ci.Y <- apply(estimated_samples_sorted.Y, 2, function(x) quantile(x, 0.975 ,na.rm=TRUE))
+    
+    true_sorted.A <- sort(A, decreasing = FALSE)
+    estimated_samples_sorted.A <- t(apply(imputed.A.WSD.samples, 1, sort, decreasing = FALSE))
+    estimated_mean.A <- apply(estimated_samples_sorted.A, MARGIN = 2, FUN = mean, na.rm=TRUE)
+    lower_ci.A <- apply(estimated_samples_sorted.A, 2, function(x) quantile(x, 0.025, na.rm=TRUE))
+    upper_ci.A <- apply(estimated_samples_sorted.A, 2, function(x) quantile(x, 0.975, na.rm=TRUE))
+    
+    WS_qqplots<- list(true.Y = true_sorted.Y, est.Y=estimated_mean.Y, lci.Y=lower_ci.Y, uci.Y=upper_ci.Y, 
+                      true.A=true_sorted.A, est.A=estimated_mean.A, lci.A=lower_ci.A, uci.A = upper_ci.A)
+    
+  } else{
+    WS_qqplots <- NULL 
+  }
+  
+  # OOS
+  if(CV=="OOS"){
+    true.Y <- Y[ind_NA_Y]
+    true_sorted.Y<- sort(true.Y, decreasing = FALSE)
+    
+    estimated_samples_sorted.Y <- t(apply(imputed.Y.OSD.samples, 1, sort, decreasing = FALSE))
+    estimated_mean.Y <- apply(estimated_samples_sorted.Y, 2, FUN = mean, na.rm=TRUE)
+    lower_ci.Y <- apply(estimated_samples_sorted.Y, 2, function(x) quantile(x, 0.025, na.rm=TRUE))
+    upper_ci.Y <- apply(estimated_samples_sorted.Y, 2, function(x) quantile(x, 0.975, na.rm=TRUE))
+    
+    true.A <- A[ind_NA_A]
+    true_sorted.A<- sort(true.A, decreasing = FALSE)
+    estimated_samples_sorted.A <- t(apply(imputed.A.OSD.samples, 1, sort, decreasing = FALSE))
+    estimated_mean.A <- apply(estimated_samples_sorted.A, 2, FUN = mean, na.rm=TRUE)
+    lower_ci.A <- apply(estimated_samples_sorted.A, 2, function(x) quantile(x, 0.025, na.rm=TRUE))
+    upper_ci.A <- apply(estimated_samples_sorted.A, 2, function(x) quantile(x, 0.975, na.rm=TRUE))
+    
+    OOS_qqplots<- list(true.Y = true_sorted.Y, est.Y=estimated_mean.Y, lci.Y=lower_ci.Y, uci.Y=upper_ci.Y, 
+                       true.A=true_sorted.A, est.A=estimated_mean.A, lci.A=lower_ci.A, uci.A = upper_ci.A)
+    
+  } else{
+    OOS_qqplots <- NULL 
+  }
+  
+  
+  ########## estimates and their standard errors ##########
+  #### WS
+  if(CV=="WS"){
+    WS_with_CIs = list(post.mean.Y =  apply(imputed.Y.WSD.samples, MARGIN = 2, FUN = mean, na.rm=TRUE),
+                       post.sd.Y= apply(imputed.Y.WSD.samples, MARGIN = 2, FUN = sd, na.rm=TRUE),
+                       post.lci.Y= apply(imputed.Y.WSD.samples, MARGIN = 2, FUN = quantile, probs=0.025, na.rm=TRUE),
+                       post.uci.Y=apply(imputed.Y.WSD.samples, MARGIN = 2, FUN = quantile, probs=0.975, na.rm=TRUE),
+                       post.mean.A= apply(imputed.A.WSD.samples, MARGIN = 2, FUN = mean, na.rm=TRUE),
+                       post.sd.A= apply(imputed.A.WSD.samples, MARGIN = 2, FUN = sd, na.rm=TRUE),
+                       post.lci.A= apply(imputed.A.WSD.samples, MARGIN = 2, FUN = quantile, probs=0.025, na.rm=TRUE),
+                       post.uci.A=apply(imputed.A.WSD.samples, MARGIN = 2, FUN = quantile, probs=0.975, na.rm=TRUE)
+    )
+  } else {
+    WS_with_CIs<- NULL  
+  }
+  ###  OOS
+  if(CV=="OOS"){
+    OOS_with_CIs = list(post.mean.Y =  apply(imputed.Y.OSD.samples, MARGIN = 2, FUN = mean, na.rm=TRUE),
+                        post.sd.Y= apply(imputed.Y.OSD.samples, MARGIN = 2, FUN = sd, na.rm=TRUE),
+                        post.lci.Y= apply(imputed.Y.OSD.samples, MARGIN = 2, FUN = quantile, probs=0.025, na.rm=TRUE),
+                        post.uci.Y=apply(imputed.Y.OSD.samples, MARGIN = 2, FUN = quantile, probs=0.975, na.rm=TRUE),
+                        post.mean.A= apply(imputed.A.OSD.samples, MARGIN = 2, FUN = mean, na.rm=TRUE),
+                        post.sd.A= apply(imputed.A.OSD.samples, MARGIN = 2, FUN = sd, na.rm=TRUE),
+                        post.lci.A= apply(imputed.A.OSD.samples, MARGIN = 2, FUN = quantile, probs=0.025, na.rm=TRUE),
+                        post.uci.A=apply(imputed.A.OSD.samples, MARGIN = 2, FUN = quantile, probs=0.975, na.rm=TRUE)
+    )
+  } else {
+    OOS_with_CIs<- NULL  
+  }
   return(list("samples"=samples, ### saving the sample for the hyperparameters to see the traceplots
+              "OOS_with_CIs" =  OOS_with_CIs,
+              "WS_with_CIs" =  WS_with_CIs,
+              "OOS_qqplots" =  OOS_qqplots,
+              "WS_qqplots" = WS_qqplots,
               "imputed.Y.WSD"=imputed.Y.WSD, 
               "imputed.A.WSD"=imputed.A.WSD,
               "imputed.Y.OSD"=imputed.Y.OSD, 

@@ -24,7 +24,7 @@
 #'   \item `"logNormal"`: Log-normal distribution.
 #' }
 #' @param q.probs A numeric vector of quantiles at which to calculate the landslide risk. Default is `quantile(sqrt(A), probs = seq(0.50, 0.99, 0.05))`.
-#' @param q.probs.thr A numeric vector specifying the threshold quantiles to extract threshold exceedances. Default is `seq(0.80, 0.98, by = 0.01)`.
+#' @param q.probs.thr A numeric vector specifying the threshold quantiles to extract threshold exceedances. Default is `0.83`.
 #' @param no.rm.obs The number of observations randomly removed when performing the out-of-sample (OOS) experiment.
 #' @param N.MCMC An integer specifying the number of MCMC samples. Default is `2e4`.
 #' @param tun.hyper.mu A numeric value for the tuning parameter of the normal Metropolis-Hastings steps when updating the hyperparameters for `mark_dist`.
@@ -71,7 +71,7 @@ mcmc_sampler<- function(Y,
                         model_type,
                         adjacensy,
                         q.probs = as.numeric(quantile(sqrt(A), probs = seq(0.50,0.99,0.05))),
-                        q.probs.thr = seq(0.80, 0.98, by=0.01),
+                        q.probs.thr = 0.83,
                         no.rm.obs = 2000,
                         N.MCMC = 2e4,
                         model.base =  FALSE,
@@ -110,27 +110,26 @@ mcmc_sampler<- function(Y,
   }
 
 
-  ### extracting the graph structures
   nbd_info = adjacensy$nbs
   no_of_nbd = adjacensy$nnbs
   m.bar<- mean(no_of_nbd)
 
-  #browser()
   N<-adjacensy$n
   node.set<- c()
   for (i in 1:length(adjacensy$nbs)) {
     for (j in 1:length(adjacensy$nbs[[i]])) {
       if(i < adjacensy$nbs[[i]][j]){
         node.set<- rbind(node.set, c(i, adjacensy$nbs[[i]][j]))
-       # print(paste0("j=",j))
       }
     }
-   # print(paste0("i=",i))
   }
 
-  #browser()
+ 
+  eta_adapt_seq2<-seq(from=adapt, to=N.MCMC, by=adapt) 
+  mu_adapt_seq2<-seq(from=adapt, to=N.MCMC, by=adapt) 
+  hyper.mu_adapt_seq2<-seq(from=adapt, to=N.MCMC, by=adapt)
 
-  ### counts and size data for two cross-validation experiments
+
   if(CV=="WS"){
     ind_zeros_counts<- A==0
     A_data_frame_size<- data.frame(original_A = A, A_with_NA = A)
@@ -143,13 +142,7 @@ mcmc_sampler<- function(Y,
     ind_zeros_counts<- A_data_frame_size$A_with_NA==0
     ind_zeros_counts[ind_miss]<- FALSE
   }
-
-  ## sMCMC related fixed parameters
-  eta_adapt_seq2<-seq(from=adapt, to=N.MCMC, by=adapt) 
-  mu_adapt_seq2<-seq(from=adapt, to=N.MCMC, by=adapt) 
-  hyper.mu_adapt_seq2<-seq(from=adapt, to=N.MCMC, by=adapt)
-
- #browser()
+  
 
   hyper.mu_fixed<- c(0.25,0.25)  ## hyperparameters in the hyper.mu parameters
   hyper_fixed<- list("kappa_eta" = c(0.75, 3), # kappa_eta ~ Gamma(shape=hyper_fixed[1], rate=hyper_fixed[2])
@@ -162,11 +155,9 @@ mcmc_sampler<- function(Y,
                      "intercept1" = 0.01,     # intercept1~ rnorm(1,mean=0, precision=hyper_fixed[16])
                      "intercept2" = 0.01)     # intercept2~ rnorm(1,mean=0, precision=hyper_fixed[17])
 
-    if(mark_dist=="bGPD" | mark_dist =="tgGPD"){ ## Extract first the threshold and indicator variables
-   # if(file.exists(paste0("../data/thr_info_sim-", simulation, ".RData"))){ ## if threshold model is not found then only run the threhold model
-   #   load(paste0("../data/thr_info_sim-", simulation, ".RData"))
-   #   } else{
-       thresholds<- mcmc_sampler_threhshold_model(N.MCMC = N.MCMC,
+    if(mark_dist=="bGPD" | mark_dist =="tgGPD"){ 
+      
+       threshold_model_output<- mcmc_sampler_threhshold_model(N.MCMC = N.MCMC,
                                          A = A_data_frame_size$A_with_NA,
                                          ind.NA = is.na(A_data_frame_size$A_with_NA),
                                          Z2 = as.matrix(Z2),
@@ -191,37 +182,19 @@ mcmc_sampler<- function(Y,
                                          hyper.mu_adapt_seq2=hyper.mu_adapt_seq2,
                                          mu_adapt_seq2=mu_adapt_seq2,
                                          eta_adapt_seq2= eta_adapt_seq2,
+                                         ind_miss = ind_miss,
                                          init.seed = init.seed)
-    burnin<- burn_in1 + burn_in2
-    fitted_thr<- thresholds$post.mean.quantile/(N.MCMC - burnin)
-    ### extracting the thresholds level and estimated threshold that gives the 0.05 exceedances at least
-    u<- rep(Inf, length(A))
-    u[!ind_zeros_counts]<- fitted_thr[,4]
-    ind<- (A - u)>0
-    thr_ind<- rep(0, length(A))
-    thr_ind[ind]<- 1
 
-    ### data for threshold indicator model
-    if(CV=="WS"){
-      A_data_frame_size<- data.frame(original_A = thr_ind, A_with_NA = thr_ind)
-      ind_zero<- A_data_frame_size$A_with_NA==0
-    } else if(CV=="OOS"){
-      A_data_frame_size<- data.frame(original_A = thr_ind, A_with_NA = thr_ind)
-      A_data_frame_size[ind_miss,2]<- NA
-      ind_zero<- A_data_frame_size$A_with_NA==0
-      ind_zero[is.na(ind_zero)]<- FALSE
-    }
-
-      thresholds_indcator<-  mcmc_sampler_indicator_model(N.MCMC = N.MCMC,
-                                                        A = A_data_frame_size$A_with_NA,
-                                                        ind.NA = is.na(A_data_frame_size$A_with_NA),
+      thresholds_indcator_model_output<-  mcmc_sampler_indicator_model(N.MCMC = N.MCMC,
+                                                        A = threshold_model_output$A_data_frame_size_thr_ind$A_with_NA,
+                                                        ind.NA = is.na(threshold_model_output$A_data_frame_size_thr_ind$A_with_NA),
                                                         CV=CV,
                                                         Z2 = as.matrix(Z2),
                                                         thin = thin,
                                                         adapt = adapt,
                                                         burn_in1 = burn_in1,
                                                         burn_in2 = burn_in2,
-                                                        ind_zero = ind_zero,
+                                                        ind_zero = threshold_model_output$ind_zero,
                                                         hyper_fixed=hyper_fixed,
                                                         print.result = print.result,
                                                         traceplot = traceplot,
@@ -234,41 +207,37 @@ mcmc_sampler<- function(Y,
                                                         mu_adapt_seq2=mu_adapt_seq2,
                                                         eta_adapt_seq2= eta_adapt_seq2,
                                                         init.seed = init.seed)
-
-   # browser()
-    exceed_prob_miss<- (thresholds_indcator$imputed.A.WSD)/(N.MCMC - burnin)[ind_miss]
-    if(CV=="WS"){ ######### Divide the datasets for the OSD setting
-      Y_data_frame_count<- data.frame(original_Y=Y, Y_with_NA=Y)
-      threshold<- u
-      thr.acces.ind<- A_data_frame_size$original_A > threshold
-
-    } else if (CV=="OOS") { ### missingens will be fixed once the thresholds and the threshold probability is fixed
-      Y_data_frame_count<- data.frame(original_Y=Y, Y_with_NA=Y)
-      Y_data_frame_count[ind_miss,2]<- NA
-      threshold<- u
-      thr.acces.ind<- A_data_frame_size$A_with_NA > threshold
-      thr.acces.ind[ind_miss]<- FALSE
-    }
-    save(Y_data_frame_count, A_data_frame_size, threshold, thr.acces.ind,
-         file=paste0("../data/thr_info_sim-", simulation, ".RData"))
-
+      
+    
+      if(CV=="WS"){ ######### Divide the datasets for the OSD setting
+        Y_data_frame_count<- data.frame(original_Y=Y, Y_with_NA=Y)
+        threshold<-  threshold_model_output$threshold
+        thr.acces.ind<- A_data_frame_size$original_A > threshold
+        
+      } else if (CV=="OOS") { ### missingens will be fixed once the thresholds and the threshold probability is fixed
+        Y_data_frame_count<- data.frame(original_Y=Y, Y_with_NA=Y)
+        Y_data_frame_count[ind_miss,2]<- NA
+        
+        threshold<- threshold_model_output$threshold
+        thr.acces.ind<- A_data_frame_size$A_with_NA > threshold
+        thr.acces.ind[ind_miss]<- FALSE
+      }  
+      
   } else{
     exceed_prob_miss<- NULL
     threshold<- NULL
     thr.acces.ind<- NULL
-
+    thresholds_indcator_model_output<- NULL  
+    threshold_model_output<- NULL
+    
+    
     if(CV=="WS"){ ######### Divide the datasets for the OSD setting
       Y_data_frame_count<- data.frame(original_Y=Y, Y_with_NA=Y)
-
     } else if (CV=="OOS") { ### missingens will be fixed once the thresholds and the threshold probability is fixed
       Y_data_frame_count<- data.frame(original_Y=Y, Y_with_NA=Y)
       Y_data_frame_count[ind_miss,2]<- NA
     }
   }
-
-
-
-  ### Running FE and jSp model
  if(model_type=="FE"){
    results_JM<- mcmc_sampler_joint_model_FE(N.MCMC = N.MCMC,
                      Y = Y_data_frame_count$Y_with_NA,
@@ -304,6 +273,7 @@ mcmc_sampler<- function(Y,
                      hyper.mu_adapt_seq2=hyper.mu_adapt_seq2,
                      mu_adapt_seq2=mu_adapt_seq2,
                      eta_adapt_seq2= eta_adapt_seq2,
+                     samples.store=samples.store,
                      init.seed = init.seed)
 
  } else{
@@ -348,7 +318,8 @@ mcmc_sampler<- function(Y,
  }
 
 #### save all the required results
-results<- list("thr.info" =  list(threhold= threshold, thr.acces.ind = thr.acces.ind),
+results<- list("thr.info" =  threshold_model_output,
+              "thr.indicator.info" = thresholds_indcator_model_output, 
                "JM.info" =  results_JM,
                "mark_dist"  = mark_dist,
                "thr.family" = thr.family,

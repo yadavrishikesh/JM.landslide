@@ -39,6 +39,7 @@ mcmc_sampler_joint_model_FE(
   hyper.mu_adapt_seq2,
   mu_adapt_seq2,
   eta_adapt_seq2,
+  samples.store,
   init.seed
 )
 }

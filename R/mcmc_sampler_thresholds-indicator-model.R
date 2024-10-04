@@ -235,9 +235,11 @@ mcmc_sampler_indicator_model<-function(N.MCMC,
     }
     
   }
-  
+  burnin<- burn_in1 + burn_in2
+  exceed_prob<- imputed.A.WSD/(N.MCMC - burnin)
   
   return(list("samples"=samples, ### saving the sample for the hyperparameters to see the traceplots
+              
               "imputed.A.WSD"=imputed.A.WSD,
               "imputed.A.squre"=imputed.A.squre,
               "post.sum.mean.mu" = post.sum.mean.mu,  
