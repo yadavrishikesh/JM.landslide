@@ -1,11 +1,22 @@
 ---
 title: "Joint Modeling of Landslide Counts and Sizes Using Sub-Asymptotic Distributions for Landslide Size"
-author: "Rishikesh Yadav"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Joint Modeling of Landslide Counts and Sizes Using Sub-Asymptotic Distributions for Landslide Size}
+  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(JM.landslide)
+```
 
 
 # Introduction
