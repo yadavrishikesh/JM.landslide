@@ -44,21 +44,6 @@
 #' @param init.seed An optional integer for setting the seed for random number generation.
 #'
 #' @return A list containing:
-#' \item{samples}{A matrix of MCMC samples for the parameters.}
-#' \item{imputed.Y.WSD}{Imputed posterior mean of \code{Y} in within-sample (WS) diagnostics.}
-#' \item{imputed.A.WSD}{Imputed posterior mean of \code{A} in within-sample (WS) diagnostics.}
-#' \item{imputed.Y.OSD}{Imputed posterior mean of \code{Y} in out-of-sample (OOS) diagnostics.}
-#' \item{imputed.A.OSD}{Imputed posterior mean of \code{A} in out-of-sample (OOS) diagnostics.}
-#' \item{post.sum.mean.mu}{Posterior sum of means for \code{mu}.}
-#' \item{post.sum.squre.mu}{Posterior sum of squared \code{mu}.}
-#' \item{post.sum.mean.eta}{Posterior sum of means for \code{eta}.}
-#' \item{post.sum.squre.eta}{Posterior sum of squared \code{eta}.}
-#' \item{post.mean.condprob}{Posterior mean conditional probabilities.}
-#' \item{post.mean.uncondprob}{Posterior mean unconditional probabilities.}
-#' \item{post.squre.condprob}{Posterior squared conditional probabilities.}
-#' \item{post.squre.uncondprob}{Posterior squared unconditional probabilities.}
-#' \item{tuning_param_x_hyper}{Matrix of adaptive tuning parameters.}
-#' \item{Acc.rate eta}{Acceptance rate for \code{eta}.}
 #'
 #' @export
 #'
@@ -133,9 +118,6 @@ mcmc_sampler_joint_model_FE<-function(N.MCMC,
   
   imputed.Y.WSD.samples<- array(NA, dim = c(no.samples, n1))
   imputed.A.WSD.samples<- array(NA, dim = c(no.samples,  sum(!ind_zeros_counts)))
-  ####### Imputation in case of out of sample diagnostics
-  imputed.Y.OSD<- rep(0, times=sum(ind_NA_Y))  # Imputed  summation values for Y
-  imputed.A.OSD<-rep(0, times=sum(ind_NA_A))  # Imputed  summation values for A
   imputed.Y.OSD.samples<- array(NA, dim = c(no.samples, sum(ind_NA_Y)))
   imputed.A.OSD.samples<- array(NA, dim = c(no.samples,  sum(ind_NA_Y)))
   
@@ -294,15 +276,7 @@ mcmc_sampler_joint_model_FE<-function(N.MCMC,
       imputed_A<- impute.NA.A(CV=CV, ind_NA_A = ind_NA_A, ind_zeros_counts=ind_zeros_counts, mu=cur.samples.mu, thr.prob=thr.prob,
                               cur_par = c(cur.samples.log.hyper.mu, cur.samples.hyper.GP), mark_dist = mark_dist, threshold=threshold 
       )
-      # A.all<-  rep(0, length=n1)
-      # A.all[!ind_zeros_counts]<- imputed_A
-      # A[ind_NA_A]<- A.all[ind_NA_A]
       A[ind_NA_A]<- as.numeric(imputed_A$imputed_NA_A)
-      
-      if(i>burn_in1+burn_in2){ ## storing the samples: Posterior predictive mean and standard variability
-        imputed.Y.OSD<-imputed.Y.OSD + imputed_Y / data.mean.Y
-        imputed.A.OSD<-imputed.A.OSD + sqrt(imputed_A$imputed_NA_A)
-      }
       
       if(i == samples.save[ls]){
         imputed.Y.OSD.samples[ls,]<- imputed_Y

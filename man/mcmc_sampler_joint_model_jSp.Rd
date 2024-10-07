@@ -124,29 +124,6 @@ mcmc_sampler_joint_model_jSp(
 }
 \value{
 A list containing the following elements:
-\item{samples}{Matrix. MCMC samples for the model parameters.}
-\item{OOS_with_CIs}{List. Posterior estimates and confidence intervals for out-of-sample diagnostics.}
-\item{WS_with_CIs}{List. Posterior estimates and confidence intervals for within-sample diagnostics.}
-\item{OOS_qqplots}{List. Data for QQ-plots of the out-of-sample validation.}
-\item{WS_qqplots}{List. Data for QQ-plots of the within-sample validation.}
-\item{imputed.Y.WSD}{Numeric vector. Imputed values of \code{Y} in within-sample (WS) diagnostics.}
-\item{imputed.A.WSD}{Numeric vector. Imputed values of \code{A} in within-sample (WS) diagnostics.}
-\item{imputed.Y.OSD}{Numeric vector. Imputed values of \code{Y} in out-of-sample (OOS) diagnostics.}
-\item{imputed.A.OSD}{Numeric vector. Imputed values of \code{A} in out-of-sample (OOS) diagnostics.}
-\item{post.sum.mean.mu}{Numeric vector. Posterior sum of \code{mu} parameter means.}
-\item{post.sum.squre.mu}{Numeric vector. Posterior sum of squared \code{mu} parameters.}
-\item{post.sum.mean.eta}{Numeric vector. Posterior sum of \code{eta} parameter means.}
-\item{post.sum.squre.eta}{Numeric vector. Posterior sum of squared \code{eta} parameters.}
-\item{post.mean.condprob}{Matrix. Posterior mean of conditional probabilities for \code{Y} and \code{A}.}
-\item{post.mean.uncondprob}{Matrix. Posterior mean of unconditional probabilities for \code{Y} and \code{A}.}
-\item{post.squre.condprob}{Matrix. Posterior sum of squared conditional probabilities for \code{Y} and \code{A}.}
-\item{post.squre.uncondprob}{Matrix. Posterior sum of squared unconditional probabilities for \code{Y} and \code{A}.}
-\item{post.sum.mean.w1}{Numeric vector. Posterior sum of \code{W1} parameter means.}
-\item{post.sum.squre.w1}{Numeric vector. Posterior sum of squared \code{W1} parameters.}
-\item{post.sum.mean.w2}{Numeric vector. Posterior sum of \code{W2} parameter means.}
-\item{post.sum.squre.w2}{Numeric vector. Posterior sum of squared \code{W2} parameters.}
-\item{tuning_param_x_hyper}{Matrix. Adaptive tuning parameters for MCMC iterations.}
-\item{Acc.rate eta}{Numeric. Acceptance rate for \code{eta} updates.}
 }
 \description{
 This function implements a Markov Chain Monte Carlo (MCMC) sampler for a joint spatial model

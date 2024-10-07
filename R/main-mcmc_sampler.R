@@ -359,10 +359,10 @@ mcmc_sampler <- function(Y, A, Z1, Z2, CV, mark_dist, thr.family = "gamma", mode
       "thr.family" = thr.family,
       "model_type" =  model_type,
       "data" = list(
-        "count.full" = Y_data_frame_count$Y_with_NA,
-        "count.with.NA" = Y_data_frame_count$original_Y,
-        "size.full" =  A_data_frame_size$A_with_NA,
-        "size.with.NA" =  A_data_frame_size$original_A
+        "count.full" = Y_data_frame_count$original_Y,
+        "count.with.NA" = Y_data_frame_count$Y_with_NA,
+        "size.full" =  A_data_frame_size$original_A,
+        "size.with.NA" =  A_data_frame_size$A_with_NA
       ),
       "CV" = CV
     )

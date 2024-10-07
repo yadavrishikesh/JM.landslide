@@ -44,29 +44,6 @@
 #' @param init.seed Integer. Seed for reproducibility of the random number generation.
 #'
 #' @return A list containing the following elements:
-#' \item{samples}{Matrix. MCMC samples for the model parameters.}
-#' \item{OOS_with_CIs}{List. Posterior estimates and confidence intervals for out-of-sample diagnostics.}
-#' \item{WS_with_CIs}{List. Posterior estimates and confidence intervals for within-sample diagnostics.}
-#' \item{OOS_qqplots}{List. Data for QQ-plots of the out-of-sample validation.}
-#' \item{WS_qqplots}{List. Data for QQ-plots of the within-sample validation.}
-#' \item{imputed.Y.WSD}{Numeric vector. Imputed values of `Y` in within-sample (WS) diagnostics.}
-#' \item{imputed.A.WSD}{Numeric vector. Imputed values of `A` in within-sample (WS) diagnostics.}
-#' \item{imputed.Y.OSD}{Numeric vector. Imputed values of `Y` in out-of-sample (OOS) diagnostics.}
-#' \item{imputed.A.OSD}{Numeric vector. Imputed values of `A` in out-of-sample (OOS) diagnostics.}
-#' \item{post.sum.mean.mu}{Numeric vector. Posterior sum of `mu` parameter means.}
-#' \item{post.sum.squre.mu}{Numeric vector. Posterior sum of squared `mu` parameters.}
-#' \item{post.sum.mean.eta}{Numeric vector. Posterior sum of `eta` parameter means.}
-#' \item{post.sum.squre.eta}{Numeric vector. Posterior sum of squared `eta` parameters.}
-#' \item{post.mean.condprob}{Matrix. Posterior mean of conditional probabilities for `Y` and `A`.}
-#' \item{post.mean.uncondprob}{Matrix. Posterior mean of unconditional probabilities for `Y` and `A`.}
-#' \item{post.squre.condprob}{Matrix. Posterior sum of squared conditional probabilities for `Y` and `A`.}
-#' \item{post.squre.uncondprob}{Matrix. Posterior sum of squared unconditional probabilities for `Y` and `A`.}
-#' \item{post.sum.mean.w1}{Numeric vector. Posterior sum of `W1` parameter means.}
-#' \item{post.sum.squre.w1}{Numeric vector. Posterior sum of squared `W1` parameters.}
-#' \item{post.sum.mean.w2}{Numeric vector. Posterior sum of `W2` parameter means.}
-#' \item{post.sum.squre.w2}{Numeric vector. Posterior sum of squared `W2` parameters.}
-#' \item{tuning_param_x_hyper}{Matrix. Adaptive tuning parameters for MCMC iterations.}
-#' \item{Acc.rate eta}{Numeric. Acceptance rate for `eta` updates.}
 #'
 #' @export
 #'
@@ -141,9 +118,6 @@ mcmc_sampler_joint_model_jSp<-function(N.MCMC,
   
   imputed.Y.WSD.samples<- array(NA, dim = c(no.samples, n1))
   imputed.A.WSD.samples<- array(NA, dim = c(no.samples,  sum(!ind_zeros_counts)))
-  ####### Imputation in case of out of sample diagnostics
-  imputed.Y.OSD<- rep(0, times=sum(ind_NA_Y))  # Imputed  summation values for Y
-  imputed.A.OSD<-rep(0, times=sum(ind_NA_A))  # Imputed  summation values for A
   imputed.Y.OSD.samples<- array(NA, dim = c(no.samples, sum(ind_NA_Y)))
   imputed.A.OSD.samples<- array(NA, dim = c(no.samples,  sum(ind_NA_Y)))
   
@@ -302,15 +276,7 @@ mcmc_sampler_joint_model_jSp<-function(N.MCMC,
       imputed_A<- impute.NA.A(CV=CV, ind_NA_A = ind_NA_A, ind_zeros_counts=ind_zeros_counts, mu=cur.samples.mu, thr.prob=thr.prob,
                               cur_par = c(cur.samples.log.hyper.mu, cur.samples.hyper.GP), mark_dist = mark_dist, threshold=threshold 
       )
-      # A.all<-  rep(0, length=n1)
-      # A.all[!ind_zeros_counts]<- imputed_A
-      # A[ind_NA_A]<- A.all[ind_NA_A]
       A[ind_NA_A]<- as.numeric(imputed_A$imputed_NA_A)
-      
-      if(i>burn_in1+burn_in2){ ## storing the samples: Posterior predictive mean and standard variability
-        imputed.Y.OSD<-imputed.Y.OSD + imputed_Y / data.mean.Y
-        imputed.A.OSD<-imputed.A.OSD + sqrt(imputed_A$imputed_NA_A)
-      }
       
       if(i == samples.save[ls]){
         imputed.Y.OSD.samples[ls,]<- imputed_Y
