@@ -125,12 +125,7 @@ mcmc_sampler_joint_model_FE<-function(N.MCMC,
   
   
   ####### Imputation in case of within sample diagnostics
-  imputed.Y.WSD<-rep(0, n1)  # Imputed post. mean of Y in case of within sample diganostics=Impute.Y.WSD / N-(burn_in1+burn_in2)
-  imputed.Y2.WSD<-rep(0, n1)  # Imputed post. mean of Y in case of within sample diganostics=Impute.Y.WSD / N-(burn_in1+burn_in2)
-  data.mean.A<- mean(A, na.rm=TRUE)
-  data.mean.Y<- mean(Y, na.rm=TRUE)
-  imputed.A.WSD<- rep(0, sum(!ind_zeros_counts)) # Imputed post. mean of Y in case of within sample diganostics=Impute.A.WSD/ N-(burn_in1+burn_in2)
-  imputed.A2.WSD<-rep(0, sum(!ind_zeros_counts)) # Imputed post. mean of Y in case of within sample diganostics=Impute.A.WSD/ N-(burn_in1+burn_in2)
+
   
   no.samples<- samples.store
   samples.save<-  floor(seq(from=burn_in1+burn_in2+1, to=N.MCMC, length.out=no.samples))
@@ -149,6 +144,11 @@ mcmc_sampler_joint_model_FE<-function(N.MCMC,
   post.sum.squre.mu<- rep(0, times=n2)
   post.sum.mean.eta<- rep(0, times=n2)
   post.sum.squre.eta<- rep(0, times=n2)
+  
+  post.sum.hazrds<- rep(0, times=n2)
+  post.sum.squre.hazrds<-  rep(0, times=n2)
+  post.sum.sucpt<- rep(0, times=n2)
+  post.sum.squre.sucpt<- rep(0, times=n2)
   
   ### storing the probability of interest
   post.mean.condprob<-  matrix(0, nrow = n1, ncol=length(q.probs))
@@ -317,11 +317,8 @@ mcmc_sampler_joint_model_FE<-function(N.MCMC,
         imputed_Y<- impute.NA.Y(ind_NA_Y = ind_NA_Y, eta = cur.samples.eta, CV=CV)
         imputed_A<- impute.NA.A(CV=CV, ind_NA_A = ind_NA_A, ind_zeros_counts=ind_zeros_counts, mu=cur.samples.mu, thr.prob=thr.prob,
                                 cur_par = c(cur.samples.log.hyper.mu,cur.samples.hyper.GP), mark_dist = mark_dist, threshold=threshold)
-        imputed.Y.WSD<- imputed.Y.WSD + imputed_Y/data.mean.Y
-        imputed.Y2.WSD<- imputed.Y2.WSD + (imputed_Y^2)/(data.mean.Y^2)
+      
         
-        imputed.A.WSD<-imputed.A.WSD + sqrt(imputed_A$imputed_NA_A)/data.mean.A
-        imputed.A2.WSD<-imputed.A2.WSD + (sqrt(imputed_A$imputed_NA_A)^2)/(data.mean.A^2)
       }
       
       if(i == samples.save[ls]){
@@ -340,6 +337,13 @@ mcmc_sampler_joint_model_FE<-function(N.MCMC,
       post.sum.squre.mu<- post.sum.squre.mu + cur.samples.mu^2
       post.sum.mean.eta<- post.sum.mean.eta + cur.samples.eta
       post.sum.squre.eta<- post.sum.squre.eta + cur.samples.eta^2
+      
+      
+      post.sum.hazrds<- post.sum.hazrds + (cur.samples.eta + 2 * cur.samples.mu)
+      post.sum.squre.hazrds<-   post.sum.squre.hazrds + (cur.samples.eta + 2 * cur.samples.mu)^2
+      post.sum.sucpt<- post.sum.sucpt + (1-exp(-exp(cur.samples.eta)))
+      post.sum.squre.sucpt<- post.sum.squre.sucpt + (1-exp(-exp(cur.samples.eta)))^2
+      
       
       #### probability and conditional probability estimations 
       cond.probs.est<- uncond.probs.est<- matrix(NA, nrow=n1, ncol=length(q.probs))
@@ -394,17 +398,7 @@ mcmc_sampler_joint_model_FE<-function(N.MCMC,
                                      adapt=adapt, adpat_param=1, lower.acc=0.35, upper.acc=0.55)
     cur.samples.log.hyper.mu<- prop_hyper_marks
     
-    #cur.samples.log.hyper.mu<- c(10,0.1)
-    #print(cur.samples.log.hyper.mu)
-    #cur.samples.log.hyper.mu<- c(10,0.2)
-    #cur.samples.log.hyper.mu<- 3
-    #cur.samples.log.hyper.mu[1]<- 0.5
-   # cur.samples.log.hyper.mu<- true.values[1:2]
-    
-    #  print(cur.samples.log.hyper.mu[2])
-    # print(i)
-    
-    #print(cur.samples.log.hyper.mu)
+   
     #### Proposing new parameters for hyper.GP MH steps #####
     if(mark_dist=="bGPD" | mark_dist=="tgGPD"){
       prop_hyper_GP<- block_rw_update(par_curr=cur.samples.hyper.GP,
@@ -520,34 +514,6 @@ mcmc_sampler_joint_model_FE<-function(N.MCMC,
                               adapt=adapt, adpat_param=1, adapt_seq=mu_adapt_seq2, lower.acc=0.30, upper.acc=0.50)
 
     cur.samples.mu<- prop_mu
-    # 
-    #  prop_mu.all<- update_mu_JM(A = A, 
-    #                            mu = cur.samples.mu,
-    #                            threshold = threshold,
-    #                            mark_dist =  mark_dist,
-    #                            hyper = cur.samples.log.hyper.mu,
-    #                            intercept2 = cur.samples.intercept2,
-    #                            W1 = cur.samples.w1,
-    #                            W2 = cur.samples.w2,
-    #                            beta = cur.samples.beta,
-    #                            beta2 = cur.samples.beta2,  
-    #                            kappa_mu = cur.samples.kappa_mu,
-    #                            Z2 = Z2, 
-    #                            tun_mu = tun.mu)
-    # 
-    # rate.mu<- ifelse(prop_mu.all$ind, rate.mu+1, rate.mu)
-    # tun.mu<- adpative_function(index_MCMC_iter=i, sigma2_adapt=tun.mu, target_accept=0.40,
-    #                            rate_adapt=rate.mu, burn_in1=burn_in1, burn_in2=burn_in2,
-    #                            adapt=adapt, adpat_param=1, adapt_seq=mu_adapt_seq2, lower.acc=0.30, upper.acc=0.50)
-    # 
-    # cur.samples.mu<- prop_mu.all$mu
-   
-    #browser()
-     #cur.samples.mu<- Sim_mark_data$mu
-    # print(cur.samples.mu[1])
-    #cur.samples.mu<- mu
-    ###### updating eta using MALA #########
-    #cur.samples.mu<- mu
     ###### updating eta using MALA #########
     prop_eta<- latent_MH_update_parallel(par_cur = cur.samples.eta,
                                          par_name = "eta",
@@ -570,48 +536,6 @@ mcmc_sampler_joint_model_FE<-function(N.MCMC,
 
     cur.samples.eta<- prop_eta
     
-    # prop_eta.all<- update_eta_JM(Y = Y,
-    #                              eta = cur.samples.eta,
-    #                              intercept1=cur.samples.intercept1,
-    #                              beta1 = cur.samples.beta1,
-    #                              kappa_eta = cur.samples.kappa_eta,
-    #                              W1 = cur.samples.w1,
-    #                              Z1 = Z1,
-    #                              tun_eta = tun.eta
-    #                              )
-    # 
-    # rate.eta<- ifelse(prop_eta.all$ind, rate.eta+1, rate.eta)
-    # tun.eta<- adpative_function(index_MCMC_iter=i, sigma2_adapt=tun.eta, target_accept=0.40,
-    #                             rate_adapt=rate.eta, burn_in1=burn_in1, burn_in2=burn_in2,
-    #                             adapt=adapt, adpat_param=1, adapt_seq=eta_adapt_seq2, lower.acc=0.30, upper.acc=0.50)
-    # cur.samples.eta<- prop_eta.all$eta
-    # 
-    
-    # prop_eta.all<- update_eta_JM(ns = n1,
-    #                              Y = Y,
-    #                              cur.eta = cur.samples.eta,
-    #                              mean.eta = cur.samples.intercept1 + Z1 %*% cur.samples.beta1 + cur.samples.w1,
-    #                              kappa_eta = cur.samples.kappa_eta,
-    #                              tun_eta = rep(1, n1)
-    # )
-    # 
-    # rate.eta<- ifelse(prop_eta.all$ind.acc, rate.eta+1, rate.eta)
-    # tun.eta<- adpative_function(index_MCMC_iter=i, sigma2_adapt=tun.eta, target_accept=0.60,
-    #                             rate_adapt=rate.eta, burn_in1=burn_in1, burn_in2=burn_in2,
-    #                             adapt=adapt, adpat_param=1, adapt_seq=eta_adapt_seq2, lower.acc=0.50, upper.acc=0.70
-    #                             )
-    # cur.samples.eta<- prop_eta.all$cur_eta
-    
-    #print(range(cur.samples.eta[1:2]))
-    
-    #cur.samples.eta<- Sim_mark_data$eta
-    #print(range(cur.samples.w1)); print(range(cur.samples.w2))
-    #cur.samples.eta<- eta
-    ###### updating W1 using Gibbs #########
-    # mean_eta_latent_vec<- cur.samples.eta - cur.samples.intercept1  - Z1 %*% cur.samples.beta1
-    # mean_mu_latent_vec<- cur.samples.mu - cur.samples.intercept2 -  Z2 %*% cur.samples.beta2 - cur.samples.w2
-    # 
-    ### updating W1s in a for loop sequentially  using Gibbs sampler steps
     
     cur.samples.w1<- rep(0,n1) ## making sure that sum of W1 is zero
     
@@ -720,24 +644,128 @@ mcmc_sampler_joint_model_FE<-function(N.MCMC,
   } else {
     OOS_with_CIs<- NULL  
   }
-  return(list("samples"=samples, ### saving the sample for the hyperparameters to see the traceplots
-              "OOS_with_CIs" =  OOS_with_CIs,
-              "WS_with_CIs" =  WS_with_CIs,
-              "OOS_qqplots" =  OOS_qqplots,
-              "WS_qqplots" = WS_qqplots,
-              "imputed.Y.WSD"=imputed.Y.WSD, 
-              "imputed.A.WSD"=imputed.A.WSD,
-              "imputed.Y.OSD"=imputed.Y.OSD, 
-              "imputed.A.OSD"=imputed.A.OSD,
-              "post.sum.mean.mu" = post.sum.mean.mu,  
-              "post.sum.squre.mu" = post.sum.squre.mu, 
-              "post.sum.mean.eta" = post.sum.mean.eta,
-              "post.sum.squre.eta"= post.sum.squre.eta,
-              "post.mean.condprob"= post.mean.condprob,
-              "post.mean.uncondprob" = post.mean.uncondprob,
-              "post.squre.condprob" = post.squre.condprob,
-              "post.squre.uncondprob"=  post.squre.uncondprob,
-              "tuning_param_x_hyper"=sigma.matrix, ## tuning parameters values
-              "Acc.rate eta"=rate.eta/(N.MCMC-(burn_in1+burn_in2)))) ## acceptance rate for eta
+  
+  
+  #### summary of linear predictors 
+  est_mean_eta<- post.sum.mean.eta/(N.MCMC - burn_in1 - burn_in2)
+  est_sd_eta<- sqrt(post.sum.squre.eta/(N.MCMC - burn_in1 - burn_in2) - est_mean_eta^2)
+  est_mean_mu <- post.sum.mean.mu/(N.MCMC - burn_in1 - burn_in2)
+  est_sd_mu<- sqrt(post.sum.squre.mu/(N.MCMC - burn_in1 - burn_in2) - est_mean_mu^2)
+  
+  #### estimated hazards  and susceptibility 
+  est_hazards<- post.sum.hazrds/ (N.MCMC - burn_in1 - burn_in2)
+  sd_hazards<- sqrt(post.sum.squre.hazrds/ (N.MCMC - burn_in1 - burn_in2) - est_hazards^2)
+  est_sucpt<- post.sum.sucpt/ (N.MCMC - burn_in1 - burn_in2)
+  sd_sucpt =  sqrt(post.sum.squre.sucpt/ (N.MCMC - burn_in1 - burn_in2) - est_sucpt^2)
+  
+  ### estimated cond. and uncond. probability 
+  est.mean.condprob<- post.mean.condprob/(N.MCMC - burn_in1 - burn_in2)
+  est.sd.condprob<- sqrt(post.squre.condprob/(N.MCMC - burn_in1 - burn_in2) - est.mean.condprob^2)
+  est.mean.uncondprob<- post.mean.uncondprob/(N.MCMC - burn_in1 - burn_in2)
+  est.sd.uncondprob<- sqrt(post.squre.uncondprob/(N.MCMC - burn_in1 - burn_in2) - est.mean.uncondprob^2)
+  
+  ###  summary statistics of model hyper parameters and covaritae coefficients 
+  burn_in = (burn_in1 + burn_in2) /thin
+  if(mark_dist=="eGPD"){
+    summary_hyper_size_dist<- cbind(mean = apply(samples[-(1:burn_in),1:2], MARGIN = 2, FUN = mean), 
+                                    sd = apply(samples[-(1:burn_in),1:2], MARGIN = 2, FUN = sd),
+                                    quant2.5 = apply(samples[-(1:burn_in),1:2], MARGIN = 2, FUN = quantile, prob=0.025),
+                                    quant50 = apply(samples[-(1:burn_in),1:2], MARGIN = 2, FUN = quantile, prob=0.50),
+                                    quant97.5 = apply(samples[-(1:burn_in),1:2], MARGIN = 2, FUN = quantile, prob=0.975))
+    rownames(summary_hyper_size_dist)<- c("psi", "xi")
+    
+    summary_hyper_RE   <- cbind(mean = apply(samples[-(1:burn_in),3:4], MARGIN = 2, FUN = mean), 
+                                sd = apply(samples[-(1:burn_in),3:4], MARGIN = 2, FUN = sd),
+                                quant2.5 = apply(samples[-(1:burn_in),3:4], MARGIN = 2, FUN = quantile, prob=0.025),
+                                quant50 = apply(samples[-(1:burn_in),3:4], MARGIN = 2, FUN = quantile, prob=0.50),
+                                quant97.5 = apply(samples[-(1:burn_in),3:4], MARGIN = 2, FUN = quantile, prob=0.975))
+    rownames(summary_hyper_RE)<- c("kappa_eta", "kappa_mu") 
+    
+    
+    
+    summary_intercepts   <- cbind(mean = apply(samples[-(1:burn_in),5:6], MARGIN = 2, FUN = mean), 
+                                  sd = apply(samples[-(1:burn_in),5:6], MARGIN = 2, FUN = sd),
+                                  quant2.5 = apply(samples[-(1:burn_in),5:6], MARGIN = 2, FUN = quantile, prob=0.025),
+                                  quant50 = apply(samples[-(1:burn_in),5:6], MARGIN = 2, FUN = quantile, prob=0.50),
+                                  quant97.5 = apply(samples[-(1:burn_in),5:6], MARGIN = 2, FUN = quantile, prob=0.975))
+    
+    rownames(summary_intercepts)<- c("intercept_counts", "intercept_sizes") 
+    
+    
+    FE_coef_counts<- cbind(mean = apply(samples[-(1:burn_in), 7:(6+ncol(Z1))], MARGIN = 2, FUN = mean), 
+                           sd = apply(samples[-(1:burn_in), 7:(6+ncol(Z1))], MARGIN = 2, FUN = sd),
+                           quant2.5 = apply(samples[-(1:burn_in), 7:(6+ncol(Z1))], MARGIN = 2, FUN = quantile, prob=0.025),
+                           quant50 = apply(samples[-(1:burn_in), 7:(6+ncol(Z1))], MARGIN = 2, FUN = quantile, prob=0.50),
+                           quant975 = apply(samples[-(1:burn_in), 7:(6+ncol(Z1))], MARGIN = 2, FUN = quantile, prob=0.975))
+    rownames(FE_coef_counts)<- if(is.null(colnames(Z1))) { paste0("beta_1.",1:ncol(Z1)) } else {colnames(Z1)}
+    
+    FE_coef_sizes<- cbind(mean = apply(samples[-(1:burn_in), (6 +1 + ncol(Z1)) : (6 + ncol(Z1) + ncol(Z2))], MARGIN = 2, FUN = mean), 
+                          sd = apply(samples[-(1:burn_in), (6 +1 + ncol(Z1)) : (6 + ncol(Z1) + ncol(Z2))], MARGIN = 2, FUN = sd),
+                          quant2.5 = apply(samples[-(1:burn_in), (6 +1 + ncol(Z1)) : (6 + ncol(Z1) + ncol(Z2))], MARGIN = 2, FUN = quantile, prob=0.025),
+                          quant50 = apply(samples[-(1:burn_in), (6 +1 + ncol(Z1)) : (6 + ncol(Z1) + ncol(Z2))], MARGIN = 2, FUN = quantile, prob=0.50),
+                          quant975 = apply(samples[-(1:burn_in), (6 +1 + ncol(Z1)) : (6 + ncol(Z1) + ncol(Z2))], MARGIN = 2, FUN = quantile, prob=0.975)) 
+    rownames(FE_coef_sizes)<- if(is.null(colnames(Z2))) { paste0("beta_2.",1:ncol(Z2)) } else {colnames(Z2)}
+    
+    
+  } else{
+    
+    summary_hyper_size_dist<- cbind(mean = apply(samples[-(1:burn_in),1:3], MARGIN = 2, FUN = mean), 
+                                    sd = apply(samples[-(1:burn_in),1:3], MARGIN = 2, FUN = sd),
+                                    quant2.5 = apply(samples[-(1:burn_in),1:3], MARGIN = 2, FUN = quantile, prob=0.025),
+                                    quant50 = apply(samples[-(1:burn_in),1:3], MARGIN = 2, FUN = quantile, prob=0.50),
+                                    quant975 = apply(samples[-(1:burn_in),1:3], MARGIN = 2, FUN = quantile, prob=0.975))
+    
+    rownames(summary_hyper_size_dist)<- c("kappa", "sigma", "xi")
+    
+    summary_hyper_RE <- cbind(mean = apply(samples[-(1:burn_in),4:5], MARGIN = 2, FUN = mean), 
+                              sd = apply(samples[-(1:burn_in),4:5], MARGIN = 2, FUN = sd),
+                              quant2.5 = apply(samples[-(1:burn_in),4:5], MARGIN = 2, FUN = quantile, prob=0.025),
+                              quant50 = apply(samples[-(1:burn_in),4:5], MARGIN = 2, FUN = quantile, prob=0.50),
+                              quant975 = apply(samples[-(1:burn_in),4:5], MARGIN = 2, FUN = quantile, prob=0.975))
+    rownames(summary_hyper_RE)<- c("kappa_eta", "kappa_mu") 
+    
+    
+    summary_intercepts   <- cbind(mean = apply(samples[-(1:burn_in),6:7], MARGIN = 2, FUN = mean), 
+                                  sd = apply(samples[-(1:burn_in),6:7], MARGIN = 2, FUN = sd),
+                                  quant2.5 = apply(samples[-(1:burn_in),6:7], MARGIN = 2, FUN = quantile, prob=0.025),
+                                  quant50 = apply(samples[-(1:burn_in),6:7], MARGIN = 2, FUN = quantile, prob=0.50),
+                                  quant97.5 = apply(samples[-(1:burn_in),6:7], MARGIN = 2, FUN = quantile, prob=0.975))
+    
+    rownames(summary_intercepts)<- c("intercept_counts", "intercept_sizes") 
+  
+    
+    
+    FE_coef_counts<- cbind(mean = apply(samples[-(1:burn_in), 8:(7+ncol(Z1))], MARGIN = 2, FUN = mean), 
+                           sd = apply(samples[-(1:burn_in), 8:(7+ncol(Z1))], MARGIN = 2, FUN = sd),
+                           quant2.5 = apply(samples[-(1:burn_in), 8:(7+ncol(Z1))], MARGIN = 2, FUN = quantile, prob=0.025),
+                           quant50 = apply(samples[-(1:burn_in), 8:(7+ncol(Z1))], MARGIN = 2, FUN = quantile, prob=0.50),
+                           quant975 = apply(samples[-(1:burn_in), 8:(7+ncol(Z1))], MARGIN = 2, FUN = quantile, prob=0.975))
+    
+    rownames(FE_coef_counts)<- if(is.null(colnames(Z1))) { paste0("beta_1.",1:ncol(Z1)) } else {colnames(Z1)}
+    
+    FE_coef_sizes<- cbind(mean = apply(samples[-(1:burn_in), (7 +1 + ncol(Z1)) : (7 + ncol(Z1) + ncol(Z2))], MARGIN = 2, FUN = mean), 
+                          sd = apply(samples[-(1:burn_in), (7 +1 + ncol(Z1)) : (7 + ncol(Z1) + ncol(Z2))], MARGIN = 2, FUN = sd),
+                          quant2.5 = apply(samples[-(1:burn_in), (7 +1 + ncol(Z1)) : (7 + ncol(Z1) + ncol(Z2))], MARGIN = 2, FUN = quantile, prob=0.025),
+                          quant50 = apply(samples[-(1:burn_in), (7 +1 + ncol(Z1)) : (7 + ncol(Z1) + ncol(Z2))], MARGIN = 2, FUN = quantile, prob=0.50),
+                          quant975 = apply(samples[-(1:burn_in), (7 +1 + ncol(Z1)) : (7 + ncol(Z1) + ncol(Z2))], MARGIN = 2, FUN = quantile, prob=0.975)) 
+    rownames(FE_coef_sizes)<- if(is.null(colnames(Z2))) { paste0("beta_2.",1:ncol(Z2)) } else {colnames(Z2)}
+    
+  }
+  
+  return(list("post_samples_few_param"= samples, ### saving the sample for the hyperparameters to see the traceplots
+              "est_counts_and_sizes" = list(OOS= OOS_with_CIs, WS =WS_with_CIs),
+              "qqplots_with_CIs" =  list(OOS= OOS_qqplots, WS= WS_qqplots), 
+              "summry_hyper" = list(hyper_size_dist =  summary_hyper_size_dist,
+                                    hyper_RE =  summary_hyper_RE),
+              "summ_fixed_effects" = list(summary_intercepts =list(counts = summary_intercepts[1,], sizes= summary_intercepts[2,]),
+                                          cov_coeff =list(counts = FE_coef_counts, sizes  = FE_coef_sizes)),
+              "est_linear_predictor" = list(eta = cbind.data.frame(mean = est_mean_eta, sd= est_sd_eta),
+                                            mu = cbind.data.frame(mean = est_mean_mu, sd= est_sd_mu)),
+              "est_probs" = list(cond = list(mean = est.mean.condprob, sd= est.sd.condprob),
+                                 uncond = list(mean = est.mean.uncondprob, sd= est.sd.uncondprob)),
+              "est_hazards" = list(mean = est_hazards, sd= sd_hazards),
+              "est_susceptibility" = list(mean = est_sucpt, sd= sd_sucpt),
+              "tuning_param_x_hyper"=sigma.matrix
+  ))
 }
 

@@ -135,13 +135,6 @@ mcmc_sampler_joint_model_jSp<-function(N.MCMC,
   q<-ncol(Z2)
   
   ####### Imputation in case of within sample diagnostics
-  imputed.Y.WSD<-rep(0, n1)  # Imputed post. mean of Y in case of within sample diganostics=Impute.Y.WSD / N-(burn_in1+burn_in2)
-  imputed.Y2.WSD<-rep(0, n1)  # Imputed post. mean of Y in case of within sample diganostics=Impute.Y.WSD / N-(burn_in1+burn_in2)
-  data.mean.A<- mean(A, na.rm=TRUE)
-  data.mean.Y<- mean(Y, na.rm=TRUE)
-  imputed.A.WSD<- rep(0, sum(!ind_zeros_counts)) # Imputed post. mean of Y in case of within sample diganostics=Impute.A.WSD/ N-(burn_in1+burn_in2)
-  imputed.A2.WSD<-rep(0, sum(!ind_zeros_counts)) # Imputed post. mean of Y in case of within sample diganostics=Impute.A.WSD/ N-(burn_in1+burn_in2)
-  
   no.samples<- samples.store
   samples.save<-  floor(seq(from=burn_in1+burn_in2+1, to=N.MCMC, length.out=no.samples))
   samples.save[no.samples]<- samples.save[no.samples]-1 ### last samples 
@@ -159,12 +152,17 @@ mcmc_sampler_joint_model_jSp<-function(N.MCMC,
   post.sum.squre.mu<- rep(0, times=n2)
   post.sum.mean.eta<- rep(0, times=n2)
   post.sum.squre.eta<- rep(0, times=n2)
+  
   post.sum.mean.w1<- rep(0, times=n2)
   post.sum.squre.w1<- rep(0, times=n2)
   post.sum.mean.w2<- rep(0, times=n2)
   post.sum.squre.w2<- rep(0, times=n2)
   
-  ### storing the probability of interest
+  post.sum.hazrds<- rep(0, times=n2)
+  post.sum.squre.hazrds<-  rep(0, times=n2)
+  post.sum.sucpt<- rep(0, times=n2)
+  post.sum.squre.sucpt<- rep(0, times=n2)
+  
   post.mean.condprob<-  matrix(0, nrow = n1, ncol=length(q.probs))
   post.mean.uncondprob<-  matrix(0, nrow = n1, ncol=length(q.probs))
   post.squre.condprob<-  matrix(0, nrow = n1, ncol=length(q.probs))
@@ -328,12 +326,7 @@ mcmc_sampler_joint_model_jSp<-function(N.MCMC,
         imputed_Y<- impute.NA.Y(ind_NA_Y = ind_NA_Y, eta = cur.samples.eta, CV=CV)
         imputed_A<- impute.NA.A(CV=CV, ind_NA_A = ind_NA_A, ind_zeros_counts=ind_zeros_counts, mu=cur.samples.mu, thr.prob=thr.prob,
                                 cur_par = c(cur.samples.log.hyper.mu,cur.samples.hyper.GP), mark_dist = mark_dist, threshold=threshold)
-        
-        imputed.Y.WSD<- imputed.Y.WSD + imputed_Y/data.mean.Y
-        imputed.Y2.WSD<- imputed.Y2.WSD + (imputed_Y^2)/(data.mean.Y^2)
-        
-        imputed.A.WSD<-imputed.A.WSD + sqrt(imputed_A$imputed_NA_A)/data.mean.A
-        imputed.A2.WSD<-imputed.A2.WSD + (sqrt(imputed_A$imputed_NA_A)^2)/(data.mean.A^2)
+    
       }
       
       if(i == samples.save[ls]){
@@ -358,6 +351,13 @@ mcmc_sampler_joint_model_jSp<-function(N.MCMC,
       post.sum.squre.w1<- post.sum.squre.w1 + cur.samples.w1^2
       post.sum.mean.w2<- post.sum.mean.w2 + cur.samples.w2
       post.sum.squre.w2<- post.sum.squre.w2 + cur.samples.w2^2
+      
+      
+      post.sum.hazrds<- post.sum.hazrds + (cur.samples.eta + 2 * cur.samples.mu)
+      post.sum.squre.hazrds<-   post.sum.squre.hazrds + (cur.samples.eta + 2 * cur.samples.mu)^2
+      post.sum.sucpt<- post.sum.sucpt + (1-exp(-exp(cur.samples.eta)))
+      post.sum.squre.sucpt<- post.sum.squre.sucpt + (1-exp(-exp(cur.samples.eta)))^2
+      
       
       #### probability and conditional probability estimations 
       cond.probs.est<- uncond.probs.est<- matrix(NA, nrow=n1, ncol=length(q.probs))
@@ -733,29 +733,152 @@ mcmc_sampler_joint_model_jSp<-function(N.MCMC,
   }
   
   
+  ##### Summary of  estimated random effects  
+  est_mean_w1<- post.sum.mean.w1/(N.MCMC - burn_in1 - burn_in2)
+  est_sd_w1<- sqrt(post.sum.squre.w1/(N.MCMC - burn_in1 - burn_in2) - est_mean_w1^2)
+  est_mean_w2<- post.sum.mean.w2/(N.MCMC - burn_in1 - burn_in2)
+  est_sd_w2<- sqrt(post.sum.squre.w2/(N.MCMC - burn_in1 - burn_in2) - est_mean_w2^2)
   
-  return(list("samples"=samples, ### saving the sample for the hyperparameters to see the traceplots
-              "OOS_with_CIs" =  OOS_with_CIs,
-              "WS_with_CIs" =  WS_with_CIs,
-              "OOS_qqplots" =  OOS_qqplots,
-              "WS_qqplots" = WS_qqplots,
-              "imputed.Y.WSD"=imputed.Y.WSD, 
-              "imputed.A.WSD"=imputed.A.WSD,
-              "imputed.Y.OSD"=imputed.Y.OSD, 
-              "imputed.A.OSD"=imputed.A.OSD,
-              "post.sum.mean.mu" = post.sum.mean.mu,  
-              "post.sum.squre.mu" = post.sum.squre.mu, 
-              "post.sum.mean.eta" = post.sum.mean.eta,
-              "post.sum.squre.eta"= post.sum.squre.eta,
-              "post.mean.condprob"= post.mean.condprob,
-              "post.mean.uncondprob" = post.mean.uncondprob,
-              "post.squre.condprob" = post.squre.condprob,
-              "post.squre.uncondprob"=  post.squre.uncondprob,
-              "post.sum.mean.w1"= post.sum.mean.w1, 
-              "post.sum.squre.w1" = post.sum.squre.w1,
-              "post.sum.mean.w2" =post.sum.mean.w2,
-              "post.sum.squre.w2"= post.sum.squre.w2,
-              "tuning_param_x_hyper"=sigma.matrix, ## tuning parameters values
-              "Acc.rate eta"=rate.eta/(N.MCMC-(burn_in1+burn_in2)))) ## acceptance rate for eta
+  #### summary of linear predictors 
+  est_mean_eta<- post.sum.mean.eta/(N.MCMC - burn_in1 - burn_in2)
+  est_sd_eta<- sqrt(post.sum.squre.eta/(N.MCMC - burn_in1 - burn_in2) - est_mean_eta^2)
+  est_mean_mu <- post.sum.mean.mu/(N.MCMC - burn_in1 - burn_in2)
+  est_sd_mu<- sqrt(post.sum.squre.mu/(N.MCMC - burn_in1 - burn_in2) - est_mean_mu^2)
+  
+  #### estimated hazards  and susceptibility 
+  est_hazards<- post.sum.hazrds/ (N.MCMC - burn_in1 - burn_in2)
+  sd_hazards<- sqrt(post.sum.squre.hazrds/ (N.MCMC - burn_in1 - burn_in2) - est_hazards^2)
+  est_sucpt<- post.sum.sucpt/ (N.MCMC - burn_in1 - burn_in2)
+  sd_sucpt =  sqrt(post.sum.squre.sucpt/ (N.MCMC - burn_in1 - burn_in2) - est_sucpt^2)
+  
+  ### estimated cond. and uncond. probability 
+  est.mean.condprob<- post.mean.condprob/(N.MCMC - burn_in1 - burn_in2)
+  est.sd.condprob<- sqrt(post.squre.condprob/(N.MCMC - burn_in1 - burn_in2) - est.mean.condprob^2)
+  est.mean.uncondprob<- post.mean.uncondprob/(N.MCMC - burn_in1 - burn_in2)
+  est.sd.uncondprob<- sqrt(post.squre.uncondprob/(N.MCMC - burn_in1 - burn_in2) - est.mean.uncondprob^2)
+  
+  
+  burn_in = (burn_in1 + burn_in2) /thin
+  
+  ###  summary statistics of model hyper parameters and covaritae coefficients 
+  if(mark_dist=="eGPD"){
+    summary_hyper_size_dist<- cbind(mean = apply(samples[-(1:burn_in),1:2], MARGIN = 2, FUN = mean), 
+                                    sd = apply(samples[-(1:burn_in),1:2], MARGIN = 2, FUN = sd),
+                                    quant2.5 = apply(samples[-(1:burn_in),1:2], MARGIN = 2, FUN = quantile, prob=0.025),
+                                    quant50 = apply(samples[-(1:burn_in),1:2], MARGIN = 2, FUN = quantile, prob=0.50),
+                                    quant97.5 = apply(samples[-(1:burn_in),1:2], MARGIN = 2, FUN = quantile, prob=0.975))
+    rownames(summary_hyper_size_dist)<- c("psi", "xi")
+    
+    summary_hyper_RE   <- cbind(mean = apply(samples[-(1:burn_in),3:6], MARGIN = 2, FUN = mean), 
+                        sd = apply(samples[-(1:burn_in),3:6], MARGIN = 2, FUN = sd),
+                        quant2.5 = apply(samples[-(1:burn_in),3:6], MARGIN = 2, FUN = quantile, prob=0.025),
+                        quant50 = apply(samples[-(1:burn_in),3:6], MARGIN = 2, FUN = quantile, prob=0.50),
+                        quant97.5 = apply(samples[-(1:burn_in),3:6], MARGIN = 2, FUN = quantile, prob=0.975))
+  rownames(summary_hyper_RE)<- c("kappa_w1", "kappa_w2", "kappa_eta", "kappa_mu") 
+  
+  
+  
+  summary_intercepts   <- cbind(mean = apply(samples[-(1:burn_in),7:8], MARGIN = 2, FUN = mean), 
+                                sd = apply(samples[-(1:burn_in),7:8], MARGIN = 2, FUN = sd),
+                                quant2.5 = apply(samples[-(1:burn_in),7:8], MARGIN = 2, FUN = quantile, prob=0.025),
+                                quant50 = apply(samples[-(1:burn_in),7:8], MARGIN = 2, FUN = quantile, prob=0.50),
+                                quant97.5 = apply(samples[-(1:burn_in),7:8], MARGIN = 2, FUN = quantile, prob=0.975))
+  
+  rownames(summary_intercepts)<- c("intercept_counts", "intercept_sizes") 
+
+  
+  summary_hyper_sharing   <- cbind(mean = mean(samples[-(1:burn_in),9]), 
+                              sd = sd(samples[-(1:burn_in),9]),
+                              quant2.5 = quantile(samples[-(1:burn_in),9], prob=0.025),
+                              quant50 = quantile(samples[-(1:burn_in),9], prob=0.50),
+                              quant97.5 = quantile(samples[-(1:burn_in),9], prob=0.975))
+  rownames(summary_hyper_sharing)<- c("beta") 
+  
+  
+  FE_coef_counts<- cbind(mean = apply(samples[-(1:burn_in), 10:(9+ncol(Z1))], MARGIN = 2, FUN = mean), 
+                         sd = apply(samples[-(1:burn_in), 10:(9+ncol(Z1))], MARGIN = 2, FUN = sd),
+                         quant2.5 = apply(samples[-(1:burn_in), 10:(9+ncol(Z1))], MARGIN = 2, FUN = quantile, prob=0.025),
+                         quant50 = apply(samples[-(1:burn_in), 10:(9+ncol(Z1))], MARGIN = 2, FUN = quantile, prob=0.50),
+                         quant975 = apply(samples[-(1:burn_in), 10:(9+ncol(Z1))], MARGIN = 2, FUN = quantile, prob=0.975))
+  rownames(FE_coef_counts)<- if(is.null(colnames(Z1))) { paste0("beta_1.",1:ncol(Z1)) } else {colnames(Z1)}
+  
+  FE_coef_sizes<- cbind(mean = apply(samples[-(1:burn_in), (9 +1 + ncol(Z1)) : (9 + ncol(Z1) + ncol(Z2))], MARGIN = 2, FUN = mean), 
+                         sd = apply(samples[-(1:burn_in), (9 +1 + ncol(Z1)) : (9 + ncol(Z1) + ncol(Z2))], MARGIN = 2, FUN = sd),
+                         quant2.5 = apply(samples[-(1:burn_in), (9 +1 + ncol(Z1)) : (9 + ncol(Z1) + ncol(Z2))], MARGIN = 2, FUN = quantile, prob=0.025),
+                         quant50 = apply(samples[-(1:burn_in), (9 +1 + ncol(Z1)) : (9 + ncol(Z1) + ncol(Z2))], MARGIN = 2, FUN = quantile, prob=0.50),
+                         quant975 = apply(samples[-(1:burn_in), (9 +1 + ncol(Z1)) : (9 + ncol(Z1) + ncol(Z2))], MARGIN = 2, FUN = quantile, prob=0.975)) 
+  rownames(FE_coef_sizes)<- if(is.null(colnames(Z2))) { paste0("beta_2.",1:ncol(Z2)) } else {colnames(Z2)}
+  
+ 
+  } else{
+    
+    summary_hyper_size_dist<- cbind(mean = apply(samples[-(1:burn_in),1:3], MARGIN = 2, FUN = mean), 
+                                    sd = apply(samples[-(1:burn_in),1:3], MARGIN = 2, FUN = sd),
+                                    quant2.5 = apply(samples[-(1:burn_in),1:3], MARGIN = 2, FUN = quantile, prob=0.025),
+                                    quant50 = apply(samples[-(1:burn_in),1:3], MARGIN = 2, FUN = quantile, prob=0.50),
+                                    quant975 = apply(samples[-(1:burn_in),1:3], MARGIN = 2, FUN = quantile, prob=0.975))
+    
+    rownames(summary_hyper_size_dist)<- c("kappa", "sigma", "xi")
+  
+    summary_hyper_RE <- cbind(mean = apply(samples[-(1:burn_in),4:7], MARGIN = 2, FUN = mean), 
+                                     sd = apply(samples[-(1:burn_in),4:7], MARGIN = 2, FUN = sd),
+                                     quant2.5 = apply(samples[-(1:burn_in),4:7], MARGIN = 2, FUN = quantile, prob=0.025),
+                                     quant50 = apply(samples[-(1:burn_in),4:7], MARGIN = 2, FUN = quantile, prob=0.50),
+                                     quant975 = apply(samples[-(1:burn_in),4:7], MARGIN = 2, FUN = quantile, prob=0.975))
+    rownames(summary_hyper_RE)<- c("kappa_w1", "kappa_w2", "kappa_eta", "kappa_mu") 
+    
+    
+    summary_intercepts   <- cbind(mean = apply(samples[-(1:burn_in),8:9], MARGIN = 2, FUN = mean), 
+                                  sd = apply(samples[-(1:burn_in),8:9], MARGIN = 2, FUN = sd),
+                                  quant2.5 = apply(samples[-(1:burn_in),8:9], MARGIN = 2, FUN = quantile, prob=0.025),
+                                  quant50 = apply(samples[-(1:burn_in),8:9], MARGIN = 2, FUN = quantile, prob=0.50),
+                                  quant97.5 = apply(samples[-(1:burn_in),8:9], MARGIN = 2, FUN = quantile, prob=0.975))
+    
+    rownames(summary_intercepts)<- c("intercept_counts", "intercept_sizes") 
+
+    summary_hyper_sharing   <- cbind(mean = mean(samples[-(1:burn_in),10]), 
+                                     sd = sd(samples[-(1:burn_in),10]),
+                                     quant2.5 = quantile(samples[-(1:burn_in),10], prob=0.025),
+                                     quant50 = quantile(samples[-(1:burn_in),10], prob=0.50),
+                                     quant97.5 = quantile(samples[-(1:burn_in),10], prob=0.975))
+    rownames(summary_hyper_sharing)<- c("beta") 
+    
+    
+    FE_coef_counts<- cbind(mean = apply(samples[-(1:burn_in), 11:(10+ncol(Z1))], MARGIN = 2, FUN = mean), 
+                           sd = apply(samples[-(1:burn_in), 11:(10+ncol(Z1))], MARGIN = 2, FUN = sd),
+                           quant2.5 = apply(samples[-(1:burn_in), 11:(10+ncol(Z1))], MARGIN = 2, FUN = quantile, prob=0.025),
+                           quant50 = apply(samples[-(1:burn_in), 11:(10+ncol(Z1))], MARGIN = 2, FUN = quantile, prob=0.50),
+                           quant975 = apply(samples[-(1:burn_in), 11:(10+ncol(Z1))], MARGIN = 2, FUN = quantile, prob=0.975))
+    
+    rownames(FE_coef_counts)<- if(is.null(colnames(Z1))) { paste0("beta_1.",1:ncol(Z1)) } else {colnames(Z1)}
+    
+    FE_coef_sizes<- cbind(mean = apply(samples[-(1:burn_in), (10 +1 + ncol(Z1)) : (10 + ncol(Z1) + ncol(Z2))], MARGIN = 2, FUN = mean), 
+                          sd = apply(samples[-(1:burn_in), (10 +1 + ncol(Z1)) : (10 + ncol(Z1) + ncol(Z2))], MARGIN = 2, FUN = sd),
+                          quant2.5 = apply(samples[-(1:burn_in), (10 +1 + ncol(Z1)) : (10 + ncol(Z1) + ncol(Z2))], MARGIN = 2, FUN = quantile, prob=0.025),
+                          quant50 = apply(samples[-(1:burn_in), (10 +1 + ncol(Z1)) : (10 + ncol(Z1) + ncol(Z2))], MARGIN = 2, FUN = quantile, prob=0.50),
+                          quant975 = apply(samples[-(1:burn_in), (10 +1 + ncol(Z1)) : (10 + ncol(Z1) + ncol(Z2))], MARGIN = 2, FUN = quantile, prob=0.975)) 
+    rownames(FE_coef_sizes)<- if(is.null(colnames(Z2))) { paste0("beta_2.",1:ncol(Z2)) } else {colnames(Z2)}
+        
+  }
+ 
+ 
+  return(list("post_samples_few_param"= samples, ### saving the sample for the hyperparameters to see the traceplots
+              "est_counts_and_sizes" = list(OOS= OOS_with_CIs, WS =WS_with_CIs),
+              "qqplots_with_CIs" =  list(OOS= OOS_qqplots, WS= WS_qqplots), 
+              "summry_hyper" = list(hyper_size_dist =  summary_hyper_size_dist,
+                                    hyper_RE =  summary_hyper_RE,  
+                                    hyper_sharing = summary_hyper_sharing),
+              "summ_fixed_effects" = list(summary_intercepts =list(counts = summary_intercepts[1,], sizes= summary_intercepts[2,]),
+                                          cov_coeff =list(counts = FE_coef_counts, sizes  = FE_coef_sizes)),
+              "est_random_effects" = list(W1 = cbind.data.frame(mean = est_mean_w1, sd= est_sd_w1),
+                                          W2 = cbind.data.frame(mean = est_mean_w2, sd= est_sd_w2)),
+              "est_linear_predictor" = list(eta = cbind.data.frame(mean = est_mean_eta, sd= est_sd_eta),
+                                          mu = cbind.data.frame(mean = est_mean_mu, sd= est_sd_mu)),
+               "est_probs" = list(cond = list(mean = est.mean.condprob, sd= est.sd.condprob),
+                                  uncond = list(mean = est.mean.uncondprob, sd= est.sd.uncondprob)),
+              "est_hazards" = list(mean = est_hazards, sd= sd_hazards),
+              "est_susceptibility" = list(mean = est_sucpt, sd= sd_sucpt),
+              "tuning_param_x_hyper"=sigma.matrix
+         ))
 }
 
