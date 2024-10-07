@@ -18,5 +18,6 @@ Suggests:
     knitr,
     rmarkdown,
     INLA,
-    spdep
+    spdep,
+    spam
 VignetteBuilder: knitr

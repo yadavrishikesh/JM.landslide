@@ -10,7 +10,7 @@
 #' @param Z2 A matrix of covariates in \code{mu}.
 #'
 #' @return A numeric vector representing the log-likelihood for each value of \code{mu}.
-#' 
+#'
 #' @export
 #'
 #' @examplesIf FALSE
@@ -23,8 +23,8 @@
 #' Z2 <- matrix(rnorm(20), nrow = 10, ncol = 2)
 #' loglik_values <- log_lik_latent_mu_thr_ind(mu, intercept2, W2, beta2, kappa_mu, Z2)
 #'
-log_lik_latent_mu_thr_ind<- function(mu, intercept2, W2, beta2,  kappa_mu, Z2){
-  loglik<- -0.5*kappa_mu* mu^2 + kappa_mu * mu *(intercept2 + Z2 %*% beta2 + W2)
+log_lik_latent_mu_thr_ind <- function(mu, intercept2, W2, beta2, kappa_mu, Z2) {
+  loglik <- -0.5 * kappa_mu * mu ^ 2 + kappa_mu * mu * (intercept2 + Z2 %*% beta2 + W2)
   return(loglik)
   
 }
@@ -44,7 +44,7 @@ log_lik_latent_mu_thr_ind<- function(mu, intercept2, W2, beta2,  kappa_mu, Z2){
 #' @param Z2 A matrix of covariates influencing \code{mu}.
 #'
 #' @return A numeric vector representing the log-likelihood for each value of \code{mu}.
-#' 
+#'
 #' @export
 #'
 #' @examplesIf FALSE
@@ -59,8 +59,15 @@ log_lik_latent_mu_thr_ind<- function(mu, intercept2, W2, beta2,  kappa_mu, Z2){
 #' Z2 <- matrix(rnorm(20), nrow = 10, ncol = 2)
 #' loglik_values <- log_lik_latent_mu_JM(mu, intercept2, W1, W2, beta, beta2, kappa_mu, Z2)
 #'
-log_lik_latent_mu_JM<- function(mu, intercept2, W1, W2, beta, beta2,  kappa_mu, Z2){
-  loglik<- -0.5*kappa_mu* mu^2 + kappa_mu * mu *(intercept2 + Z2 %*% beta2 + beta* W1 + W2)
+log_lik_latent_mu_JM <- function(mu,
+                                 intercept2,
+                                 W1,
+                                 W2,
+                                 beta,
+                                 beta2,
+                                 kappa_mu,
+                                 Z2) {
+  loglik <- -0.5 * kappa_mu * mu ^ 2 + kappa_mu * mu * (intercept2 + Z2 %*% beta2 + beta * W1 + W2)
   return(loglik)
   
 }
@@ -78,7 +85,7 @@ log_lik_latent_mu_JM<- function(mu, intercept2, W1, W2, beta, beta2,  kappa_mu, 
 #' @param Z1 A matrix of covariates influencing \code{eta}.
 #'
 #' @return A numeric vector representing the log-likelihood for each value of \code{eta}.
-#' 
+#'
 #' @export
 #'
 #' @examplesIf FALSE
@@ -91,8 +98,9 @@ log_lik_latent_mu_JM<- function(mu, intercept2, W1, W2, beta, beta2,  kappa_mu, 
 #' Z1 <- matrix(rnorm(20), nrow = 10, ncol = 2)
 #' loglik_values <- log_lik_latent_eta_JM(eta, intercept1, beta1, kappa_eta, W1, Z1)
 #'
-log_lik_latent_eta_JM<- function(eta, intercept1, beta1, kappa_eta, W1, Z1){
-  loglik<- -0.5 * kappa_eta * eta^2 + kappa_eta * eta  * (intercept1 + Z1%*%beta1 + W1)
+log_lik_latent_eta_JM <- function(eta, intercept1, beta1, kappa_eta, W1, Z1) {
+  loglik <- -0.5 * kappa_eta * eta ^ 2 + kappa_eta * eta  * (intercept1 + Z1 %*%
+                                                               beta1 + W1)
   return(loglik)
 }
 
@@ -104,7 +112,7 @@ log_lik_latent_eta_JM<- function(eta, intercept1, beta1, kappa_eta, W1, Z1){
 #' @param eta A numeric vector representing the linear predictor or latent variable associated with the model.
 #'
 #' @return A numeric vector representing the log-likelihood for each value of \code{eta}.
-#' 
+#'
 #' @export
 #'
 #' @examplesIf FALSE
@@ -113,7 +121,7 @@ log_lik_latent_eta_JM<- function(eta, intercept1, beta1, kappa_eta, W1, Z1){
 #' eta <- rnorm(10)
 #' loglik_values <- log_lik_eta_JM(Y, eta)
 #'
-log_lik_eta_JM<- function(Y, eta){
-  loglik<-  Y*eta - exp(eta)
+log_lik_eta_JM <- function(Y, eta) {
+  loglik <-  Y * eta - exp(eta)
   return(loglik)
 }

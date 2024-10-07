@@ -1,4 +1,4 @@
-#' Log-Likelihood at the Data Level for Indicator Model 
+#' Log-Likelihood at the Data Level for Indicator Model
 #'
 #' This function computes the log-likelihood of the size data \(A\) given the latent size process parameterized by \(mu\). Specifically, it calculates the likelihood of density \(A | theta_A, mu\).
 #'
@@ -18,16 +18,16 @@
 #' # Calculate the log-likelihood
 #' log_likelihood <- log_lik_indicator_model(mu, A)
 
-log_lik_indicator_model<- function(mu, A) {
-  log.post_A<-  A * log(logistic(mu)) + (1-A) * log(1- logistic(mu))  # dbinom(A, size=1, prob = exp(mu)/(1+exp(mu)), log = TRUE)
-return(log.post_A)
+log_lik_indicator_model <- function(mu, A) {
+  log.post_A <-  A * log(logistic(mu)) + (1 - A) * log(1 - logistic(mu))  # dbinom(A, size=1, prob = exp(mu)/(1+exp(mu)), log = TRUE)
+  return(log.post_A)
 }
 
 
 
-#' Update the Latent Parameter \code{mu} for Indicator Model 
+#' Update the Latent Parameter \code{mu} for Indicator Model
 #'
-#' This function generates samples for the latent parameter \code{mu} from a full conditional truncated normal distribution for for Indicator Model. 
+#' This function generates samples for the latent parameter \code{mu} from a full conditional truncated normal distribution for for Indicator Model.
 #'
 #' @param mu_mean A numeric vector representing the mean values for the latent parameter \code{mu}.
 #' @param kappa.mu A numeric value representing the precision parameter for the latent parameter \code{mu}.
@@ -49,13 +49,31 @@ return(log.post_A)
 #' # Update mu values
 #' updated_mu <- update_mu(mu_mean, kappa.mu, ind_zero, ind.NA, CV)
 
-update_mu<- function(mu_mean, kappa.mu, ind_zero, ind.NA, CV){
+update_mu <- function(mu_mean, kappa.mu, ind_zero, ind.NA, CV) {
   #browser()
-  sim<- rep(NA, length(A))
-  sim[ind_zero]<- truncnorm::rtruncnorm(n = 1, a=-Inf, b=0, mean = mu_mean[ind_zero], sd=sqrt(1/kappa.mu))
-  sim[!ind_zero]<- truncnorm::rtruncnorm(n = 1, a=0, b=Inf, mean = mu_mean[!ind_zero], sd=sqrt(1/kappa.mu))
-  if(CV=="OOS"){
-    sim[ind.NA]<- truncnorm::rtruncnorm(n =1,  a=-Inf, b=Inf, mean = mu_mean[ind.NA], sd=sqrt(1/kappa.mu))
+  sim <- rep(NA, length(A))
+  sim[ind_zero] <- truncnorm::rtruncnorm(
+    n = 1,
+    a = -Inf,
+    b = 0,
+    mean = mu_mean[ind_zero],
+    sd = sqrt(1 / kappa.mu)
+  )
+  sim[!ind_zero] <- truncnorm::rtruncnorm(
+    n = 1,
+    a = 0,
+    b = Inf,
+    mean = mu_mean[!ind_zero],
+    sd = sqrt(1 / kappa.mu)
+  )
+  if (CV == "OOS") {
+    sim[ind.NA] <- truncnorm::rtruncnorm(
+      n = 1,
+      a = -Inf,
+      b = Inf,
+      mean = mu_mean[ind.NA],
+      sd = sqrt(1 / kappa.mu)
+    )
   }
   return(sim)
 }

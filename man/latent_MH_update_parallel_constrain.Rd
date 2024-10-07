@@ -61,7 +61,7 @@ ub <- rep(1, n)
 transform <- rep(TRUE, n)
 loglik_data <- function(latent_parameter, ...) -0.5 * (latent_parameter - 1)^2
 loglik_latent <- function(latent_parameter, ...) dnorm(latent_parameter, mean = 1, sd = 0.1, log = TRUE)
-updated_params <- latent_MH_update_parallel_constrain(par_cur, par_name, loglik_data, loglik_latent, 
+updated_params <- latent_MH_update_parallel_constrain(par_cur, par_name, loglik_data, loglik_latent,
                                                      ns, nt, var_prop, transform, lb, ub)
 
 }

@@ -13,7 +13,7 @@
 #' @return A numeric vector of the CDF values of the truncated Gamma distribution at the specified quantiles \code{x}.
 #'
 #' @details
-#' The function computes the CDF of a Gamma distribution truncated at the given upper bound. 
+#' The function computes the CDF of a Gamma distribution truncated at the given upper bound.
 #' If \code{log.p = TRUE}, the log of the CDF is returned, otherwise the CDF itself is returned.
 #' The CDF is normalized by the probability that the Gamma variable falls within the truncated range.
 #'
@@ -29,13 +29,16 @@
 #' \code{\link{pgamma}} for the Gamma distribution function without truncation.
 #'
 #' @export
-pgammat<- function(x, upper.bound, shape, scale, log.p=TRUE){
+pgammat <- function(x, upper.bound, shape, scale, log.p = TRUE) {
   F.a <- 0
   F.b <- pgamma(upper.bound, shape = shape, scale = scale)
-  if(log.p){
-    cdf<- pgamma(x, shape = shape, scale = scale, log.p = TRUE)-log(F.b - F.a)
+  if (log.p) {
+    cdf <- pgamma(x,
+                  shape = shape,
+                  scale = scale,
+                  log.p = TRUE) - log(F.b - F.a)
   } else{
-    cdf<- pgamma(x, shape = shape, scale = scale)/(F.b - F.a)
+    cdf <- pgamma(x, shape = shape, scale = scale) / (F.b - F.a)
   }
   return(cdf)
 }
@@ -56,7 +59,7 @@ pgammat<- function(x, upper.bound, shape, scale, log.p=TRUE){
 #' @return A numeric vector of density values for the truncated Gamma distribution at the specified quantiles \code{x}.
 #'
 #' @details
-#' The Gamma distribution is truncated at an upper bound specified by \code{upper.bound}. 
+#' The Gamma distribution is truncated at an upper bound specified by \code{upper.bound}.
 #' The function normalizes the density by the probability that the Gamma variable lies within the range from zero to \code{upper.bound}.
 #' If \code{log = TRUE}, the function returns the log-density; otherwise, it returns the density.
 #'
@@ -73,12 +76,16 @@ pgammat<- function(x, upper.bound, shape, scale, log.p=TRUE){
 #'
 #' @seealso
 #' \code{\link{dgamma}} for the standard Gamma density function.
-dgammat<- function(x, upper.bound, shape, scale, log=TRUE){
+dgammat <- function(x, upper.bound, shape, scale, log = TRUE) {
   F.a <- 0
   F.b <- pgamma(upper.bound, shape = shape, scale = scale)
-  if(log){density<- dgamma(x, shape = shape, scale = scale, log = TRUE) - log((F.b - F.a))
+  if (log) {
+    density <- dgamma(x,
+                      shape = shape,
+                      scale = scale,
+                      log = TRUE) - log((F.b - F.a))
   } else{
-    density<- dgamma(x, shape = shape, scale = scale) / (F.b - F.a)
+    density <- dgamma(x, shape = shape, scale = scale) / (F.b - F.a)
   }
   return(density)
 }
@@ -117,7 +124,7 @@ rgammat <- function(n, upper.bound, shape, scale = 1) {
   F.a <- 0
   F.b <- pgamma(upper.bound, shape = shape, scale = scale)
   u <- runif(n, min = F.a, max = F.b)
-  x<- qgamma(u, shape = shape, scale = scale)
+  x <- qgamma(u, shape = shape, scale = scale)
   return(x)
 }
 
@@ -155,12 +162,15 @@ rgammat <- function(n, upper.bound, shape, scale = 1) {
 #'
 #' @seealso
 #' \code{\link{dbeta}} for the standard Beta distribution density.
-dbetat<- function(x, u.thr, shape1, shape2, log=TRUE){
+dbetat <- function(x, u.thr, shape1, shape2, log = TRUE) {
   # browser()
-  if(log){
-    dens<- dbeta(x/u.thr, shape1 = shape1, shape2 = shape2, log=TRUE) - log(u.thr)
+  if (log) {
+    dens <- dbeta(x / u.thr,
+                  shape1 = shape1,
+                  shape2 = shape2,
+                  log = TRUE) - log(u.thr)
   } else {
-    dens<- dbeta(x/u.thr, shape1 = shape1, shape2 = shape2)/u.thr
+    dens <- dbeta(x / u.thr, shape1 = shape1, shape2 = shape2) / u.thr
   }
   return(dens)
 }
@@ -198,11 +208,14 @@ dbetat<- function(x, u.thr, shape1, shape2, log=TRUE){
 #'
 #' @seealso
 #' \code{\link{pbeta}} for the standard Beta distribution CDF.
-pbetat<- function(x, u.thr, shape1, shape2, log.p=TRUE){
-  if(log.p){
-    dens<- pbeta(x/u.thr, shape1 = shape1, shape2 = shape2, log.p=TRUE)
+pbetat <- function(x, u.thr, shape1, shape2, log.p = TRUE) {
+  if (log.p) {
+    dens <- pbeta(x / u.thr,
+                  shape1 = shape1,
+                  shape2 = shape2,
+                  log.p = TRUE)
   } else {
-    dens<- pbeta(x/u.thr, shape1 = shape1, shape2 = shape2)
+    dens <- pbeta(x / u.thr, shape1 = shape1, shape2 = shape2)
   }
   return(dens)
 }
@@ -238,8 +251,10 @@ pbetat<- function(x, u.thr, shape1, shape2, log.p=TRUE){
 #'
 #' @seealso
 #' \code{\link{rbeta}} for the standard Beta distribution random variate generation.
-rbetat<- function(n, u.thr, shape1, shape2){
-  x<- u.thr * rbeta(n=n, shape1 = shape1, shape2 = shape2)
+rbetat <- function(n, u.thr, shape1, shape2) {
+  x <- u.thr * rbeta(n = n,
+                     shape1 = shape1,
+                     shape2 = shape2)
   return(x)
 }
 
@@ -279,13 +294,38 @@ rbetat<- function(n, u.thr, shape1, shape2){
 #' plot(x, density, type = "l", main = "Extended GPD (Type 1) Density", xlab = "x", ylab = "Density")
 #'
 #' @importFrom evd dgpd pgpd
-dEGPD1<-function(x, k, xi, sigma, log=TRUE){
- # browser()
-  if(log){
-    dens<- log(k) + (evd::dgpd(x=x, loc=0, scale=sigma, shape=xi, log = TRUE)) + 
-      ((k-1)* log(evd::pgpd(q=x, loc=0, scale=sigma, shape=xi, lower.tail=TRUE)))
+dEGPD1 <- function(x, k, xi, sigma, log = TRUE) {
+  # browser()
+  if (log) {
+    dens <- log(k) + (evd::dgpd(
+      x = x,
+      loc = 0,
+      scale = sigma,
+      shape = xi,
+      log = TRUE
+    )) +
+      ((k - 1) * log(
+        evd::pgpd(
+          q = x,
+          loc = 0,
+          scale = sigma,
+          shape = xi,
+          lower.tail = TRUE
+        )
+      ))
   } else{
-    dens<- k * (evd::dgpd(x=x, loc=0, scale=sigma, shape=xi)) * (evd::pgpd(q=x, loc=0, scale=sigma, shape=xi, lower.tail=TRUE))^(k-1)
+    dens <- k * (evd::dgpd(
+      x = x,
+      loc = 0,
+      scale = sigma,
+      shape = xi
+    )) * (evd::pgpd(
+      q = x,
+      loc = 0,
+      scale = sigma,
+      shape = xi,
+      lower.tail = TRUE
+    )) ^ (k - 1)
   }
   return(dens)
 }
@@ -325,11 +365,23 @@ dEGPD1<-function(x, k, xi, sigma, log=TRUE){
 #' plot(x, cdf, type = "l", main = "Extended GPD (Type 1) CDF", xlab = "x", ylab = "CDF")
 #'
 #' @importFrom evd pgpd
-pEGPD1<-function(x, k, xi, sigma, log=TRUE){
-  if(log){
-    cdf<- (k)* log(evd::pgpd(q=x, loc=0, scale=sigma, shape=xi, lower.tail=TRUE))
+pEGPD1 <- function(x, k, xi, sigma, log = TRUE) {
+  if (log) {
+    cdf <- (k) * log(evd::pgpd(
+      q = x,
+      loc = 0,
+      scale = sigma,
+      shape = xi,
+      lower.tail = TRUE
+    ))
   } else{
-    cdf<-  (evd::pgpd(q=x, loc=0, scale=sigma, shape=xi, lower.tail=TRUE))^(k) 
+    cdf <-  (evd::pgpd(
+      q = x,
+      loc = 0,
+      scale = sigma,
+      shape = xi,
+      lower.tail = TRUE
+    )) ^ (k)
   }
   return(cdf)
 }
@@ -367,8 +419,10 @@ pEGPD1<-function(x, k, xi, sigma, log=TRUE){
 #' sigma <- 1
 #' samples <- rEGPD1(n, k, xi, sigma)
 #' hist(samples, breaks = 30, main = "Histogram of Extended GPD (Type 1) Samples", xlab = "Value")
-rEGPD1<-function(n, k, xi, sigma){
-  X<- (sigma/xi) * (((1-(runif(n=n))^(1/k))^(-xi))-1)
+rEGPD1 <- function(n, k, xi, sigma) {
+  X <- (sigma / xi) * (((1 - (runif(
+    n = n
+  )) ^ (1 / k)) ^ (-xi)) - 1)
   return(X)
 }
 
@@ -415,19 +469,48 @@ rEGPD1<-function(n, k, xi, sigma){
 #' thr.prob <- 0.3
 #' dens <- dtgGPD(x, u.thr, k, xi, sigma, sigma.GP, thr.prob, log = FALSE)
 #' plot(x, dens, type = "l", main = "Density of Mixture of Truncated Gamma and GPD", ylab = "Density", xlab = "x")
-dtgGPD<- function(x, u.thr, k, xi, sigma, sigma.GP, thr.prob, log=TRUE){
-  if(log){
-    dens<- rep(0, length(x))
-    ind<- (x < u.thr) & (x >0)
-    dens[ind]<- log(1 - thr.prob) + dgammat(x = x[ind], upper.bound = u.thr , shape = k, scale = sigma[ind], log=TRUE)
-    ind.e<- x>u.thr
-    dens[ind.e]<- log(thr.prob) + evd::dgpd(x=x[ind.e], loc= u.thr, scale = sigma.GP, shape=xi, log=TRUE)
+dtgGPD <- function(x,
+                   u.thr,
+                   k,
+                   xi,
+                   sigma,
+                   sigma.GP,
+                   thr.prob,
+                   log = TRUE) {
+  if (log) {
+    dens <- rep(0, length(x))
+    ind <- (x < u.thr) & (x > 0)
+    dens[ind] <- log(1 - thr.prob) + dgammat(
+      x = x[ind],
+      upper.bound = u.thr ,
+      shape = k,
+      scale = sigma[ind],
+      log = TRUE
+    )
+    ind.e <- x > u.thr
+    dens[ind.e] <- log(thr.prob) + evd::dgpd(
+      x = x[ind.e],
+      loc = u.thr,
+      scale = sigma.GP,
+      shape = xi,
+      log = TRUE
+    )
   } else{
-    dens<- rep(0, length(x))
-    ind<- (x < u.thr) & (x >0)
-    dens[ind]<- log(1 - thr.prob) * dgammat(x = x[ind], upper.bound = u.thr, shape = k, scale = sigma[ind])
-    ind.e<- x>u.thr
-    dens[ind.e]<- (thr.prob) * evd::dgpd(x=x[ind.e], loc= u.thr, scale = sigma.GP, shape=xi)
+    dens <- rep(0, length(x))
+    ind <- (x < u.thr) & (x > 0)
+    dens[ind] <- log(1 - thr.prob) * dgammat(
+      x = x[ind],
+      upper.bound = u.thr,
+      shape = k,
+      scale = sigma[ind]
+    )
+    ind.e <- x > u.thr
+    dens[ind.e] <- (thr.prob) * evd::dgpd(
+      x = x[ind.e],
+      loc = u.thr,
+      scale = sigma.GP,
+      shape = xi
+    )
   }
   return(dens)
 }
@@ -472,20 +555,48 @@ dtgGPD<- function(x, u.thr, k, xi, sigma, sigma.GP, thr.prob, log=TRUE){
 #' thr.prob <- 0.3
 #' cdf_values <- ptgGPD(x, u.thr, k, xi, sigma, sigma.GP, thr.prob, log.p = FALSE)
 #' plot(x, cdf_values, type = "l", main = "CDF of Mixture of Truncated Gamma and GPD", ylab = "CDF", xlab = "x")
-ptgGPD<- function(x, u.thr, k, xi, sigma, sigma.GP, thr.prob, log.p=TRUE){
-  if(log.p){
-    cdf<- rep(0, length(x))
-    ind<- (x < u.thr) & (x >0)
+ptgGPD <- function(x,
+                   u.thr,
+                   k,
+                   xi,
+                   sigma,
+                   sigma.GP,
+                   thr.prob,
+                   log.p = TRUE) {
+  if (log.p) {
+    cdf <- rep(0, length(x))
+    ind <- (x < u.thr) & (x > 0)
     #cdf[ind]<- log(1 - thr.prob) + pgammat(x = x[ind], range = c(0, u.thr), shape = k, scale = sigma[ind], log.p=TRUE)
-    cdf[ind]<- log(1 - thr.prob) + pgammat(x = x[ind],  upper.bound = u.thr, shape = k, scale = sigma[ind], log.p=TRUE)
-    ind.e<- x>u.thr
-    cdf[ind.e]<- log((1 - thr.prob) + thr.prob  * evd::pgpd(x=x[ind.e], loc= u.thr, shape=xi, scale = sigma.GP))
+    cdf[ind] <- log(1 - thr.prob) + pgammat(
+      x = x[ind],
+      upper.bound = u.thr,
+      shape = k,
+      scale = sigma[ind],
+      log.p = TRUE
+    )
+    ind.e <- x > u.thr
+    cdf[ind.e] <- log((1 - thr.prob) + thr.prob  * evd::pgpd(
+      x = x[ind.e],
+      loc = u.thr,
+      shape = xi,
+      scale = sigma.GP
+    ))
   } else{
-    cdf<- rep(0, length(x))
-    ind<- (x < u.thr) & (x >0)
-    cdf[ind]<- (1 - thr.prob) * pgammat(x = x[ind], upper.bound = u.thr, shape = k, scale = sigma[ind])
-    ind.e<- x>u.thr
-    cdf[ind.e]<- (1 - thr.prob)  + (thr.prob) * evd::pgpd(x=x[ind.e], loc= u.thr, scale = sigma.GP, shape=xi)
+    cdf <- rep(0, length(x))
+    ind <- (x < u.thr) & (x > 0)
+    cdf[ind] <- (1 - thr.prob) * pgammat(
+      x = x[ind],
+      upper.bound = u.thr,
+      shape = k,
+      scale = sigma[ind]
+    )
+    ind.e <- x > u.thr
+    cdf[ind.e] <- (1 - thr.prob)  + (thr.prob) * evd::pgpd(
+      x = x[ind.e],
+      loc = u.thr,
+      scale = sigma.GP,
+      shape = xi
+    )
   }
   return(cdf)
 }
@@ -531,17 +642,34 @@ ptgGPD<- function(x, u.thr, k, xi, sigma, sigma.GP, thr.prob, log.p=TRUE){
 #' thr.prob <- 0.3
 #' cdf_values <- cond.ptgGPD(x, mu, u.thr, k, xi, sigma, sigma.GP, thr.prob)
 #' print(cdf_values)
-cond.ptgGPD<- function(x, mu, u.thr, k, xi, sigma, sigma.GP, thr.prob){
+cond.ptgGPD <- function(x,
+                        mu,
+                        u.thr,
+                        k,
+                        xi,
+                        sigma,
+                        sigma.GP,
+                        thr.prob) {
   #browser()
-  cdf<- rep(NA, length(mu))
-  if(x>u.thr){
-    ind<- exp(as.numeric(mu)) < u.thr
-    cdf[ind]<- 1
-    cdf[!ind]<-  1 - thr.prob + thr.prob * evd::pgpd(x=x, loc= u.thr, scale = sigma.GP, shape=xi)
+  cdf <- rep(NA, length(mu))
+  if (x > u.thr) {
+    ind <- exp(as.numeric(mu)) < u.thr
+    cdf[ind] <- 1
+    cdf[!ind] <-  1 - thr.prob + thr.prob * evd::pgpd(
+      x = x,
+      loc = u.thr,
+      scale = sigma.GP,
+      shape = xi
+    )
   } else{
-    ind<- exp(as.numeric(mu)) > u.thr
-    cdf[ind]<- 0 
-    cdf[!ind]<-  (1 - thr.prob) * pgammat(x = x, upper.bound = u.thr, shape = k, scale = sigma[!ind]) 
+    ind <- exp(as.numeric(mu)) > u.thr
+    cdf[ind] <- 0
+    cdf[!ind] <-  (1 - thr.prob) * pgammat(
+      x = x,
+      upper.bound = u.thr,
+      shape = k,
+      scale = sigma[!ind]
+    )
   }
   return(cdf)
   
@@ -585,10 +713,23 @@ cond.ptgGPD<- function(x, mu, u.thr, k, xi, sigma, sigma.GP, thr.prob){
 #' ind <- runif(n) > 0.7  # 70% Gamma, 30% GPD
 #' samples <- rtgGPD(n, u.thr, k, xi, sigma, sigma.GP, ind)
 #' hist(samples, breaks = 30, main = "Samples from Mixture of Truncated Gamma and GPD")
-rtgGPD<- function(n, u.thr, k, xi, sigma, sigma.GP, ind){
-  n1<- sum(ind)
-  x<- ifelse(ind, evd::rgpd(n=n1, loc=u.thr, scale = sigma.GP, shape = xi), 
-             rgammat(n=n-n1, upper.bound = u.thr, shape = k, scale = sigma))
+rtgGPD <- function(n, u.thr, k, xi, sigma, sigma.GP, ind) {
+  n1 <- sum(ind)
+  x <- ifelse(
+    ind,
+    evd::rgpd(
+      n = n1,
+      loc = u.thr,
+      scale = sigma.GP,
+      shape = xi
+    ),
+    rgammat(
+      n = n - n1,
+      upper.bound = u.thr,
+      shape = k,
+      scale = sigma
+    )
+  )
   return(x)
 }
 
@@ -632,20 +773,49 @@ rtgGPD<- function(n, u.thr, k, xi, sigma, sigma.GP, ind){
 #' thr.prob <- 0.3
 #' dens <- dbGPD(x, u.thr, k, xi, sigma, sigma.GP, thr.prob, log = FALSE)
 #' plot(x, dens, type = "l", main = "Density of Mixture of Truncated Beta and GPD")
-dbGPD<- function(x, u.thr, k, xi, sigma, sigma.GP, thr.prob, log=TRUE){
+dbGPD <- function(x,
+                  u.thr,
+                  k,
+                  xi,
+                  sigma,
+                  sigma.GP,
+                  thr.prob,
+                  log = TRUE) {
   #browser()
-  if(log){
-    dens<- rep(0, length(x))
-    ind<- (x < u.thr) & (x >0)
-    dens[ind]<- log(1 - thr.prob) + dbetat(x = x[ind], u.thr =u.thr, shape1 = k, shape2 = sigma[ind], log=TRUE)
-    ind.e<- x>u.thr
-    dens[ind.e]<- log(thr.prob) + evd::dgpd(x=x[ind.e], loc= u.thr, scale = sigma.GP, shape=xi, log=TRUE)
+  if (log) {
+    dens <- rep(0, length(x))
+    ind <- (x < u.thr) & (x > 0)
+    dens[ind] <- log(1 - thr.prob) + dbetat(
+      x = x[ind],
+      u.thr = u.thr,
+      shape1 = k,
+      shape2 = sigma[ind],
+      log = TRUE
+    )
+    ind.e <- x > u.thr
+    dens[ind.e] <- log(thr.prob) + evd::dgpd(
+      x = x[ind.e],
+      loc = u.thr,
+      scale = sigma.GP,
+      shape = xi,
+      log = TRUE
+    )
   } else{
-    dens<- rep(0, length(x))
-    ind<- (x < u.thr) & (x >0)
-    dens[ind]<- (1 - thr.prob) * dbetat(x = x[ind], u.thr =u.thr, shape1 = k, shape2 = sigma[ind])
-    ind.e<- x>u.thr
-    dens[ind.e]<- (thr.prob) * evd::dgpd(x=x[ind.e], loc= u.thr, scale = sigma.GP, shape=xi)
+    dens <- rep(0, length(x))
+    ind <- (x < u.thr) & (x > 0)
+    dens[ind] <- (1 - thr.prob) * dbetat(
+      x = x[ind],
+      u.thr = u.thr,
+      shape1 = k,
+      shape2 = sigma[ind]
+    )
+    ind.e <- x > u.thr
+    dens[ind.e] <- (thr.prob) * evd::dgpd(
+      x = x[ind.e],
+      loc = u.thr,
+      scale = sigma.GP,
+      shape = xi
+    )
   }
   return(dens)
   
@@ -690,19 +860,49 @@ dbGPD<- function(x, u.thr, k, xi, sigma, sigma.GP, thr.prob, log=TRUE){
 #' thr.prob <- 0.3
 #' cdf <- pbGPD(x, u.thr, k, xi, sigma, sigma.GP, thr.prob, log.p = FALSE)
 #' plot(x, cdf, type = "l", main = "CDF of Mixture of Truncated Beta and GPD")
-pbGPD<- function(x, u.thr, k, xi, sigma, sigma.GP, thr.prob, log.p=TRUE){
-  if(log.p){
-    cdf<- rep(0, length(x))
-    ind<- (x < u.thr) & (x >0)
-    cdf[ind]<- log(1 - thr.prob) + pbetat(x = x[ind], u.thr =u.thr, shape1 = k, shape2 = sigma[ind], log.p=TRUE)
-    ind.e<- x>u.thr
-    cdf[ind.e]<- log((1 - thr.prob) + thr.prob * evd::pgpd(x=x[ind.e], loc= u.thr, shape=xi, scale = sigma.GP, lower.tail = TRUE))
+pbGPD <- function(x,
+                  u.thr,
+                  k,
+                  xi,
+                  sigma,
+                  sigma.GP,
+                  thr.prob,
+                  log.p = TRUE) {
+  if (log.p) {
+    cdf <- rep(0, length(x))
+    ind <- (x < u.thr) & (x > 0)
+    cdf[ind] <- log(1 - thr.prob) + pbetat(
+      x = x[ind],
+      u.thr = u.thr,
+      shape1 = k,
+      shape2 = sigma[ind],
+      log.p = TRUE
+    )
+    ind.e <- x > u.thr
+    cdf[ind.e] <- log((1 - thr.prob) + thr.prob * evd::pgpd(
+      x = x[ind.e],
+      loc = u.thr,
+      shape = xi,
+      scale = sigma.GP,
+      lower.tail = TRUE
+    )
+    )
   } else{
-    cdf<- rep(0, length(x))
-    ind<- (x < u.thr) & (x >0)
-    cdf[ind]<- (1 - thr.prob) * dbetat(x = x[ind], u.thr =u.thr, shape1 = k, shape2 = sigma[ind])
-    ind.e<- x>u.thr
-    cdf[ind.e]<-  (1 - thr.prob) + (thr.prob) * evd::pgpd(x=x[ind.e], loc= u.thr, shape=xi, scale = sigma.GP)
+    cdf <- rep(0, length(x))
+    ind <- (x < u.thr) & (x > 0)
+    cdf[ind] <- (1 - thr.prob) * dbetat(
+      x = x[ind],
+      u.thr = u.thr,
+      shape1 = k,
+      shape2 = sigma[ind]
+    )
+    ind.e <- x > u.thr
+    cdf[ind.e] <-  (1 - thr.prob) + (thr.prob) * evd::pgpd(
+      x = x[ind.e],
+      loc = u.thr,
+      shape = xi,
+      scale = sigma.GP
+    )
   }
   return(cdf)
   
@@ -749,22 +949,64 @@ pbGPD<- function(x, u.thr, k, xi, sigma, sigma.GP, thr.prob, log.p=TRUE){
 #' thr.prob <- 0.4
 #' cdf <- cond.pbGPD(x, mu, u.thr, k, xi, sigma, sigma.GP, thr.prob)
 #' plot(mu, cdf, type = "l", main = "Conditional CDF of Mixture Distribution")
-cond.pbGPD<- function(x, mu, u.thr, k, xi, sigma, sigma.GP, thr.prob){
+cond.pbGPD <- function(x,
+                       mu,
+                       u.thr,
+                       k,
+                       xi,
+                       sigma,
+                       sigma.GP,
+                       thr.prob) {
   #browser()
-  cdf<- rep(NA, length(mu))
-  if(x>u.thr){
-    ind<- exp(as.numeric(mu)) < u.thr
-    cdf[ind]<- 1
-    cdf[!ind]<-  1 - thr.prob + thr.prob * evd::pgpd(q=x, loc= u.thr, shape=xi, scale =sigma.GP , lower.tail = TRUE)
+  cdf <- rep(NA, length(mu))
+  if (x > u.thr) {
+    ind <- exp(as.numeric(mu)) < u.thr
+    cdf[ind] <- 1
+    cdf[!ind] <-  1 - thr.prob + thr.prob * evd::pgpd(
+      q = x,
+      loc = u.thr,
+      shape = xi,
+      scale = sigma.GP ,
+      lower.tail = TRUE
+    )
   } else{
-    ind<- exp(as.numeric(mu)) > u.thr
-    cdf[ind]<- 0 
-    cdf[!ind]<-  (1 - thr.prob) * pbetat(x = x, u.thr =u.thr, shape1 = k, shape2 = sigma[!ind], log.p=TRUE) 
+    ind <- exp(as.numeric(mu)) > u.thr
+    cdf[ind] <- 0
+    cdf[!ind] <-  (1 - thr.prob) * pbetat(
+      x = x,
+      u.thr = u.thr,
+      shape1 = k,
+      shape2 = sigma[!ind],
+      log.p = TRUE
+    )
   }
   
   
-  cdf<- ifelse(x>u.thr, ifelse(exp(as.numeric(mu)) < u.thr, 1, 1 - thr.prob + thr.prob * evd::pgpd(q=x, loc= u.thr, shape=xi, scale =sigma.GP , lower.tail = TRUE)),
-               ifelse(exp(as.numeric(mu)) > u.thr, 0, (1 - thr.prob) * pbetat(x = x, u.thr =u.thr, shape1 = k, shape2 = sigma[!ind], log.p=TRUE) ))
+  cdf <- ifelse(
+    x > u.thr,
+    ifelse(
+      exp(as.numeric(mu)) < u.thr,
+      1,
+      1 - thr.prob + thr.prob * evd::pgpd(
+        q = x,
+        loc = u.thr,
+        shape = xi,
+        scale = sigma.GP ,
+        lower.tail = TRUE
+      )
+    ),
+    ifelse(
+      exp(as.numeric(mu)) > u.thr,
+      0,
+      (1 - thr.prob) * pbetat(
+        x = x,
+        u.thr = u.thr,
+        shape1 = k,
+        shape2 = sigma[!ind],
+        log.p = TRUE
+      )
+    )
+  )
   
   return(cdf)
 }
@@ -807,10 +1049,23 @@ cond.pbGPD<- function(x, mu, u.thr, k, xi, sigma, sigma.GP, thr.prob){
 #' ind <- runif(n) < 0.3  # 30% of the samples will be from GPD
 #' simulated_values <- rbGPD(n, u.thr, k, xi, sigma, sigma.GP, ind)
 #' hist(simulated_values, breaks = 30, main = "Simulated Mixture of Beta and GPD")
-rbGPD<- function(n, u.thr, k, xi, sigma, sigma.GP, ind){
-  n1<- sum(ind)
-  x<- ifelse(ind, evd::rgpd(n=n1, loc=u.thr, scale = sigma.GP, shape = xi), 
-             rbetat(n=n - n1, u.thr = u.thr, shape1 = k, shape2 = sigma))
+rbGPD <- function(n, u.thr, k, xi, sigma, sigma.GP, ind) {
+  n1 <- sum(ind)
+  x <- ifelse(
+    ind,
+    evd::rgpd(
+      n = n1,
+      loc = u.thr,
+      scale = sigma.GP,
+      shape = xi
+    ),
+    rbetat(
+      n = n - n1,
+      u.thr = u.thr,
+      shape1 = k,
+      shape2 = sigma
+    )
+  )
   return(x)
 }
 
@@ -851,21 +1106,30 @@ rtnorm <- function(n = 1,
                    mean = 0,
                    sd = 1,
                    a = -Inf,
-                   b = Inf
-){
-  stopifnot(length(a) == 1L,
-            length(b) == 1L,
-            length(mean) == 1L,
-            length(sd) == 1L,
-            isTRUE(a < b),
-            isTRUE(sd > 0))
+                   b = Inf) {
+  stopifnot(
+    length(a) == 1L,
+    length(b) == 1L,
+    length(mean) == 1L,
+    length(sd) == 1L,
+    isTRUE(a < b),
+    isTRUE(sd > 0)
+  )
   a_std <- (a - mean) / sd
   b_std <- (b - mean) / sd
-  if(b_std < -37 | a_std > 37){
-    warning("Interval requested is beyond numerical tolerance.\nUse \"TruncatedNormal\" package \"rtnorm\" instead for rare events simulation.")
-    return(TruncatedNormal::rtnorm(n = n, mu = mean, sd = sd, lb = a, ub = b))
+  if (b_std < -37 | a_std > 37) {
+    warning(
+      "Interval requested is beyond numerical tolerance.\nUse \"TruncatedNormal\" package \"rtnorm\" instead for rare events simulation."
+    )
+    return(TruncatedNormal::rtnorm(
+      n = n,
+      mu = mean,
+      sd = sd,
+      lb = a,
+      ub = b
+    ))
   }
-  if(a_std < 0){
+  if (a_std < 0) {
     Fa <- pnorm(a_std)
     Fb <- pnorm(b_std)
     mean + sd * qnorm(Fa + runif(n) * (Fb - Fa))
@@ -888,7 +1152,7 @@ rtnorm <- function(n = 1,
 #'
 #' @details
 #' The function utilizes the \code{TruncatedNormal} package to efficiently compute the normalizing constant, ensuring accurate density values even for intervals with extreme truncation.
-#' 
+#'
 #' If both \code{a} and \code{b} are finite, the function computes the truncated normal density adjusted by the log of the normalizing constant. In cases where one bound is infinite, it defaults to the standard normal distribution behavior.
 #'
 #' @seealso
@@ -911,15 +1175,18 @@ dtnorm <- function(x,
                    sd = 1,
                    a = -Inf,
                    b = Inf,
-                   log = FALSE){
-  stopifnot(length(a) == 1L,
-            length(b) == 1L,
-            length(mean) == 1L,
-            length(sd) == 1L,
-            isTRUE(a < b),
-            isTRUE(sd > 0))
+                   log = FALSE) {
+  stopifnot(
+    length(a) == 1L,
+    length(b) == 1L,
+    length(mean) == 1L,
+    length(sd) == 1L,
+    isTRUE(a < b),
+    isTRUE(sd > 0)
+  )
   dens <- dnorm(x, mean = mean, sd = sd, log = TRUE)
-  dens <- dens  - TruncatedNormal::lnNpr(a = (a-mean)/sd, b = (b-mean)/sd)
+  dens <- dens  - TruncatedNormal::lnNpr(a = (a - mean) / sd, b = (b - mean) /
+                                           sd)
   return(dens)
 }
 
@@ -955,21 +1222,21 @@ dtnorm <- function(x,
 #' # Vectorized transformation
 #' params <- c(2, 3, 4)
 #' transfo(par = params, lb = 1, ub = 5)
-transfo <- Vectorize(function(par, lb, ub){
+transfo <- Vectorize(function(par, lb, ub) {
   stopifnot(length(par) == 1L,
             length(lb) == 1L,
             length(ub) == 1L,
             isTRUE(lb < ub))
-  if(lb == -Inf & ub == Inf){
+  if (lb == -Inf & ub == Inf) {
     return(par)
-  } else if(lb > -Inf & ub == Inf){
+  } else if (lb > -Inf & ub == Inf) {
     return(log(par - lb))
-  } else if(lb == -Inf & ub < Inf){
+  } else if (lb == -Inf & ub < Inf) {
     return(log(ub - par))
-  } else if(lb > -Inf & ub < Inf){
+  } else if (lb > -Inf & ub < Inf) {
     return(qlogis((par - lb) / (ub - lb)))
   }
-}, vectorize.args=c("par", "lb", "ub"))
+}, vectorize.args = c("par", "lb", "ub"))
 
 
 
@@ -1002,23 +1269,23 @@ transfo <- Vectorize(function(par, lb, ub){
 #'
 #' # Compute the Jacobian (not in log-scale)
 #' jac_inv_transfo(tpar = 0.5, lb = -Inf, ub = Inf, log = FALSE)
-jac_inv_transfo <- Vectorize(function(tpar, lb, ub, log = FALSE){
-  if(lb == -Inf & ub == Inf){
+jac_inv_transfo <- Vectorize(function(tpar, lb, ub, log = FALSE) {
+  if (lb == -Inf & ub == Inf) {
     ljac <- 0  ## log(tpar) should be zero, why there is log(tpar) we need to check
   }
-  if(lb > -Inf & ub == Inf){
+  if (lb > -Inf & ub == Inf) {
     ljac <- tpar
-  } else if(lb == -Inf & ub < Inf){
+  } else if (lb == -Inf & ub < Inf) {
     ljac <- tpar
-  } else if(lb > -Inf & ub < Inf){
+  } else if (lb > -Inf & ub < Inf) {
     ljac <- log(ub - lb) + plogis(tpar, log.p = TRUE) + plogis(tpar, log.p = TRUE, lower.tail = FALSE)
   }
-  if(log){
+  if (log) {
     return(ljac)
   } else{
     return(exp(ljac))
   }
-}, vectorize.args=c("tpar", "lb", "ub"))
+}, vectorize.args = c("tpar", "lb", "ub"))
 
 
 #' Gradient of the Log-Jacobian of Transformations
@@ -1046,18 +1313,18 @@ jac_inv_transfo <- Vectorize(function(tpar, lb, ub, log = FALSE){
 #' dlogjac_inv_transfo(tpar = 1, lb = 0, ub = Inf)        # Lower-bound transformation
 #' dlogjac_inv_transfo(tpar = -1, lb = -Inf, ub = 5)      # Upper-bound transformation
 #' dlogjac_inv_transfo(tpar = 0.2, lb = 1, ub = 5)        # Logistic transformation between bounds
-dlogjac_inv_transfo <- Vectorize(function(tpar, lb, ub){
-  if(lb == -Inf & ub == Inf){
+dlogjac_inv_transfo <- Vectorize(function(tpar, lb, ub) {
+  if (lb == -Inf & ub == Inf) {
     return(0)
   }
-  if(lb > -Inf & ub == Inf){
+  if (lb > -Inf & ub == Inf) {
     return(1)
-  } else if(lb == -Inf & ub < Inf){
+  } else if (lb == -Inf & ub < Inf) {
     return(1)
   } else{
-    -1 + 2*plogis(-tpar)
+    -1 + 2 * plogis(-tpar)
   }
-}, vectorize.args=c("tpar", "lb", "ub"))
+}, vectorize.args = c("tpar", "lb", "ub"))
 
 
 #' Inverse Transformation to Original Parameter Scale
@@ -1086,21 +1353,21 @@ dlogjac_inv_transfo <- Vectorize(function(tpar, lb, ub){
 #' inv_transfo(tpar = -1, lb = -Inf, ub = 5)    # Upper-bound transformation
 #' inv_transfo(tpar = 0.2, lb = 1, ub = 5)      # Transformation between finite bounds
 
-inv_transfo <- Vectorize(function(tpar, lb, ub){
+inv_transfo <- Vectorize(function(tpar, lb, ub) {
   stopifnot(length(tpar) == 1L,
             length(lb) == 1L,
             length(ub) == 1L,
             isTRUE(lb < ub))
-  if(lb == -Inf & ub == Inf){
+  if (lb == -Inf & ub == Inf) {
     return(tpar)
-  } else if(lb > -Inf & ub == Inf){
+  } else if (lb > -Inf & ub == Inf) {
     return(exp(tpar) + lb)
-  } else if(lb == -Inf & ub < Inf){
+  } else if (lb == -Inf & ub < Inf) {
     return(ub - exp(tpar))
   } else{
-    return(lb + (ub - lb)*plogis(tpar))
+    return(lb + (ub - lb) * plogis(tpar))
   }
-}, vectorize.args=c("tpar", "lb", "ub"))
+}, vectorize.args = c("tpar", "lb", "ub"))
 
 
 
@@ -1132,24 +1399,25 @@ inv_transfo <- Vectorize(function(tpar, lb, ub){
 #' trunc_eigen_sqrt(Sigma, inv = FALSE)
 #' # Compute inverse square root
 #' trunc_eigen_sqrt(Sigma, inv = TRUE)
-trunc_eigen_sqrt <- function(Sigma, inv){
+trunc_eigen_sqrt <- function(Sigma, inv) {
   es <- eigen(Sigma)
   
   # Small negative eigenvalues can occur just due to numerical error and should
-  # be set back to zero. 
+  # be set back to zero.
   es$values[(es$values < 1e-12) & (es$values > -1e-12)] <- 0
   
   # If any eigen values are large negative throw error (something wrong)
-  if (any(es$values < -1e-12)) stop("Non-trivial negative eigenvalues present")
+  if (any(es$values < -1e-12))
+    stop("Non-trivial negative eigenvalues present")
   
   # calculate square root and reveal rank (k)
   k <- sum(es$values > 0)
-  if (!inv){
-    L <- es$vectors %*% diag(sqrt(es$values))  
+  if (!inv) {
+    L <- es$vectors %*% diag(sqrt(es$values))
   } else if (inv) {
-    L <- es$vectors %*% diag(1/sqrt(es$values))  
+    L <- es$vectors %*% diag(1 / sqrt(es$values))
   }
-  return(L[,1:k, drop=F])
+  return(L[, 1:k, drop = F])
 }
 
 #' Covariance Parameterization using Eigen Decomposition
@@ -1176,13 +1444,13 @@ trunc_eigen_sqrt <- function(Sigma, inv){
 #' Sigma <- matrix(c(2, 0.5, 0.5, 1), nrow = 2) # Covariance matrix
 #' # Generate 100 samples
 #' samples <- rMVNormC_eigen(n = 100, mu = mu, Sigma = Sigma)
-rMVNormC_eigen <- function(n, mu, Sigma){
+rMVNormC_eigen <- function(n, mu, Sigma) {
   p <- length(mu)
-  L <- trunc_eigen_sqrt(Sigma, inv=FALSE)
+  L <- trunc_eigen_sqrt(Sigma, inv = FALSE)
   k <- ncol(L)
-  Z <- matrix(rnorm(k*n), k, n)
-  X <- L%*%Z
-  X <- sweep(X, 1, mu, FUN=`+`)
+  Z <- matrix(rnorm(k * n), k, n)
+  X <- L %*% Z
+  X <- sweep(X, 1, mu, FUN = `+`)
 }
 
 #' Precision Parameterization using Eigen Decomposition
@@ -1211,14 +1479,11 @@ rMVNormC_eigen <- function(n, mu, Sigma){
 #' Precision <- matrix(c(2, 0.5, 0.5, 1), nrow = 2) # Precision matrix (inverse covariance)
 #' # Generate 100 samples
 #' samples <- rMVNormP_eigen(n = 100, mu = mu, Sigma = Precision
-rMVNormP_eigen <- function(n, mu, Sigma){
+rMVNormP_eigen <- function(n, mu, Sigma) {
   p <- length(mu)
-  L <- trunc_eigen_sqrt(Sigma, inv=TRUE) 
+  L <- trunc_eigen_sqrt(Sigma, inv = TRUE)
   k <- ncol(L)
-  Z <- matrix(rnorm(k*n), k, n)
-  X <- L%*%Z
-  X <- sweep(X, 1, mu, FUN=`+`)
+  Z <- matrix(rnorm(k * n), k, n)
+  X <- L %*% Z
+  X <- sweep(X, 1, mu, FUN = `+`)
 }
-
-
-

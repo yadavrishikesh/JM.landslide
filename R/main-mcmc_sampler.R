@@ -66,13 +66,35 @@
 #' }
 
 
-mcmc_sampler <- function(Y, A, Z1, Z2, CV, mark_dist, thr.family = "gamma", model_type, adjacensy,
+mcmc_sampler <- function(Y,
+                         A,
+                         Z1,
+                         Z2,
+                         CV,
+                         mark_dist,
+                         thr.family = "gamma",
+                         model_type,
+                         adjacensy,
                          q.probs = as.numeric(quantile(sqrt(A), probs = seq(0.50, 0.99, 0.05))),
-                         q.probs.thr = 0.83, no.rm.obs = 2000, N.MCMC = 2e4, model.base =  FALSE,
-                         tun.hyper.mu = 0.01, tun.hyper.GP = 0.01, tun.eta = 1, tun.mu = 1, thin = 10,
-                         adapt = 100, burn_in1 = NULL, burn_in2 = NULL, true.values = NULL, simulation = FALSE,
-                         print.result = TRUE, traceplot = FALSE, samples.store, fit_thr_model_only = FALSE, init.seed = NULL) {
-  
+                         q.probs.thr = 0.83,
+                         no.rm.obs = 2000,
+                         N.MCMC = 2e4,
+                         model.base =  FALSE,
+                         tun.hyper.mu = 0.01,
+                         tun.hyper.GP = 0.01,
+                         tun.eta = 1,
+                         tun.mu = 1,
+                         thin = 10,
+                         adapt = 100,
+                         burn_in1 = NULL,
+                         burn_in2 = NULL,
+                         true.values = NULL,
+                         simulation = FALSE,
+                         print.result = TRUE,
+                         traceplot = FALSE,
+                         samples.store,
+                         fit_thr_model_only = FALSE,
+                         init.seed = NULL) {
   if (is.null(burn_in1) & is.null(burn_in2)) {
     burn_in1 <- floor(N.MCMC / 2)
     burn_in2 <- floor(N.MCMC / 4)

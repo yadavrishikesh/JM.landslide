@@ -40,17 +40,17 @@ latent_MH_update_parallel <-
     #browser()
     ellipsis <- list(...)
     args_loglik <- formalArgs(loglik_data)
-    args_prior<- formalArgs(loglik_latent)
-    stopifnot(
-      is.finite(par_cur),
-      isTRUE(all(args_loglik == formalArgs(loglik_data))),
-      isTRUE(all(args_prior == formalArgs(loglik_latent))),
-      dim(var_prop) == c(ns, nt)
-    )
+    args_prior <- formalArgs(loglik_latent)
+    stopifnot(is.finite(par_cur),
+              isTRUE(all(args_loglik == formalArgs(loglik_data))),
+              isTRUE(all(
+                args_prior == formalArgs(loglik_latent)
+              )),
+              dim(var_prop) == c(ns, nt))
     
     ## current parameter value
     loglik_args <- ellipsis[names(ellipsis) %in% args_loglik]
-    prior_args<- ellipsis[names(ellipsis) %in% args_prior]
+    prior_args <- ellipsis[names(ellipsis) %in% args_prior]
     
     loglik_args[[par_name]] <- par_cur
     prior_args[[par_name]] <- par_cur
@@ -59,9 +59,13 @@ latent_MH_update_parallel <-
       do.call(what = loglik_data, args = loglik_args) +
       do.call(what = loglik_latent, args = prior_args)
     ## proposing the parameter
-    par_prop <- matrix(rnorm(n = ns * nt,
-                             mean = par_cur,
-                             sd = sqrt(var_prop)), nrow = ns, ncol=nt)
+    par_prop <- matrix(rnorm(
+      n = ns * nt,
+      mean = par_cur,
+      sd = sqrt(var_prop)
+    ),
+    nrow = ns,
+    ncol = nt)
     
     loglik_args[[par_name]] <- par_prop
     prior_args[[par_name]] <- par_prop
@@ -73,8 +77,9 @@ latent_MH_update_parallel <-
     log_MH_ratio <-
       loglik_prop - loglik_curr
     
-    par_new<- ifelse((matrix(log(runif(ns * nt)), nrow = ns, ncol = nt) < as.matrix(log_MH_ratio)) & (!is.na(as.matrix(log_MH_ratio))),
-                     par_prop, par_cur)
+    par_new <- ifelse((matrix(
+      log(runif(ns * nt)), nrow = ns, ncol = nt
+    ) < as.matrix(log_MH_ratio)) & (!is.na(as.matrix(log_MH_ratio))), par_prop, par_cur)
     
     
     # par_new<- ifelse((matrix(log(runif(ns * nt)), nrow = ns, ncol = nt) < as.matrix(log_MH_ratio)) ,
@@ -94,7 +99,7 @@ latent_MH_update_parallel <-
 #' @param loglik_data A function representing the log-likelihood at the data level, depending on the latent parameters.
 #' @param loglik_latent A function representing the log-likelihood at the latent level, often acting as a prior.
 #' @param ns Integer. The number of spatial locations.
-#' @param nt Integer. The number of time points. Here nt=1, as only one temporal replicates 
+#' @param nt Integer. The number of time points. Here nt=1, as only one temporal replicates
 #' @param var_prop A vector of length \code{n}, representing the variance for the normal random walk proposals.
 #' @param transform A logical vector of length \code{n} indicating whether the parameters should be transformed to apply constraints.
 #' @param lb A vector of length \code{n}, specifying the lower bound constraints for the parameters.
@@ -116,7 +121,7 @@ latent_MH_update_parallel <-
 #' transform <- rep(TRUE, n)
 #' loglik_data <- function(latent_parameter, ...) -0.5 * (latent_parameter - 1)^2
 #' loglik_latent <- function(latent_parameter, ...) dnorm(latent_parameter, mean = 1, sd = 0.1, log = TRUE)
-#' updated_params <- latent_MH_update_parallel_constrain(par_cur, par_name, loglik_data, loglik_latent, 
+#' updated_params <- latent_MH_update_parallel_constrain(par_cur, par_name, loglik_data, loglik_latent,
 #'                                                      ns, nt, var_prop, transform, lb, ub)
 #'
 #' @seealso
@@ -132,23 +137,23 @@ latent_MH_update_parallel_constrain <-
            nt,
            var_prop,
            transform,
-           lb, 
+           lb,
            ub,
            ...) {
     #browser()
     ellipsis <- list(...)
     args_loglik <- formalArgs(loglik_data)
-    args_prior<- formalArgs(loglik_latent)
-    stopifnot(
-      is.finite(par_cur),
-      isTRUE(all(args_loglik == formalArgs(loglik_data))),
-      isTRUE(all(args_prior == formalArgs(loglik_latent))),
-      dim(var_prop) == c(ns, nt)
-    )
+    args_prior <- formalArgs(loglik_latent)
+    stopifnot(is.finite(par_cur),
+              isTRUE(all(args_loglik == formalArgs(loglik_data))),
+              isTRUE(all(
+                args_prior == formalArgs(loglik_latent)
+              )),
+              dim(var_prop) == c(ns, nt))
     
     ## current parameter value
     loglik_args <- ellipsis[names(ellipsis) %in% args_loglik]
-    prior_args<- ellipsis[names(ellipsis) %in% args_prior]
+    prior_args <- ellipsis[names(ellipsis) %in% args_prior]
     
     loglik_args[[par_name]] <- par_cur
     prior_args[[par_name]] <- par_cur
@@ -157,19 +162,35 @@ latent_MH_update_parallel_constrain <-
       do.call(what = loglik_data, args = loglik_args) +
       do.call(what = loglik_latent, args = prior_args)
     
-    # transforming the parameters to constrain scales  
+    # transforming the parameters to constrain scales
     trpar_curr <- ifelse(transform, transfo(par = par_cur, lb = lb, ub = ub), par_cur)
-    # Sample a proposal from the normal: proposing the parameter 
-    trpar_prop<- matrix(rnorm(n = ns * nt,
-                              mean = trpar_curr,
-                              sd = sqrt(var_prop)), nrow = ns, ncol=nt)
+    # Sample a proposal from the normal: proposing the parameter
+    trpar_prop <- matrix(rnorm(
+      n = ns * nt,
+      mean = trpar_curr,
+      sd = sqrt(var_prop)
+    ),
+    nrow = ns,
+    ncol = nt)
     # Compute the difference of log-Jacobin
-    # adj <- ifelse(transform, jac_inv_transfo(tpar = trpar_prop, lb = lb, ub = ub, log=TRUE) - 
+    # adj <- ifelse(transform, jac_inv_transfo(tpar = trpar_prop, lb = lb, ub = ub, log=TRUE) -
     #                 jac_inv_transfo(tpar = trpar_curr, lb = lb, ub = ub, log=TRUE), 0)
-    adj <- jac_inv_transfo(tpar = trpar_prop, lb = lb, ub = ub, log=TRUE) - 
-      jac_inv_transfo(tpar = trpar_curr, lb = lb, ub = ub, log=TRUE)
+    adj <- jac_inv_transfo(
+      tpar = trpar_prop,
+      lb = lb,
+      ub = ub,
+      log = TRUE
+    ) -
+      jac_inv_transfo(
+        tpar = trpar_curr,
+        lb = lb,
+        ub = ub,
+        log = TRUE
+      )
     ### transforming back to original scale
-    par_prop <- ifelse(transform, inv_transfo(tpar = trpar_prop, lb = lb, ub = ub), trpar_prop)
+    par_prop <- ifelse(transform,
+                       inv_transfo(tpar = trpar_prop, lb = lb, ub = ub),
+                       trpar_prop)
     
     loglik_args[[par_name]] <- par_prop
     prior_args[[par_name]] <- par_prop
@@ -181,8 +202,9 @@ latent_MH_update_parallel_constrain <-
     log_MH_ratio <-
       loglik_prop - loglik_curr + adj
     
-    par_new<- ifelse((matrix(log(runif(ns * nt)), nrow = ns, ncol = nt) < as.matrix(log_MH_ratio)) & (!is.na(as.matrix(log_MH_ratio))),
-                     par_prop, par_cur)
+    par_new <- ifelse((matrix(
+      log(runif(ns * nt)), nrow = ns, ncol = nt
+    ) < as.matrix(log_MH_ratio)) & (!is.na(as.matrix(log_MH_ratio))), par_prop, par_cur)
     # par_new<- ifelse((matrix(log(runif(ns * nt)), nrow = ns, ncol = nt) < as.matrix(log_MH_ratio)) ,
     #                    par_prop, par_cur)
     
@@ -190,7 +212,7 @@ latent_MH_update_parallel_constrain <-
   }
 
 
-#' Block Random Walk Metropolis Update 
+#' Block Random Walk Metropolis Update
 #'
 #' This function performs block updates of parameters using random walk proposals within
 #' the bounds of the parameter support. It optionally applies transformations to ensure the proposals
@@ -242,11 +264,11 @@ block_rw_update <-
            lb = -Inf,
            ub = Inf,
            transform = FALSE,
-           ...){
+           ...) {
     #browser()
     ellipsis <- list(...)
     args_loglik <- formalArgs(loglik)
-    args_logprior<- formalArgs(logprior)
+    args_logprior <- formalArgs(logprior)
     
     stopifnot(is.finite(par_curr))
     # if(lb == -Inf & ub == Inf){
@@ -256,43 +278,62 @@ block_rw_update <-
     par_new <- par_curr # if all things fail
     # Copy arguments into a list to call function
     loglik_args <- ellipsis[names(ellipsis) %in% args_loglik]
-    logprior_args<- ellipsis[names(ellipsis) %in% args_logprior]
+    logprior_args <- ellipsis[names(ellipsis) %in% args_logprior]
     # Override value of parameter
     loglik_args[[par_name]] <- par_curr
-    logprior_args[[par_name]]<- par_curr
+    logprior_args[[par_name]] <- par_curr
     
     logpost_curr <-
-      do.call(what = loglik,
-              args = loglik_args) +
-      do.call(what = logprior,
-              args = logprior_args)
-    if(!transform){
-      par_prop <- rtnorm(n = length(par_curr),
-                         a = lb,
-                         b = ub,
-                         mean = par_curr,
-                         sd = sqrt(var_markdist))
-      adj <- sum(dtnorm(par_curr,
-                        a = lb,
-                        b = ub,
-                        mean = par_prop,
-                        sd = sqrt(var_markdist),
-                        log = TRUE)) -
-        sum(dtnorm(par_prop,
-                   a = lb,
-                   b = ub,
-                   mean = par_curr,
-                   sd = sqrt(var_markdist),
-                   log = TRUE))
-    } else{ # Transformation is TRUE
+      do.call(what = loglik, args = loglik_args) +
+      do.call(what = logprior, args = logprior_args)
+    if (!transform) {
+      par_prop <- rtnorm(
+        n = length(par_curr),
+        a = lb,
+        b = ub,
+        mean = par_curr,
+        sd = sqrt(var_markdist)
+      )
+      adj <- sum(dtnorm(
+        par_curr,
+        a = lb,
+        b = ub,
+        mean = par_prop,
+        sd = sqrt(var_markdist),
+        log = TRUE
+      )) -
+        sum(dtnorm(
+          par_prop,
+          a = lb,
+          b = ub,
+          mean = par_curr,
+          sd = sqrt(var_markdist),
+          log = TRUE
+        ))
+    } else{
+      # Transformation is TRUE
       # Y = f(X)
       # Transform parameter to the real line
       trpar_curr <- transfo(par = par_curr, lb = lb, ub = ub)
       # Sample a proposal from the normal
-      trpar_prop <- rnorm(n = length(par_curr), mean = trpar_curr, sd = sqrt(var_markdist))
+      trpar_prop <- rnorm(
+        n = length(par_curr),
+        mean = trpar_curr,
+        sd = sqrt(var_markdist)
+      )
       # Compute the difference of log-Jacobin
-      adj <- sum(jac_inv_transfo(tpar = trpar_prop, lb = lb, ub = ub, log=TRUE)) -
-        sum(jac_inv_transfo(tpar = trpar_curr, lb = lb, ub = ub, log=TRUE))
+      adj <- sum(jac_inv_transfo(
+        tpar = trpar_prop,
+        lb = lb,
+        ub = ub,
+        log = TRUE
+      )) -
+        sum(jac_inv_transfo(
+          tpar = trpar_curr,
+          lb = lb,
+          ub = ub,
+          log = TRUE
+        ))
       ### tranforming back to origial scale
       par_prop <- inv_transfo(tpar = trpar_prop, lb = lb, ub = ub)
     }
@@ -301,29 +342,17 @@ block_rw_update <-
     logprior_args[[par_name]] <- par_prop
     
     logpost_prop <-
-      do.call(what = loglik,
-              args = loglik_args) +
-      do.call(what = logprior,
-              args = logprior_args)
+      do.call(what = loglik, args = loglik_args) +
+      do.call(what = logprior, args = logprior_args)
     log_MH_ratio <-
       logpost_prop - logpost_curr + adj ### because adjusted in the Jacobean
     
-    if((log_MH_ratio > log(runif(1))) & (!is.na(log_MH_ratio))){
+    if ((log_MH_ratio > log(runif(1))) & (!is.na(log_MH_ratio))) {
       par_new <- par_prop
     }
     
     # if((log_MH_ratio > log(runif(1)))){
     #   par_new <- par_prop
-    # } 
+    # }
     return(par_new)
   }
-
-
-
-
-
-
-
-
-
-

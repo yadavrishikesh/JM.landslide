@@ -104,39 +104,61 @@
 #' W1 <- Sim_mark_data$W1
 #' W2 <- Sim_mark_data$W2
 
-sim_mark_function<-function(Q,  hyper.mu, other.hyper, beta1, beta2, Z1, Z2, mark_dist, model_type){
-  N<-dim(Q)[1]
-  n1<-n2<- N
-  p<-ncol(Z1)
-  q<-ncol(Z2)
-  hyper.mu<- hyper.mu
-  kappa_w1<- other.hyper$kappa_w1
-  kappa_w2<- other.hyper$kappa_w2
-  kappa_eta<- other.hyper$kappa_eta
-  kappa_mu<-  other.hyper$kappa_mu
-  intercept1<- other.hyper$intercept1
-  intercept2<- other.hyper$intercept2
-  beta<- other.hyper$beta
-
-  beta1<-beta1
-  beta2<-beta2
-  if(model_type=="FE"){
-    W1_s<-rep(0, N)
-    W2_s<-rep(0, N)
+sim_mark_function <- function(Q,
+                              hyper.mu,
+                              other.hyper,
+                              beta1,
+                              beta2,
+                              Z1,
+                              Z2,
+                              mark_dist,
+                              model_type) {
+  N <- dim(Q)[1]
+  n1 <- n2 <- N
+  p <- ncol(Z1)
+  q <- ncol(Z2)
+  hyper.mu <- hyper.mu
+  kappa_w1 <- other.hyper$kappa_w1
+  kappa_w2 <- other.hyper$kappa_w2
+  kappa_eta <- other.hyper$kappa_eta
+  kappa_mu <-  other.hyper$kappa_mu
+  intercept1 <- other.hyper$intercept1
+  intercept2 <- other.hyper$intercept2
+  beta <- other.hyper$beta
+  
+  beta1 <- beta1
+  beta2 <- beta2
+  if (model_type == "FE") {
+    W1_s <- rep(0, N)
+    W2_s <- rep(0, N)
   } else{
-    W1_s<-rMVNormP_eigen(n=1, mu=rep(0,N), Sigma = kappa_w1*Q)
-    W2_s<-rMVNormP_eigen(n=1, mu=rep(0,N), Sigma = kappa_w2*Q)
+    W1_s <- rMVNormP_eigen(n = 1,
+                           mu = rep(0, N),
+                           Sigma = kappa_w1 * Q)
+    W2_s <- rMVNormP_eigen(n = 1,
+                           mu = rep(0, N),
+                           Sigma = kappa_w2 * Q)
   }
-  eta<-intercept1 + Z1%*%beta1 +  W1_s + rnorm(n1, mean=0, sd=sqrt(1/kappa_eta))
-  Y=rpois(n=n1, lambda = exp(eta))
-
-  mu<-intercept2 + Z2%*% beta2 + beta* W1_s + W2_s + rnorm(n2, mean=0, sd=sqrt(1/kappa_mu))
-  k<- hyper.mu[1]
-  xi<-  hyper.mu[2]
-  sigma<- exp(mu)/evd::qgpd(0.5^(1/k), scale = 1, shape = xi)
-  A<- rEGPD1(n=n2, k=k, xi=xi, sigma=sigma)
-
-  return(list(Y=Y, mu=mu, A=A, W1=W1_s, eta=eta, W2=W2_s))
+  eta <- intercept1 + Z1 %*% beta1 +  W1_s + rnorm(n1, mean = 0, sd = sqrt(1 /
+                                                                             kappa_eta))
+  Y = rpois(n = n1, lambda = exp(eta))
+  
+  mu <- intercept2 + Z2 %*% beta2 + beta * W1_s + W2_s + rnorm(n2, mean =
+                                                                 0, sd = sqrt(1 / kappa_mu))
+  k <- hyper.mu[1]
+  xi <-  hyper.mu[2]
+  sigma <- exp(mu) / evd::qgpd(0.5 ^ (1 / k), scale = 1, shape = xi)
+  A <- rEGPD1(n = n2,
+              k = k,
+              xi = xi,
+              sigma = sigma)
+  
+  return(list(
+    Y = Y,
+    mu = mu,
+    A = A,
+    W1 = W1_s,
+    eta = eta,
+    W2 = W2_s
+  ))
 }
-
-

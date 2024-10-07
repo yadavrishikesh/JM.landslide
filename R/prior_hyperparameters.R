@@ -21,23 +21,26 @@
 #' thr.family <- "gamma"
 #' hyper.mu_fixed <- c(1, 0.5) # Hyperparameters for the gamma prior
 #' gamma_prior_markdist_thr(cur_par, thr.family, hyper.mu_fixed)
-#' 
+#'
 #' # Log-normal threshold model
 #' cur_par <- c(3) # Current parameter value (shape k)
 #' thr.family <- "logNormal"
 #' hyper.mu_fixed <- c(2, 1) # Hyperparameters for the gamma prior
 #' gamma_prior_markdist_thr(cur_par, thr.family, hyper.mu_fixed)
-gamma_prior_markdist_thr<- function(cur_par,
-                                thr.family,
-                                hyper.mu_fixed){
-  
-  if(thr.family=="gamma"){
-    k<- cur_par[1]
-    logpriordens <- dgamma(k, shape = hyper.mu_fixed[1], rate = hyper.mu_fixed[2], log = TRUE) 
+gamma_prior_markdist_thr <- function(cur_par, thr.family, hyper.mu_fixed) {
+  if (thr.family == "gamma") {
+    k <- cur_par[1]
+    logpriordens <- dgamma(k,
+                           shape = hyper.mu_fixed[1],
+                           rate = hyper.mu_fixed[2],
+                           log = TRUE)
   }
-  if(thr.family=="logNormal"){
-    k<- cur_par[1]
-    logpriordens <- dgamma(k, shape = hyper.mu_fixed[1], rate = hyper.mu_fixed[2], log = TRUE) 
+  if (thr.family == "logNormal") {
+    k <- cur_par[1]
+    logpriordens <- dgamma(k,
+                           shape = hyper.mu_fixed[1],
+                           rate = hyper.mu_fixed[2],
+                           log = TRUE)
   }
   
   return(logpriordens)
@@ -83,20 +86,29 @@ gamma_prior_markdist_thr<- function(cur_par,
 #' mark_dist <- "tgGPD"
 #' hyper.mu_fixed <- c(2, 1)
 #' gamma_prior_markdist_JM(cur_par, mark_dist, hyper.mu_fixed)
-gamma_prior_markdist_JM<- function(cur_par,
-                                mark_dist,
-                                hyper.mu_fixed){
-  
-  k<- cur_par[1]
-  xi<- cur_par[2]
-  if(mark_dist=="eGPD"){ 
-    logpriordens <- dgamma(k, shape = hyper.mu_fixed[1], rate = hyper.mu_fixed[2], log = TRUE) +
-      dgamma(xi, shape = 1, rate =15, log = TRUE)
-  } else if (mark_dist=="bGPD"){
-    logpriordens<- dgamma(k, shape = hyper.mu_fixed[1], rate = hyper.mu_fixed[2], log = TRUE)  
+gamma_prior_markdist_JM <- function(cur_par, mark_dist, hyper.mu_fixed) {
+  k <- cur_par[1]
+  xi <- cur_par[2]
+  if (mark_dist == "eGPD") {
+    logpriordens <- dgamma(k,
+                           shape = hyper.mu_fixed[1],
+                           rate = hyper.mu_fixed[2],
+                           log = TRUE) +
+      dgamma(xi,
+             shape = 1,
+             rate = 15,
+             log = TRUE)
+  } else if (mark_dist == "bGPD") {
+    logpriordens <- dgamma(k,
+                           shape = hyper.mu_fixed[1],
+                           rate = hyper.mu_fixed[2],
+                           log = TRUE)
     
-  } else if (mark_dist=="tgGPD"){
-    logpriordens<- dgamma(k, shape = hyper.mu_fixed[1], rate = hyper.mu_fixed[2], log = TRUE)
+  } else if (mark_dist == "tgGPD") {
+    logpriordens <- dgamma(k,
+                           shape = hyper.mu_fixed[1],
+                           rate = hyper.mu_fixed[2],
+                           log = TRUE)
   }
   
   return(logpriordens)
@@ -126,12 +138,17 @@ gamma_prior_markdist_JM<- function(cur_par,
 #' cur_par <- c(2, 0.5) # sigma.GP and xi
 #' hyper.mu_fixed <- c(1, 0.5) # shape and rate hyperparameters for sigma.GP
 #' gamma_prior_GPD_param(cur_par, hyper.mu_fixed)
-gamma_prior_GPD_param<- function(cur_par,
-                                 hyper.mu_fixed){
-  sigma.GP<- cur_par[1]
-  xi<- cur_par[2]
-  logpriordens<- dgamma(xi, shape = 1, rate =15, log = TRUE) + 
-    dgamma(sigma.GP, shape = hyper.mu_fixed[1], rate = hyper.mu_fixed[2], log = TRUE)
+gamma_prior_GPD_param <- function(cur_par, hyper.mu_fixed) {
+  sigma.GP <- cur_par[1]
+  xi <- cur_par[2]
+  logpriordens <- dgamma(xi,
+                         shape = 1,
+                         rate = 15,
+                         log = TRUE) +
+    dgamma(sigma.GP,
+           shape = hyper.mu_fixed[1],
+           rate = hyper.mu_fixed[2],
+           log = TRUE)
   return(logpriordens)
 }
 
@@ -163,18 +180,24 @@ gamma_prior_GPD_param<- function(cur_par,
 #' @examples
 #' # Get parameter bounds for an extended GPD distribution
 #' lb_ub_markdist("eGPD")
-#' 
+#'
 #' # Get parameter bounds for a beta-GPD distribution
 #' lb_ub_markdist("bGPD")
-#' 
+#'
 #' # Get parameter bounds for a truncated GPD distribution
 #' lb_ub_markdist("tgGPD")
-lb_ub_markdist<- function(mark_dist){
-  if(mark_dist=="eGPD"){ lb=c(0,0); ub=c(Inf, 1)
-  } else if (mark_dist=="bGPD"){lb=c(0); ub=c(Inf)
-  } else if (mark_dist=="tgGPD"){lb=c(0); ub=c(Inf)
+lb_ub_markdist <- function(mark_dist) {
+  if (mark_dist == "eGPD") {
+    lb = c(0, 0)
+    ub = c(Inf, 1)
+  } else if (mark_dist == "bGPD") {
+    lb = c(0)
+    ub = c(Inf)
+  } else if (mark_dist == "tgGPD") {
+    lb = c(0)
+    ub = c(Inf)
   }
-  return(list("ub"=ub, "lb"=lb))
+  return(list("ub" = ub, "lb" = lb))
 }
 
 
@@ -202,12 +225,16 @@ lb_ub_markdist<- function(mark_dist){
 #' @examples
 #' # Get parameter bounds for a beta-GPD distribution
 #' lb_ub_GP("bGPD")
-#' 
+#'
 #' # Get parameter bounds for a truncated GPD distribution
 #' lb_ub_GP("tgGPD")
-lb_ub_GP<- function(mark_dist){
-  if (mark_dist=="bGPD"){lb=c(0,0); ub=c(Inf, 1)
-  } else if (mark_dist=="tgGPD"){lb=c(0,0); ub=c(Inf, 1)
+lb_ub_GP <- function(mark_dist) {
+  if (mark_dist == "bGPD") {
+    lb = c(0, 0)
+    ub = c(Inf, 1)
+  } else if (mark_dist == "tgGPD") {
+    lb = c(0, 0)
+    ub = c(Inf, 1)
   }
-  return(list("ub"=ub, "lb"=lb))
+  return(list("ub" = ub, "lb" = lb))
 }

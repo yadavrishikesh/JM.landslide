@@ -35,7 +35,7 @@
 #' adapt_seq <- seq(100, 1000, by = 100)
 #' lower.acc <- 0.15
 #' upper.acc <- 0.30
-#' 
+#'
 #' # Update the variance tuning parameter
 #' sigma2_adapt <- adpative_function(index_MCMC_iter, sigma2_adapt, target_accept, rate_adapt, burn_in1, burn_in2, adapt, adpat_param, adapt_seq, lower.acc, upper.acc)
 adpative_function <- function(index_MCMC_iter,
@@ -67,5 +67,3 @@ adpative_function <- function(index_MCMC_iter,
   }
   return(sigma2_adapt)
 }
-
-

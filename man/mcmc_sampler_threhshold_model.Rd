@@ -116,7 +116,7 @@ result <- mcmc_sampler_threhshold_model(N.MCMC = 1000, A = threshold_data, ind.N
                                       no_of_nbd = 4, node.set = node_connections,
                                       ind_zeros_counts = zero_counts_indicator, q.probs = c(0.05, 0.5, 0.95),
                                       thr.family = "gamma", hyper.mu_adapt_seq2 = seq(0.05, 0.5, length.out = 100),
-                                      mu_adapt_seq2 = seq(0.05, 0.5, length.out = 100), 
-                                      eta_adapt_seq2 = seq(0.05, 0.5, length.out = 100), 
+                                      mu_adapt_seq2 = seq(0.05, 0.5, length.out = 100),
+                                      eta_adapt_seq2 = seq(0.05, 0.5, length.out = 100),
                                       init.seed = 123)
 }
