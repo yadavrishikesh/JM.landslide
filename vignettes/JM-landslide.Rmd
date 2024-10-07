@@ -48,7 +48,7 @@ Further details about the model can be found in the Yadav et al. (2024).
 
 #### 2. Loading Required Libraries and Data
 
-```r
+```{r}
 # Load necessary libraries
 library(JM.landslide)
 library(spdep)
@@ -68,7 +68,7 @@ data("Wenchuan_info_used_for_simulation")
 
 #### 3. Creating the Adjacency Graph
 
-```r
+```{r}
 # Create adjacency graph file
 nb2INLA("adjgraph-sim.txt", poly2nb(shp_selected, queen = FALSE, row.names = shp_selected$SU_ID))
 adjacensy <- inla.read.graph(filename = "adjgraph-sim.txt")
@@ -82,7 +82,7 @@ adjacensy <- inla.read.graph(filename = "adjgraph-sim.txt")
 
 #### 4. Creating the Precision Matrix
 
-```r
+```{r}
 # Create the precision matrix
 N <- adjacensy$n
 diag.Q <- diag(adjacensy$nnbs, N)
@@ -101,7 +101,7 @@ Q <- diag.Q - A.Q  # Precision matrix
 
 #### 5. Setting Fixed Parameters
 
-```r
+```{r}
 # Set fixed parameters
 kappa_w1 <- 10
 kappa_w2 <- 5
@@ -128,7 +128,7 @@ other.hyper <- list(
 
 #### 6. Simulating Covariates
 
-```r
+```{r}
 # Simulate covariates
 Z1 <- mvtnorm::rmvnorm(N, mean = rep(0, 3))
 Z2 <- mvtnorm::rmvnorm(N, mean = rep(0, 2))
@@ -146,8 +146,8 @@ beta2 <- runif(ncol(Z2), -1, 1)
 
 #### 7. Simulating Data
 
-```r
-model_type <- "FE"  # Fixed Effects
+```{r}
+model_type <- "jSp"  # Fixed Effects
 
 # Simulate data using the function
 set.seed(1)
@@ -168,7 +168,7 @@ Sim_mark_data <- sim_mark_function(
   
 #### 8. Accessing Results
 
-```r
+```{r, fig.width = 8, fig.height = 12}
 # Access results
 Y <- Sim_mark_data$Y
 A <- Sim_mark_data$A
@@ -176,7 +176,15 @@ mu <- Sim_mark_data$mu
 eta <- Sim_mark_data$eta
 W1 <- Sim_mark_data$W1
 W2 <- Sim_mark_data$W2
+par(mfrow=c(3,2))
+hist(Y)
+hist(A)
+hist(eta)
+hist(mu)
+hist(W1)
+hist(W2)
 ```
+
 
 - **Purpose**: This section extracts the simulated results from the output of the simulation function.
 - **Explanation**:
@@ -193,30 +201,23 @@ After simulating the data, we can proceed to fit the model using the MCMC sample
 
 #### Code to Fit the Model
 
-```r
+```{r}
 # Define the model type
 model_type <- "jSp"
-
-# Load the simulated data
-load(paste0("SimulatedData_", model_type, ".RData"))
-
-# Load the JM.landslide library
-library(JM.landslide)
-
-# Access the help documentation for the mcmc_sampler function
-?JM.landslide::mcmc_sampler
-
-# Fit the model using the MCMC sampler
 outputs <- mcmc_sampler(
-  Y = Y,               # Simulated landslide counts
-  A = A,               # Simulated landslide sizes
+  Y = Sim_mark_data$Y,               # Simulated landslide counts
+  A = Sim_mark_data$A,               # Simulated landslide sizes
   Z1 = Z1,             # Covariates for counts
   Z2 = Z2,             # Covariates for sizes
   CV = "WS",          # Type of cross-validation (within sample)
   mark_dist = "eGPD", # Distribution of the mark process
   thr.family = "gamma", # Family of the threshold model
   model_type = model_type, # Model type used in the simulation
-  adjacensy = adjacensy # Adjacency structure for the spatial model
+  adjacensy = adjacensy, # Adjacency structure for the spatial model
+  no.rm.obs = 200,
+  N.MCMC = 2000,
+  samples.store = 250,
+  print.result = FALSE
 )
 ```
 
@@ -236,6 +237,21 @@ outputs <- mcmc_sampler(
     - `thr.family`: Specifies the family of the threshold model, in this case, "gamma".
     - `model_type`: Indicates the type of model being used, which aligns with the previously defined `model_type`.
     - `adjacensy`: Provides the adjacency structure for the spatial dependencies in the model.
+
+## Extracting the model outputs 
+
+#### Models hyperparameters 
+
+```{r}
+outputs$JM.info$summry_hyper
+```
+
+## covarite coeffiecients 
+
+```{r}
+outputs$JM.info$summ_fixed_effects
+```
+
 
 ### 10. Conclusion
 
