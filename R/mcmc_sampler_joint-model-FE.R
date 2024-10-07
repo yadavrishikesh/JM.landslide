@@ -696,14 +696,14 @@ mcmc_sampler_joint_model_FE<-function(N.MCMC,
                            sd = apply(samples[-(1:burn_in), 7:(6+ncol(Z1))], MARGIN = 2, FUN = sd),
                            quant2.5 = apply(samples[-(1:burn_in), 7:(6+ncol(Z1))], MARGIN = 2, FUN = quantile, prob=0.025),
                            quant50 = apply(samples[-(1:burn_in), 7:(6+ncol(Z1))], MARGIN = 2, FUN = quantile, prob=0.50),
-                           quant975 = apply(samples[-(1:burn_in), 7:(6+ncol(Z1))], MARGIN = 2, FUN = quantile, prob=0.975))
+                           quant97.5 = apply(samples[-(1:burn_in), 7:(6+ncol(Z1))], MARGIN = 2, FUN = quantile, prob=0.975))
     rownames(FE_coef_counts)<- if(is.null(colnames(Z1))) { paste0("beta_1.",1:ncol(Z1)) } else {colnames(Z1)}
     
     FE_coef_sizes<- cbind(mean = apply(samples[-(1:burn_in), (6 +1 + ncol(Z1)) : (6 + ncol(Z1) + ncol(Z2))], MARGIN = 2, FUN = mean), 
                           sd = apply(samples[-(1:burn_in), (6 +1 + ncol(Z1)) : (6 + ncol(Z1) + ncol(Z2))], MARGIN = 2, FUN = sd),
                           quant2.5 = apply(samples[-(1:burn_in), (6 +1 + ncol(Z1)) : (6 + ncol(Z1) + ncol(Z2))], MARGIN = 2, FUN = quantile, prob=0.025),
                           quant50 = apply(samples[-(1:burn_in), (6 +1 + ncol(Z1)) : (6 + ncol(Z1) + ncol(Z2))], MARGIN = 2, FUN = quantile, prob=0.50),
-                          quant975 = apply(samples[-(1:burn_in), (6 +1 + ncol(Z1)) : (6 + ncol(Z1) + ncol(Z2))], MARGIN = 2, FUN = quantile, prob=0.975)) 
+                          quant97.5 = apply(samples[-(1:burn_in), (6 +1 + ncol(Z1)) : (6 + ncol(Z1) + ncol(Z2))], MARGIN = 2, FUN = quantile, prob=0.975)) 
     rownames(FE_coef_sizes)<- if(is.null(colnames(Z2))) { paste0("beta_2.",1:ncol(Z2)) } else {colnames(Z2)}
     
     
@@ -713,7 +713,7 @@ mcmc_sampler_joint_model_FE<-function(N.MCMC,
                                     sd = apply(samples[-(1:burn_in),1:3], MARGIN = 2, FUN = sd),
                                     quant2.5 = apply(samples[-(1:burn_in),1:3], MARGIN = 2, FUN = quantile, prob=0.025),
                                     quant50 = apply(samples[-(1:burn_in),1:3], MARGIN = 2, FUN = quantile, prob=0.50),
-                                    quant975 = apply(samples[-(1:burn_in),1:3], MARGIN = 2, FUN = quantile, prob=0.975))
+                                    quant97.5 = apply(samples[-(1:burn_in),1:3], MARGIN = 2, FUN = quantile, prob=0.975))
     
     rownames(summary_hyper_size_dist)<- c("kappa", "sigma", "xi")
     
@@ -721,7 +721,7 @@ mcmc_sampler_joint_model_FE<-function(N.MCMC,
                               sd = apply(samples[-(1:burn_in),4:5], MARGIN = 2, FUN = sd),
                               quant2.5 = apply(samples[-(1:burn_in),4:5], MARGIN = 2, FUN = quantile, prob=0.025),
                               quant50 = apply(samples[-(1:burn_in),4:5], MARGIN = 2, FUN = quantile, prob=0.50),
-                              quant975 = apply(samples[-(1:burn_in),4:5], MARGIN = 2, FUN = quantile, prob=0.975))
+                              quant97.5 = apply(samples[-(1:burn_in),4:5], MARGIN = 2, FUN = quantile, prob=0.975))
     rownames(summary_hyper_RE)<- c("kappa_eta", "kappa_mu") 
     
     
@@ -739,7 +739,7 @@ mcmc_sampler_joint_model_FE<-function(N.MCMC,
                            sd = apply(samples[-(1:burn_in), 8:(7+ncol(Z1))], MARGIN = 2, FUN = sd),
                            quant2.5 = apply(samples[-(1:burn_in), 8:(7+ncol(Z1))], MARGIN = 2, FUN = quantile, prob=0.025),
                            quant50 = apply(samples[-(1:burn_in), 8:(7+ncol(Z1))], MARGIN = 2, FUN = quantile, prob=0.50),
-                           quant975 = apply(samples[-(1:burn_in), 8:(7+ncol(Z1))], MARGIN = 2, FUN = quantile, prob=0.975))
+                           quant97.5 = apply(samples[-(1:burn_in), 8:(7+ncol(Z1))], MARGIN = 2, FUN = quantile, prob=0.975))
     
     rownames(FE_coef_counts)<- if(is.null(colnames(Z1))) { paste0("beta_1.",1:ncol(Z1)) } else {colnames(Z1)}
     
@@ -747,7 +747,7 @@ mcmc_sampler_joint_model_FE<-function(N.MCMC,
                           sd = apply(samples[-(1:burn_in), (7 +1 + ncol(Z1)) : (7 + ncol(Z1) + ncol(Z2))], MARGIN = 2, FUN = sd),
                           quant2.5 = apply(samples[-(1:burn_in), (7 +1 + ncol(Z1)) : (7 + ncol(Z1) + ncol(Z2))], MARGIN = 2, FUN = quantile, prob=0.025),
                           quant50 = apply(samples[-(1:burn_in), (7 +1 + ncol(Z1)) : (7 + ncol(Z1) + ncol(Z2))], MARGIN = 2, FUN = quantile, prob=0.50),
-                          quant975 = apply(samples[-(1:burn_in), (7 +1 + ncol(Z1)) : (7 + ncol(Z1) + ncol(Z2))], MARGIN = 2, FUN = quantile, prob=0.975)) 
+                          quant97.5 = apply(samples[-(1:burn_in), (7 +1 + ncol(Z1)) : (7 + ncol(Z1) + ncol(Z2))], MARGIN = 2, FUN = quantile, prob=0.975)) 
     rownames(FE_coef_sizes)<- if(is.null(colnames(Z2))) { paste0("beta_2.",1:ncol(Z2)) } else {colnames(Z2)}
     
   }
