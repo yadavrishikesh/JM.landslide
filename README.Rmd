@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of `JM.landslide` package is to demonstrate how to jointly model landslide counts and sizes using a sub-asymptotic distribution for the landslide sizes, following the joint modeling approach of [Yadav et al. (2024)](https://arxiv.org/abs/2404.09156) and [Yadav et al. (2023)](https://doi.org/10.1093/jrsssc/qlad077). 
+The goal of `JM.landslide` package is to demonstrate how to jointly model landslide counts and sizes using a sub-asymptotic distribution for the landslide sizes, following the joint modeling approach of [Yadav et al. (2024)](https://arxiv.org/abs/2404.09156) and [Yadav et al. (2023)](https://doi.org/10.1093/jrsssc/qlad077). The package performs simulation-based MCMC inference to simultaneously carry out inference and prediction of landslide counts and sizes. Additionally, the package provides estimates of landslide hazards and susceptibility maps over the study regions, key components often sought in landslide literature. Moreover, the package also generates outputs that provide estimates and summaries of fixed and random effects, along with the fitted counts and sizes. See the vignette file for details description:  
 
 ## Installation
 
