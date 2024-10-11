@@ -17,11 +17,12 @@
 #'
 #' # Calculate the log-likelihood
 #' log_likelihood <- log_lik_indicator_model(mu, A)
-
-log_lik_indicator_model <- function(mu, A) {
-  log.post_A <-  A * log(logistic(mu)) + (1 - A) * log(1 - logistic(mu))  # dbinom(A, size=1, prob = exp(mu)/(1+exp(mu)), log = TRUE)
+log_lik_indicator_model_probit<- function(mu, A) {
+  log.post_A<-  A * log(logistic(mu)) + (1-A) * log(1- logistic(mu))  # dbinom(A, size=1, prob = exp(mu)/(1+exp(mu)), log = TRUE)
   return(log.post_A)
 }
+
+
 
 
 

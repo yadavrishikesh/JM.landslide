@@ -49,6 +49,11 @@
 #' @param model.base A logical value. If `TRUE`, sets `beta = 0`, indicating that counts and sizes are modeled as independent of each other. Default is `FALSE`.
 #' @param samples.store An integer specifying the number of samples stored for calculating summary statistics (e.g., QQ-plots, uncertainty quantification).
 #' @param fit_thr_model_only A logical value. If `TRUE` fit only threshold and threshold indicator models only.
+#' @param ind_model_link_fun A character string specifying the type of link function used in indictaor model. Two choices:
+#' \itemize{
+#'   \item `"probit"`: for probit regression.
+#'   \item `"logit"`: for logistic regression. 
+#' }
 #'
 #' @return A list containing results of the MCMC sampling, including estimated parameters, risk quantiles, and any diagnostics.
 #' @export
@@ -75,6 +80,7 @@ mcmc_sampler <- function(Y,
                          thr.family = "gamma",
                          model_type,
                          adjacensy,
+                         ind_model_link_fun = "logit",
                          q.probs = as.numeric(quantile(sqrt(A), probs = seq(0.50, 0.99, 0.05))),
                          q.probs.thr = 0.83,
                          no.rm.obs = 2000,
@@ -209,12 +215,12 @@ mcmc_sampler <- function(Y,
       ind_miss = ind_miss,
       init.seed = init.seed
     )
-    
-    thresholds_indcator_model_output <-  mcmc_sampler_indicator_model(
+    if(ind_model_link_fun == "probit"){
+    thresholds_indcator_model_output <-  mcmc_sampler_indicator_model_probit(
       N.MCMC = N.MCMC,
-      A = threshold_model_output$A_data_frame_size_thr_ind$A_with_NA,
+      A = threshold_model_output$est_thr_indicator,
       ind.NA = is.na(
-        threshold_model_output$A_data_frame_size_thr_ind$A_with_NA
+        threshold_model_output$est_thr_indicator
       ),
       CV = CV,
       Z2 = as.matrix(Z2),
@@ -222,7 +228,7 @@ mcmc_sampler <- function(Y,
       adapt = adapt,
       burn_in1 = burn_in1,
       burn_in2 = burn_in2,
-      ind_zero = threshold_model_output$ind_zero,
+      ind_zero = threshold_model_output$est_thr_indicator==0,
       hyper_fixed = hyper_fixed,
       print.result = print.result,
       traceplot = traceplot,
@@ -238,22 +244,53 @@ mcmc_sampler <- function(Y,
       eta_adapt_seq2 = eta_adapt_seq2,
       init.seed = init.seed
     )
-    
+    } else {
+      thresholds_indcator_model_output <-  mcmc_sampler_indicator_model_logit(
+        N.MCMC = N.MCMC,
+        A = threshold_model_output$est_thr_indicator,
+        ind.NA = is.na(
+          threshold_model_output$est_thr_indicator
+        ),
+        CV = CV,
+        Z2 = as.matrix(Z2),
+        thin = thin,
+        adapt = adapt,
+        burn_in1 = burn_in1,
+        burn_in2 = burn_in2,
+        tun.mu =  tun.mu,
+        ind_zero = threshold_model_output$est_thr_indicator==0,
+        hyper_fixed = hyper_fixed,
+        print.result = print.result,
+        traceplot = traceplot,
+        true.values = true.values,
+        simulation = simulation,
+        nbd_info = nbd_info,
+        no_of_nbd = no_of_nbd,
+        node.set = node.set,
+        hyper.mu_adapt_seq2 =
+          hyper.mu_adapt_seq2,
+        mu_adapt_seq2 =
+          mu_adapt_seq2,
+        eta_adapt_seq2 = eta_adapt_seq2,
+        init.seed = init.seed
+      )
+    }
     
     if (CV == "WS") {
       ######### Divide the datasets for the OSD setting
       Y_data_frame_count <- data.frame(original_Y = Y, Y_with_NA = Y)
       threshold <-  threshold_model_output$threshold
-      thr.acces.ind <- A_data_frame_size$original_A > threshold
+      thr.acces.ind <- threshold_model_output$est_thr_indicator  # A_data_frame_size$original_A > threshold
       
     } else if (CV == "OOS") {
-      ### missingens will be fixed once the thresholds and the threshold probability is fixed
+      ### missingness will be fixed once the thresholds and the threshold probability is fixed
       Y_data_frame_count <- data.frame(original_Y = Y, Y_with_NA = Y)
       Y_data_frame_count[ind_miss, 2] <- NA
       
       threshold <- threshold_model_output$threshold
-      thr.acces.ind <- A_data_frame_size$A_with_NA > threshold
-      thr.acces.ind[ind_miss] <- FALSE
+      thr.acces.ind<- threshold_model_output$est_thr_indicator
+      # thr.acces.ind <- A_data_frame_size$A_with_NA > threshold
+      # thr.acces.ind[ind_miss] <- FALSE
     }
     
   } else{

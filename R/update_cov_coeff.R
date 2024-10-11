@@ -160,7 +160,7 @@ beta2_sim_thr <- function(mu,
   return(proposals)
 }
 
-#' Simulate the Precision Parameter \code{kappa_w2} for Threshold Indicator Models
+#' Simulate the Precision Parameter \code{kappa_w2} for Threshold Indicator Models with probit link
 #'
 #' This function simulates the precision parameter \code{kappa_w2} for threshold indicator models based on a full conditional Gamma distribution.
 #'
@@ -180,9 +180,9 @@ beta2_sim_thr <- function(mu,
 #' hyper_fixed <- list(kappa_w2 = c(shape = 2, rate = 1))
 #'
 #' # Simulate kappa_w2 for threshold indicator model
-#' kappa_sim <- kappa_w2_sim_thr_ind(W2, node1, node2, hyper_fixed)
+#' kappa_sim <- kappa_w2_sim_thr_ind_probit(W2, node1, node2, hyper_fixed)
 #'
-kappa_w2_sim_thr_ind <- function(W2, node1, node2, hyper_fixed) {
+kappa_w2_sim_thr_ind_probit <- function(W2, node1, node2, hyper_fixed) {
   N <- length(W2)
   sim_kappa_w2 <- rgamma(
     1,
@@ -193,8 +193,39 @@ kappa_w2_sim_thr_ind <- function(W2, node1, node2, hyper_fixed) {
   return(sim_kappa_w2)
 }
 
+#' Simulate the Precision Parameter \code{kappa_w2} for Threshold Indicator Models with logit link
+#'
+#' This function simulates the precision parameter \code{kappa_w2} for threshold indicator models based on a full conditional Gamma distribution.
+#'
+#' @param W2 A numeric vector representing the latent variable (iCAR) random effects for the model.
+#' @param node1 A numeric vector indicating the first set of nodes (indices) involved in the computation.
+#' @param node2 A numeric vector indicating the second set of nodes (indices) involved in the computation.
+#' @param hyper_fixed A list containing hyperparameters for the Gamma prior distribution, specifically the shape and rate parameters for \code{kappa_w2}.
+#'
+#' @return A simulated value for \code{kappa_w2} from the Gamma distribution.
+#' @export
+#'
+#' @examples
+#' # Sample latent variable
+#' W2 <- rnorm(100)
+#' node1 <- sample(1:100, 50, replace = TRUE)
+#' node2 <- sample(1:100, 50, replace = TRUE)
+#' hyper_fixed <- list(kappa_w2 = c(shape = 2, rate = 1))
+#'
+#' # Simulate kappa_w2 for threshold indicator model
+#' kappa_sim <- kappa_w2_sim_thr_ind_logit(W2, node1, node2, hyper_fixed)
+#' 
+kappa_w2_sim_thr_ind_logit<-function(W2, node1, node2, hyper_fixed){
+  N<-length(W2)
+  sim_kappa_w2<-rgamma(1, shape=hyper_fixed$kappa_w2[1] + 0.5*(N-1), 
+                       rate= hyper_fixed$kappa_w2[2] + 0.5*sum((W2[node1]-W2[node2])^2))
+  return(sim_kappa_w2)
+}
 
-#' Simulate the Precision Parameter \code{kappa_mu} for Threshold Indicator Models
+
+
+
+#' Simulate the Precision Parameter \code{kappa_mu} for Threshold Indicator Models with probit link
 #'
 #' This function simulates the precision parameter \code{kappa_mu} for threshold indicator models from a full conditional Gamma distribution.
 #'
@@ -218,9 +249,9 @@ kappa_w2_sim_thr_ind <- function(W2, node1, node2, hyper_fixed) {
 #' hyper_fixed <- list(kappa_mu = c(shape = 2, rate = 1))
 #'
 #' # Simulate kappa_mu for threshold indicator model
-#' kappa_mu_sim <- kappa_mu_sim_thr_ind(mu, intercept2, beta2, W2, Z2, hyper_fixed)
+#' kappa_mu_sim <- kappa_mu_sim_thr_ind_probit(mu, intercept2, beta2, W2, Z2, hyper_fixed)
 #'
-kappa_mu_sim_thr_ind <- function(mu, intercept2, beta2, W2, Z2, hyper_fixed) {
+kappa_mu_sim_thr_ind_probit <- function(mu, intercept2, beta2, W2, Z2, hyper_fixed) {
   n2 <- length(mu)
   sim_kappa_mu <- rgamma(1,
                          shape = hyper_fixed$kappa_mu[1] + 0.5 * n2,
@@ -231,8 +262,42 @@ kappa_mu_sim_thr_ind <- function(mu, intercept2, beta2, W2, Z2, hyper_fixed) {
 }
 
 
+#' Simulate the Precision Parameter \code{kappa_mu} for Threshold Indicator Models with logit link
+#'
+#' This function simulates the precision parameter \code{kappa_mu} for threshold indicator models from a full conditional Gamma distribution.
+#'
+#' @param mu A numeric vector representing the latent mean parameter of the model.
+#' @param intercept2 A numeric value indicating the intercept term in the model.
+#' @param beta2 A numeric vector representing the coefficients of covariates in the model.
+#' @param W2 A numeric vector indicating the latent (iCAR) random effects.
+#' @param Z2 A numeric matrix of covariates corresponding to the latent process \code{mu}.
+#' @param hyper_fixed A list containing hyperparameters for the Gamma prior distribution, specifically the shape and rate parameters for \code{kappa_mu}.
+#'
+#' @return A simulated value for \code{kappa_mu} from the Gamma distribution.
+#' @export
+#'
+#' @examples
+#' # Sample latent variables and covariates
+#' mu <- rnorm(100)
+#' intercept2 <- 0.5
+#' beta2 <- rnorm(10)
+#' W2 <- rnorm(100)
+#' Z2 <- matrix(rnorm(1000), ncol = 10)
+#' hyper_fixed <- list(kappa_mu = c(shape = 2, rate = 1))
+#'
+#' # Simulate kappa_mu for threshold indicator model
+#' kappa_mu_sim <- kappa_mu_sim_thr_ind_logit(mu, intercept2, beta2, W2, Z2, hyper_fixed)
+#'
+kappa_mu_sim_thr_ind_logit<-function(mu, intercept2, beta2, W2, Z2, hyper_fixed){
+  n2<-length(mu)
+  sim_kappa_mu<- rgamma(1, shape=hyper_fixed$kappa_mu[1] + 0.5 * n2, 
+                        rate= hyper_fixed$kappa_mu[2] + 0.5 * (sum((mu-intercept2- Z2%*%beta2 -W2)^2)))
+  return(sim_kappa_mu)
+}
 
-#' Simulate the Intercept \code{intercept2} for Threshold Indicator Models
+
+
+#' Simulate the Intercept \code{intercept2} for Threshold Indicator Models with probit link
 #'
 #' This function simulates the intercept term \code{intercept2} for threshold indicator models using a normal full conditional distribution.
 #'
@@ -256,8 +321,8 @@ kappa_mu_sim_thr_ind <- function(mu, intercept2, beta2, W2, Z2, hyper_fixed) {
 #' hyper_fixed <- list(intercept2 = 0.1)
 #'
 #' # Simulate intercept2 for threshold indicator model
-#' intercept2_sim <- intercept2_sim_thr_ind(mu, beta2, W2, kappa_mu, Z2, hyper_fixed)
-intercept2_sim_thr_ind <- function(mu, beta2, W2, kappa_mu, Z2, hyper_fixed) {
+#' intercept2_sim <- intercept2_sim_thr_ind_probit(mu, beta2, W2, kappa_mu, Z2, hyper_fixed)
+intercept2_sim_thr_ind_probit <- function(mu, beta2, W2, kappa_mu, Z2, hyper_fixed) {
   n2 <- length(mu)
   prec.intercept2 <- hyper_fixed$intercept2 + n2 * kappa_mu
   mean.intercept2 <- kappa_mu * sum(mu - Z2 %*% beta2 - W2) / prec.intercept2
@@ -268,7 +333,44 @@ intercept2_sim_thr_ind <- function(mu, beta2, W2, kappa_mu, Z2, hyper_fixed) {
 }
 
 
-#' Simulate the Coefficients \code{beta2} for Threshold Indicator Models
+#' Simulate the Intercept \code{intercept2} for Threshold Indicator Models with logit link
+#'
+#' This function simulates the intercept term \code{intercept2} for threshold indicator models using a normal full conditional distribution.
+#'
+#' @param mu A numeric vector representing the latent mean parameter of the model.
+#' @param beta2 A numeric vector representing the coefficients of covariates in the model.
+#' @param W2 A numeric vector indicating the latent (iCAR) random effects.
+#' @param kappa_mu A numeric value representing the precision parameter for the latent process \code{mu}.
+#' @param Z2 A numeric matrix of covariates corresponding to the latent process \code{mu}.
+#' @param hyper_fixed A list containing hyperparameters for the intercept, specifically the precision of the normal prior for \code{intercept2}.
+#'
+#' @return A simulated value for \code{intercept2} from a normal distribution.
+#' @export
+#'
+#' @examples
+#' # Sample latent variables and covariates
+#' mu <- rnorm(100)
+#' beta2 <- rnorm(10)
+#' W2 <- rnorm(100)
+#' kappa_mu <- 1.5
+#' Z2 <- matrix(rnorm(1000), ncol = 10)
+#' hyper_fixed <- list(intercept2 = 0.1)
+#'
+#' # Simulate intercept2 for threshold indicator model
+#' intercept2_sim <- intercept2_sim_thr_ind_logit(mu, beta2, W2, kappa_mu, Z2, hyper_fixed)
+#' 
+intercept2_sim_thr_ind_logit<-function(mu, beta2, beta,W2, kappa_mu, Z2, hyper_fixed){
+  n2<-length(mu)
+  # prec.intercept2<-hyper_fixed[11]+n2*kappa_mu
+  # mean.intercept2<-kappa_mu*sum(mu-Z2%*%beta2-beta*(A2%*%W1)-A2%*%W2)/prec.intercept2
+  prec.intercept2<-hyper_fixed$intercept2 +n2*kappa_mu
+  mean.intercept2<-kappa_mu*sum(mu-Z2%*%beta2- W2)/prec.intercept2
+  sim_intercept2<-rnorm(n=1, mean=mean.intercept2, sd=sqrt(1/prec.intercept2))
+  return(sim_intercept2)
+}
+
+
+#' Simulate the Coefficients \code{beta2} for Threshold Indicator Models with probit link
 #'
 #' This function simulates the regression coefficients \code{beta2} for threshold indicator models using a normal full conditional distribution. It performs a precision-based update by considering both prior and data contributions.
 #'
@@ -296,9 +398,9 @@ intercept2_sim_thr_ind <- function(mu, beta2, W2, kappa_mu, Z2, hyper_fixed) {
 #' hyper_fixed <- list(beta2 = 0.1)
 #'
 #' # Simulate beta2 for threshold indicator model
-#' beta2_sim <- beta2_sim_thr_ind(mu, intercept2, beta, kappa_mu, W2, Z2, Z2.crossprd, hyper_fixed)
+#' beta2_sim <- beta2_sim_thr_ind_probit(mu, intercept2, beta, kappa_mu, W2, Z2, Z2.crossprd, hyper_fixed)
 
-beta2_sim_thr_ind <- function(mu,
+beta2_sim_thr_ind_probit <- function(mu,
                               intercept2,
                               beta,
                               kappa_mu,
@@ -319,6 +421,52 @@ beta2_sim_thr_ind <- function(mu,
   return(proposals)
   
 }
+
+
+#' Simulate the Coefficients \code{beta2} for Threshold Indicator Models with logit link
+#'
+#' This function simulates the regression coefficients \code{beta2} for threshold indicator models using a normal full conditional distribution. It performs a precision-based update by considering both prior and data contributions.
+#'
+#' @param mu A numeric vector representing the latent mean parameter of the model.
+#' @param intercept2 A numeric value representing the intercept term in the model.
+#' @param beta A numeric vector of initial values for \code{beta2}.
+#' @param kappa_mu A numeric value representing the precision parameter for the latent process \code{mu}.
+#' @param W2 A numeric vector indicating the latent (iCAR) random effects.
+#' @param Z2 A numeric matrix of covariates corresponding to the latent process \code{mu}.
+#' @param Z2.crossprd A pre-computed cross-product matrix of \code{Z2} \(\code{t(Z2) Z2}\) for computational efficiency.
+#' @param hyper_fixed A list containing hyperparameters, specifically the precision of the normal prior for \code{beta2}.
+#'
+#' @return A numeric vector of proposed values for \code{beta2}.
+#' @export
+#'
+#' @examples
+#' # Sample latent variables and covariates
+#' mu <- rnorm(100)
+#' intercept2 <- 0.5
+#' beta <- rnorm(10)
+#' kappa_mu <- 1.5
+#' W2 <- rnorm(100)
+#' Z2 <- matrix(rnorm(1000), ncol = 10)
+#' Z2.crossprd <- crossprod(Z2) # pre-computed cross-product
+#' hyper_fixed <- list(beta2 = 0.1)
+#'
+#' # Simulate beta2 for threshold indicator model
+#' beta2_sim <- beta2_sim_thr_ind_probit(mu, intercept2, beta, kappa_mu, W2, Z2, Z2.crossprd, hyper_fixed)
+beta2_sim_thr_ind_logit<-function(mu, intercept2, beta, kappa_mu,  W2, Z2, Z2.crossprd, hyper_fixed){
+  q<-ncol(Z2)
+  latent.cov.inv<- hyper_fixed$beta2 * diag(1,q) + kappa_mu * Z2.crossprd 
+  latent.mean.part<- kappa_mu * (t(Z2)%*%(mu-intercept2 - W2))
+  chol.latent.cov.inv <- spam::chol(latent.cov.inv)
+  tchol.latent.cov.inv <- t(chol.latent.cov.inv)
+  omega <- spam::forwardsolve(tchol.latent.cov.inv, latent.mean.part)
+  mm <- spam::backsolve(chol.latent.cov.inv, omega)
+  zz <- rnorm(q)
+  vv <- spam::backsolve(chol.latent.cov.inv, zz)
+  proposals <- mm + vv
+  return(proposals)
+}
+
+
 
 
 #' Simulate Precision Parameter \code{kappa_eta} of \code{eta} for Joint Model

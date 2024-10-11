@@ -1487,3 +1487,28 @@ rMVNormP_eigen <- function(n, mu, Sigma) {
   X <- L %*% Z
   X <- sweep(X, 1, mu, FUN = `+`)
 }
+
+
+
+
+
+
+#' Logistic (Sigmoid) function
+#'
+#' This function computes the logistic function, which transforms the input \code{x} into a value between 0 and 1. The logistic function is widely used to model probabilities and is defined as \code{1 / (1 + exp(-x))}.
+#'
+#' @param x A numeric vector of values.
+#'
+#' @return A numeric vector of the same length as \code{x}, with values between 0 and 1.
+#'
+#' @details The logistic function is used to map real-valued numbers to the (0, 1) interval, making it useful for modeling probabilities in various statistical models, such as binary classification or logistic regression.
+#'
+logistic <- function(x) {
+  1 / (1 + exp(-x))
+}
+
+
+
+
+
+

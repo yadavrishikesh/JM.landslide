@@ -78,7 +78,7 @@ impute.NA.A <- function(CV,
     k <- cur_par[1]
     xi <- cur_par[2]
     if (CV == "WS") {
-      mu <- mu[!ind_zeros_counts]
+      mu <- mu #mu[!ind_zeros_counts]
       sigma <- exp(mu) / evd::qgpd(0.5 ^ (1 / k), scale = 1, shape = xi)
       imputed_NA_A <- rEGPD1(
         n = length(mu),
@@ -104,8 +104,8 @@ impute.NA.A <- function(CV,
     xi <- cur_par[3]
     
     if (CV == "WS") {
-      mu <- mu[!ind_zeros_counts]
-      threshold <- threshold[!ind_zeros_counts]
+      mu <- mu #mu[!ind_zeros_counts]
+      threshold <- threshold # threshold[!ind_zeros_counts]
       thr.exceed.ind <- exp(mu) > threshold
       sigma <- ifelse(thr.exceed.ind, sigma.GP, (threshold / exp(mu) - 1) * k)
       
@@ -152,8 +152,8 @@ impute.NA.A <- function(CV,
     
     
     if (CV == "WS") {
-      mu <- mu[!ind_zeros_counts]
-      threshold <- threshold[!ind_zeros_counts]
+      mu <- mu #mu[!ind_zeros_counts]
+      threshold <- threshold #threshold[!ind_zeros_counts]
       thr.exceed.ind <- exp(mu) > threshold
       sigma <- ifelse(thr.exceed.ind, sigma.GP, exp(mu) / k)
       

@@ -23,11 +23,12 @@
 #' Z2 <- matrix(rnorm(20), nrow = 10, ncol = 2)
 #' loglik_values <- log_lik_latent_mu_thr_ind(mu, intercept2, W2, beta2, kappa_mu, Z2)
 #'
-log_lik_latent_mu_thr_ind <- function(mu, intercept2, W2, beta2, kappa_mu, Z2) {
-  loglik <- -0.5 * kappa_mu * mu ^ 2 + kappa_mu * mu * (intercept2 + Z2 %*% beta2 + W2)
+log_lik_latent_mu_thr_ind_logit<- function(mu, intercept2, W2, beta2,  kappa_mu, Z2){
+  loglik<- -0.5*kappa_mu* mu^2 + kappa_mu * mu *(intercept2 + Z2 %*% beta2 + W2)
   return(loglik)
   
 }
+
 
 
 #' Log-Likelihood for Latent \code{mu} in the Joint Model

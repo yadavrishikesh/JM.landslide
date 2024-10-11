@@ -14,6 +14,7 @@ mcmc_sampler(
   thr.family = "gamma",
   model_type,
   adjacensy,
+  ind_model_link_fun = "logit",
   q.probs = as.numeric(quantile(sqrt(A), probs = seq(0.5, 0.99, 0.05))),
   q.probs.thr = 0.83,
   no.rm.obs = 2000,
@@ -71,6 +72,12 @@ mcmc_sampler(
 }}
 
 \item{adjacensy}{A matrix or list specifying the adjacency structure of the slope units for the spatial model.}
+
+\item{ind_model_link_fun}{A character string specifying the type of link function used in indictaor model. Two choices:
+\itemize{
+\item \code{"probit"}: for probit regression.
+\item \code{"logit"}: for logistic regression.
+}}
 
 \item{q.probs}{A numeric vector of quantiles at which to calculate the landslide risk. Default is \code{quantile(sqrt(A), probs = seq(0.50, 0.99, 0.05))}.}
 

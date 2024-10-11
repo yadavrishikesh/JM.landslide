@@ -1,4 +1,4 @@
-#' MCMC Sampler for Threshold Indicator Model
+#' MCMC Sampler for Threshold Indicator Model Using Probit Link
 #'
 #' This function implements a Markov Chain Monte Carlo (MCMC) sampler for a threshold indicator model.
 #' It handles Gibbs sampling and Metropolis-Hastings steps for parameter estimation, focusing on
@@ -52,7 +52,7 @@
 #'                                       mu_adapt_seq2 = seq(0.05, 0.5, length.out = 100),
 #'                                       eta_adapt_seq2 = seq(0.05, 0.5, length.out = 100),
 #'                                       init.seed = 123)
-mcmc_sampler_indicator_model <- function(N.MCMC,
+mcmc_sampler_indicator_model_probit <- function(N.MCMC,
                                          A,
                                          ind.NA,
                                          CV,
@@ -88,11 +88,11 @@ mcmc_sampler_indicator_model <- function(N.MCMC,
   post.sum.mean.w2 <- rep(0, times = n1)
   post.sum.squre.w2 <- rep(0, times = n1)
   
-  imputed.A.WSD <- rep(0, times = n2)
-  imputed.A.squre <- rep(0, times = n2)
+  imputed.A.sum <- rep(0, times = n1)
+  imputed.A.sum.squre <- rep(0, times = n1)
   
   ## Storing the tuning parameteres
-  init.all.other.param_and.name <- init_fun_all_other_param_indicator_model(Z2 =
+  init.all.other.param_and.name <- init_fun_all_other_param_indicator_model_probit_link(Z2 =
                                                                               Z2, A = A, seed = init.seed)
   
   init.other.param <- init.all.other.param_and.name$init.all.other.param
@@ -146,7 +146,7 @@ mcmc_sampler_indicator_model <- function(N.MCMC,
       if (print.result == TRUE) {
         if (i < (burn_in1 + burn_in2 + 2)) {
           cat(paste0(
-            " THRESHOLD INDICATOR MODEL:",
+            " THRESHOLD INDICATOR MODEL (Probit Link):",
             "\n",
             " Iteration: ",
             i,
@@ -155,7 +155,7 @@ mcmc_sampler_indicator_model <- function(N.MCMC,
           ))
         } else{
           cat(paste0(
-            " THRESHOLD INDICATOR MODEL:",
+            " THRESHOLD INDICATOR MODEL (Probit Link):",
             "\n",
             " Iteration: ",
             i,
@@ -204,18 +204,18 @@ mcmc_sampler_indicator_model <- function(N.MCMC,
     
     if (i > burn_in1 + burn_in2) {
       imputed_A <- ifelse(cur.samples.mu > 0, 1, 0)
-      imputed.A.WSD <- imputed.A.WSD + imputed_A
-      imputed.A.squre <- imputed.A.WSD + imputed_A ^ 2
+      imputed.A.sum <- imputed.A.sum + imputed_A
+      imputed.A.sum.squre <- imputed.A.sum.squre + imputed_A^2
       
       post.sum.mean.mu <- post.sum.mean.mu + cur.samples.mu ### estimated mean
-      post.sum.squre.mu <- post.sum.squre.mu + cur.samples.mu ^ 2 ### estimated mean counts
+      post.sum.squre.mu <- post.sum.squre.mu + cur.samples.mu^2 ### estimated mean counts
       post.sum.mean.w2 <- post.sum.mean.w2 + cur.samples.w2
-      post.sum.squre.w2 <- post.sum.squre.w2 + cur.samples.w2 ^ 2
+      post.sum.squre.w2 <- post.sum.squre.w2 + cur.samples.w2^2
     }
     
     ############ updating all the model parameters #######
     ###### Proposing new parameters for kappa_w2 (Gibbs steps) #####
-    cur.samples.kappa_w2 <- kappa_w2_sim_thr_ind(
+    cur.samples.kappa_w2 <- kappa_w2_sim_thr_ind_probit(
       W2 = cur.samples.w2,
       node1 = node.set[, 1],
       node2 = node.set[, 2],
@@ -224,7 +224,7 @@ mcmc_sampler_indicator_model <- function(N.MCMC,
     
     #cur.samples.kappa_a<- kappa_a  # Proposed hyperparameters using uniform random walks
     #### Proposing new parameters for kappa_a (Gibbs steps) #####
-    cur.samples.kappa_mu <- kappa_mu_sim_thr_ind(
+    cur.samples.kappa_mu <- kappa_mu_sim_thr_ind_probit(
       mu = cur.samples.mu,
       intercept2 = cur.samples.intercept2,
       beta2 = cur.samples.beta2,
@@ -232,18 +232,10 @@ mcmc_sampler_indicator_model <- function(N.MCMC,
       Z2 = Z2,
       hyper_fixed = hyper_fixed
     ) # Proposed hyperparameters using uniform random walks
-    
-    #cur.samples.kappa_mu<- true.values[2]  # Proposed hyperparameters using uniform random walks
-    
-    #cur.samples.kappa_mu<- 1000
-    
-    ###### Proposing new parameters for intercept2 (Gibbs steps) ######
-    # cur.samples.intercept2<- intercept2_sim_thr_ind(mu=cur.samples.mu, beta2=cur.samples.beta2, W2=cur.samples.w2,
-    #                                                 kappa_mu = cur.samples.kappa_mu, Z2=Z2,  hyper_fixed= hyper_fixed)
-    
+  
     cur.samples.intercept2 <- 0
     ###### updating beta2 using Gibbs #########
-    cur.samples.beta2 <- beta2_sim_thr_ind(
+    cur.samples.beta2 <- beta2_sim_thr_ind_probit(
       mu = cur.samples.mu,
       intercept2 = cur.samples.intercept2,
       kappa_mu = cur.samples.kappa_mu,
@@ -267,7 +259,7 @@ mcmc_sampler_indicator_model <- function(N.MCMC,
     ###### updating W2 using Gibbs #########
     mean_mu_latent_vec <- cur.samples.mu - cur.samples.intercept2 -  Z2 %*% cur.samples.beta2
     for (ind in 1:n1) {
-      cur.samples.w2[ind] <- W2_sim_Gibbs_componentwise_thr_ind(
+      cur.samples.w2[ind] <- W2_sim_Gibbs_componentwise_thr_ind_probit(
         node_index = ind,
         W2 = cur.samples.w2,
         mean_mu_latent = mean_mu_latent_vec[ind] ,
@@ -295,20 +287,24 @@ mcmc_sampler_indicator_model <- function(N.MCMC,
     }
     
   }
+  
   burnin <- burn_in1 + burn_in2
-  exceed_prob <- imputed.A.WSD / (N.MCMC - burnin)
+  exceed_prob.mean <- imputed.A.sum / (N.MCMC - burnin)
+  exceed_prob.sd <- sqrt(imputed.A.sum.squre / (N.MCMC - burnin) - exceed_prob.mean^2)
+  
+  post.sum.mean.mu<- imputed.A.sum / (N.MCMC - burnin)
+  post.sum.sd.mu<- sqrt(imputed.A.sum.squre / (N.MCMC - burnin) - post.sum.mean.mu^2)
+  
+  post.sum.mean.W2<- post.sum.mean.w2 / (N.MCMC - burnin)
+  post.sum.sd.w2<- sqrt(post.sum.squre.w2 / (N.MCMC - burnin) - post.sum.mean.W2^2)
+  
   
   return(
     list(
       "samples" = samples,
-      ### saving the sample for the hyperparameters to see the traceplots
-      "exceed_prob" =  exceed_prob,
-      "imputed.A.WSD" = imputed.A.WSD,
-      "imputed.A.squre" = imputed.A.squre,
-      "post.sum.mean.mu" = post.sum.mean.mu,
-      "post.sum.squre.mu" = post.sum.squre.mu,
-      "post.sum.mean.w2" = post.sum.mean.w2,
-      "post.sum.squre.w2" = post.sum.squre.w2
+      "exceed_prob_est" = list( mean = exceed_prob.mean, sd = exceed_prob.sd),
+      "est_random_effects" =  list(mean = post.sum.mean.W2, sd = post.sum.sd.w2),
+      "est_linear_predictor" = list(mean = post.sum.mean.mu, sd=  post.sum.sd.mu)
     )
   )
 }

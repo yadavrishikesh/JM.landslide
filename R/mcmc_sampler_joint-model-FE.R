@@ -121,7 +121,7 @@ mcmc_sampler_joint_model_FE <- function(N.MCMC,
   samples.save[no.samples] <- samples.save[no.samples] - 1 ### last samples
   
   imputed.Y.WSD.samples <- array(NA, dim = c(no.samples, n1))
-  imputed.A.WSD.samples <- array(NA, dim = c(no.samples, sum(!ind_zeros_counts)))
+  imputed.A.WSD.samples <- array(NA, dim = c(no.samples, n1))#sum(!ind_zeros_counts)))
   imputed.Y.OSD.samples <- array(NA, dim = c(no.samples, sum(ind_NA_Y)))
   imputed.A.OSD.samples <- array(NA, dim = c(no.samples, sum(ind_NA_Y)))
   

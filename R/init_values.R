@@ -59,7 +59,7 @@ init_fun_log.hyper.mu_thr_model <- function(thr.family, seed) {
 #' simulation <- TRUE
 #' init_values <- init_fun_all_other_param_thr_model(Z2, A, thr.family, seed, simulation)
 #'
-init_fun_all_other_param_thr_model <- function(Z2, A, thr.family, seed, simulation) {
+init_fun_all_other_param_thr_model <- function(Z2, A, thr.family,  seed, simulation) {
   set.seed(seed)
   if (thr.family == "gamma") {
     kappa_w2_init <- runif(1, 1, 5)
@@ -125,7 +125,7 @@ init_fun_all_other_param_thr_model <- function(Z2, A, thr.family, seed, simulati
   )
 }
 
-#' Initialize Parameters for Indicator Model
+#' Initialize Parameters for Indicator Model with Probit Link
 #'
 #' This function generates initial values for the parameters of an indicator model, including coefficients for covariates and other model-specific parameters.
 #'
@@ -146,8 +146,9 @@ init_fun_all_other_param_thr_model <- function(Z2, A, thr.family, seed, simulati
 #' seed <- 123
 #' init_values <- init_fun_all_other_param_indicator_model(Z2, A, seed)
 #'
-init_fun_all_other_param_indicator_model <- function(Z2, A, seed) {
+init_fun_all_other_param_indicator_model_probit_link <- function(Z2, A, seed) {
   set.seed(seed)
+  if(prob_link_ty)
   kappa_w2_init <- runif(1, 1, 5)
   kappa_mu_init <- runif(1, 1, 5)
   intercept2.init <- runif(1, -1, 1)
@@ -182,6 +183,58 @@ init_fun_all_other_param_indicator_model <- function(Z2, A, seed) {
     )
   )
 }
+
+
+
+#' Initialize Parameters for Indicator Model with Logit Link
+#'
+#' This function generates initial values for the parameters of an indicator model, including coefficients for covariates and other model-specific parameters.
+#'
+#' @param Z2 A matrix of covariates for the model.
+#' @param A A matrix (or data frame) representing additional covariates or transformations used in the model.
+#' @param seed A numeric value used to set the seed for random number generation, ensuring reproducibility.
+#'
+#' @return A list containing:
+#' \item{init.all.other.param}{A numeric vector of initialized values for model parameters, including kappas, intercepts, and covariate coefficients.}
+#' \item{model.param.name.all.other.param}{A character vector or expression list representing the names of the parameters (e.g., \code{expression(kappa[w])}).}
+#'
+#' @export
+#'
+#' @examplesIf FALSE
+#' # The following is an example usage of the function and is not meant to be run directly.
+#' Z2 <- matrix(runif(10), nrow = 5, ncol = 2)
+#' A <- matrix(runif(10), nrow = 5, ncol = 2)
+#' seed <- 123
+#' init_values <- init_fun_all_other_param_indicator_model(Z2, A, seed)
+#'
+init_fun_all_other_param_indicator_model_logit_link<-function(Z2, A, seed){
+  set.seed(seed)
+  kappa_w2_init<- runif(1, 1, 5)
+  kappa_mu_init<- runif(1, 1, 5)
+  intercept2.init<- runif(1, -1, 1)
+  
+  n1<- nrow(Z2)
+  
+  beta2.init<- rep(runif(1, -1, 1), ncol(Z2))
+  mu_init<- rep(runif(1, -0.1, 0.1), n1) 
+  w2_init<- rep(runif(1, -1, 1), times=n1)
+  init1<-c( kappa_w2_init, kappa_mu_init, intercept2.init,
+            beta2.init, w2_init, mu_init)
+  
+  model.param.name<- c(expression(kappa[w]), expression(kappa[mu]),
+                       "intercept-e", paste0("beta2_",1:ncol(Z2)), 
+                       expression(mu[1]), expression(mu[2]), 
+                       expression(W2[1]), expression(W2[2]))
+  
+  return(list(init.all.other.param=init1, 
+              model.param.name.all.other.param=model.param.name))
+}
+
+
+
+
+
+
 
 
 

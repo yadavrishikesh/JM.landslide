@@ -93,9 +93,6 @@ mcmc_sampler_threhshold_model <- function(N.MCMC,
   n.Q <- n1
   
   Z2.crossprd <- (t(Z2) %*% Z2)
-  ####### Imputation in case of within sample diagnostics
-  imputed.A.WSD <- rep(0, sum(!ind_zeros_counts)) # Imputed post. mean of Y in case of within sample diganostics=Impute.A.WSD/ N-(burn_in1+burn_in2)
-  imputed.A.WSD.samples <- rep(0, sum(!ind_zeros_counts)) # Used for std of A in case of within sample diganostics
   
   ####### posterior summary of latent parameters
   post.sum.mean.mu <- rep(0, times = n1)
@@ -103,12 +100,12 @@ mcmc_sampler_threhshold_model <- function(N.MCMC,
   post.sum.mean.w2 <- rep(0, times = n1)
   post.sum.squre.w2 <- rep(0, times = n1)
   
-  imputed.A.WSD <- rep(0, times = n2)
-  imputed.A.squre <- rep(0, times = n2)
+  imputed.A.WSD <- rep(0, times = n1)
+  imputed.A.squre <- rep(0, times = n1)
   
   ### storing the probability of interest
-  post.mean.quantile <-  matrix(0, nrow = n2, ncol = length(q.probs))
-  post.squre.quantile <-  matrix(0, nrow = n2, ncol = length(q.probs))
+  post.mean.quantile <-  matrix(0, nrow = n1, ncol = length(q.probs))
+  post.squre.quantile <-  matrix(0, nrow = n1, ncol = length(q.probs))
   
   ## Storing the tuning parameteres
   tun.hyper.mu <- rep(tun.hyper.mu, 1) ### rep(tun.hyper.mu, 2) if the kappa and xi are updated separately
@@ -290,83 +287,59 @@ mcmc_sampler_threhshold_model <- function(N.MCMC,
     }
     ################################ imputations ############################################################
     
-    if (CV == "OOS") {
       if (thr.family == "gamma") {
         imputed_A <- rgamma(
-          n = sum(!ind_zeros_counts),
-          scale = exp(cur.samples.mu[!ind_zeros_counts]) / k,
+          n = n1, #sum(!ind_zeros_counts),
+          scale = exp(cur.samples.mu) / k, #exp(cur.samples.mu[!ind_zeros_counts]) / k,
           shape = k
         )
       } else if (thr.family == "logNormal") {
         imputed_A <- exp(rnorm(
-          n = sum(!ind_zeros_counts),
-          mean = cur.samples.mu[!ind_zeros_counts],
+          n = n1, #sum(!ind_zeros_counts),
+          mean = cur.samples.mu, #cur.samples.mu[!ind_zeros_counts],
           sd = sqrt(1 / k)
         ))
       }
-      A.all <-  rep(0, length = n1)
-      A.all[!ind_zeros_counts] <- imputed_A
-      A[ind.NA] <- A.all[ind.NA]
-    }
-    
-    #### saving the results from imputed one after the burning samples
-    if (i > burn_in1 + burn_in2) {
-      k <- cur.samples.log.hyper.mu[1]
-      if (thr.family == "gamma") {
-        imputed_A <- rgamma(
-          n = sum(!ind_zeros_counts),
-          scale = exp(cur.samples.mu[!ind_zeros_counts]) / k,
-          shape = k
-        )
-      } else if (thr.family == "logNormal") {
-        imputed_A <- exp(rnorm(
-          n = sum(!ind_zeros_counts),
-          mean = cur.samples.mu[!ind_zeros_counts],
-          sd = sqrt(1 / k)
-        ))
-      }
+      # A.all <-  rep(0, length = n1)
+      # A.all[!ind_zeros_counts] <- imputed_A
+      #A[ind.NA] <- A.all[ind.NA]
+      A[ind.NA] <- imputed_A[ind.NA]
       
-      
-      if (thr.family == "gamma") {
+      ### calculations of required quantities 
+      if (i > burn_in1 + burn_in2) {
         imputed.A.WSD <- imputed.A.WSD + imputed_A
-        imputed.A.squre <- imputed.A.squre + imputed_A ^ 2
-        post.sum.mean.mu <- post.sum.mean.mu + exp(cur.samples.mu) ### estimated mean
-        post.sum.squre.mu <- post.sum.squre.mu + exp(cur.samples.mu) ^ 2 ### estimated mean counts
+        imputed.A.squre <- imputed.A.squre + imputed_A^2
+        post.sum.mean.mu <- post.sum.mean.mu + cur.samples.mu ### estimated mean
+        post.sum.squre.mu <- post.sum.squre.mu + cur.samples.mu^2 ### estimated mean counts
         post.sum.mean.w2 <- post.sum.mean.w2 + cur.samples.w2
-        post.sum.squre.w2 <- post.sum.squre.w2 + cur.samples.w2 ^ 2
+        post.sum.squre.w2 <- post.sum.squre.w2 + cur.samples.w2^2
+
+      if (thr.family == "gamma") {
         qunatile_est <- matrix(NA,
-                               nrow = sum(!ind_zeros_counts),
+                               nrow = n1, #sum(!ind_zeros_counts),
                                ncol = length(q.probs))
         
         for (pp in 1:length(q.probs)) {
           qunatile_est[, pp] <-  qgamma(q.probs[pp],
-                                        scale = exp(cur.samples.mu[!ind_zeros_counts]) / k,
+                                        scale = exp(cur.samples.mu) / k, # exp(cur.samples.mu[!ind_zeros_counts]) / k,
                                         shape = k)
         }
       }
       if (thr.family == "logNormal") {
-        post.sum.mean.mu <- post.sum.mean.mu + cur.samples.mu ### estimated mean
-        post.sum.squre.mu <- post.sum.squre.mu + cur.samples.mu ^ 2 ### estimated mean counts
-        imputed.A.WSD <- imputed.A.WSD + imputed_A
-        imputed.A.squre <- imputed.A.squre + imputed_A ^ 2
-        post.sum.mean.w2 <- post.sum.mean.w2 + cur.samples.w2
-        post.sum.squre.w2 <- post.sum.squre.w2 + cur.samples.w2 ^ 2
         qunatile_est <- matrix(NA,
-                               nrow = sum(!ind_zeros_counts),
+                               nrow = n1, #sum(!ind_zeros_counts),
                                ncol = length(q.probs))
         
         for (pp in 1:length(q.probs)) {
-          qunatile_est[, pp] <-  exp(qnorm(q.probs[pp], mean = cur.samples.mu[!ind_zeros_counts], sd = sqrt(1 /
-                                                                                                              k)))
+          qunatile_est[, pp] <-  exp(qnorm(q.probs[pp], 
+                                           mean = cur.samples.mu, # cur.samples.mu[!ind_zeros_counts],
+                                           sd = sqrt(1 /k)))
         }
       }
-      
       post.mean.quantile <- post.mean.quantile + qunatile_est
-      post.squre.quantile <- post.squre.quantile + qunatile_est ^ 2
-      
+      post.squre.quantile <- post.squre.quantile + qunatile_est^2
     }
     
-    # browser()
     ############ updating all the model parameters #######
     ###### Proposing new parameters for kappa_w2 (Gibbs steps) #####
     cur.samples.kappa_w2 <- kappa_w2_sim_thr(
@@ -376,7 +349,6 @@ mcmc_sampler_threhshold_model <- function(N.MCMC,
       hyper_fixed = hyper_fixed
     )  # Proposed hyperparameters using uniform random walks
     
-    #cur.samples.kappa_a<- kappa_a  # Proposed hyperparameters using uniform random walks
     #### Proposing new parameters for kappa_a (Gibbs steps) #####
     cur.samples.kappa_mu <- kappa_mu_sim_thr(
       mu = cur.samples.mu,
@@ -385,10 +357,9 @@ mcmc_sampler_threhshold_model <- function(N.MCMC,
       W2 = cur.samples.w2,
       Z2 = Z2,
       hyper_fixed
-    ) # Proposed hyperparameters using uniform random walks
+    ) 
     
-    #cur.samples.kappa_mu<- true.values[3]  # Proposed hyperparameters using uniform random walks
-    
+
     #### Proposing new parameters for hyper.mu MH steps #####
     prop_hyper_marks <- block_rw_update(
       par_curr = cur.samples.log.hyper.mu,
@@ -426,9 +397,6 @@ mcmc_sampler_threhshold_model <- function(N.MCMC,
       upper.acc = 0.55
     )
     cur.samples.log.hyper.mu <- prop_hyper_marks
-    #cur.samples.log.hyper.mu[1]<- 0.5
-    #cur.samples.log.hyper.mu<- true.values[1:2]
-    #cur.samples.log.hyper.mu<- true.values[1]
     
     ###### Proposing new parameters for intercept2 (Gibbs steps) ######
     cur.samples.intercept2 <- intercept2_sim_thr(
@@ -456,7 +424,7 @@ mcmc_sampler_threhshold_model <- function(N.MCMC,
       par_cur = cur.samples.mu,
       par_name = "mu",
       loglik_data = log_lik_thr,
-      loglik_latent = log_lik_latent_mu_thr_ind,
+      loglik_latent = log_lik_latent_mu_thr_ind_logit, ### this function is same for probit and here for this model as well
       var_prop = tun.mu,
       A = A,
       cur_par = cur.samples.log.hyper.mu,
@@ -526,46 +494,62 @@ mcmc_sampler_threhshold_model <- function(N.MCMC,
       m = m + 1
     }
   }
-  
+
+  ### extracting the required results 
   
   burnin <- burn_in1 + burn_in2
-  fitted_thr <- post.mean.quantile / (N.MCMC - burnin)
-  ### extracting the thresholds level and estimated threshold that gives the 0.05 exceedances at least
-  u <- rep(Inf, length(A))
-  u[!ind_zeros_counts] <- fitted_thr
+  ##### Summary of  estimated random effects
+  est_mean_w2 <- post.sum.mean.w2 / (N.MCMC - burnin)
+  est_sd_w2 <- sqrt(post.sum.squre.w2 / (N.MCMC - burnin) - est_mean_w2 ^2)
+  
+  #### summary of linear predictors 
+  est_mean_mu <- post.sum.mean.mu / (N.MCMC - burnin)
+  est_sd_mu <- sqrt(post.sum.squre.mu / (N.MCMC - burnin) - est_mean_mu ^2)
+  
+  ### summary of counts 
+  est_mean_size <- imputed.A.WSD / (N.MCMC - burnin)
+  est_sd_size <- sqrt(imputed.A.squre / (N.MCMC -burnin) - est_mean_mu ^2)
+  
+  ### summary of estimated quantiles of sizes (used for threshold estimation)
+  fitted_thr_mean <- post.mean.quantile / (N.MCMC - burnin)
+  fitted_thr_sd <- sqrt(post.squre.quantile / (N.MCMC - burnin) - fitted_thr_mean^2)
+
+  
+  
+  # fitted_thr <- post.mean.quantile / (N.MCMC - burnin)
+  # ### extracting the thresholds level and estimated threshold that gives the 0.05 exceedances at least
+  # u <- rep(Inf, length(A))
+  # u[!ind_zeros_counts] <- fitted_thr
+  # ind <- (A - u) > 0
+  # thr_ind <- rep(0, length(A))
+  # thr_ind[ind] <- 1
+
+  u <- fitted_thr_mean
   ind <- (A - u) > 0
   thr_ind <- rep(0, length(A))
-  thr_ind[ind] <- 1
-  
-  ### data for threshold indicator model
-  if (CV == "WS") {
-    A_data_frame_size_thr_ind <- data.frame(original_A = thr_ind, A_with_NA = thr_ind)
-    ind_zero <- A_data_frame_size_thr_ind$A_with_NA == 0
-  } else if (CV == "OOS") {
-    A_data_frame_size_thr_ind <- data.frame(original_A = thr_ind, A_with_NA = thr_ind)
-    A_data_frame_size_thr_ind[ind_miss, 2] <- NA
-    ind_zero <- A_data_frame_size_thr_ind$A_with_NA == 0
-    ind_zero[is.na(ind_zero)] <- FALSE
-  }
-  
-  
+  thr_ind[ind] <- 1 ## if missing (NAs) then assume it as censored 
+
+ 
+  # ### data for threshold indicator model
+  # if (CV == "WS") {
+  #   A_data_frame_size_thr_ind <- data.frame(original_A = thr_ind, A_with_NA = thr_ind)
+  #   ind_zero <- A_data_frame_size_thr_ind$A_with_NA == 0
+  # } else if (CV == "OOS") {
+  #   A_data_frame_size_thr_ind <- data.frame(original_A = thr_ind, A_with_NA = thr_ind)
+  #   A_data_frame_size_thr_ind[ind_miss, 2] <- NA
+  #   ind_zero <- A_data_frame_size_thr_ind$A_with_NA == 0
+  #   ind_zero[is.na(ind_zero)] <- FALSE
+  # }
+
   return(
     list(
       "threshold" = u,
-      "thr.acces.ind" = thr_ind,
-      "ind_zero" = ind_zero,
-      "A_data_frame_size_thr_ind" = A_data_frame_size_thr_ind,
+      "est_thr_indicator" = thr_ind,
       "samples" = samples,
-      ### saving the sample for the hyperparameters to see the traceplots
-      "imputed.A.WSD" = imputed.A.WSD,
-      "imputed.A.squre" = imputed.A.squre,
-      "post.sum.mean.mu" = post.sum.mean.mu,
-      "post.sum.squre.mu" = post.sum.squre.mu,
-      "post.mean.quantile" = post.mean.quantile,
-      "post.squre.quantile" = post.squre.quantile,
-      "post.sum.mean.w2" = post.sum.mean.w2,
-      "post.sum.squre.w2" = post.sum.squre.w2,
-      "tuning_param_x_hyper" = sigma.matrix ## tuning parameters values
+      "est_size" = list(mean = est_mean_size, sd = est_sd_size),
+      "quant.est" = list(mean = fitted_thr_mean, sd = fitted_thr_mean),
+      "est_random_effects" = list(mean =  est_mean_w2, sd  = est_sd_w2), 
+      "est_linear_predictor" = list(mean = est_mean_mu, sd = est_sd_mu)
     )
   ) ## acceptance rate for eta
 }
