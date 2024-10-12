@@ -21,8 +21,7 @@ fitted counts and sizes.
 
 ## Installation
 
-You can install the development version of JM.landslide from
-[GitHub](https://github.com/) with:
+You may install the development version of package using:
 
 ``` r
 devtools::install_github("yadavrishikesh/JM.landslide")
