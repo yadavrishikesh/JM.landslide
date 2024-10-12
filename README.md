@@ -31,8 +31,8 @@ devtools::install_github("yadavrishikesh/JM.landslide")
 ## Vignette
 
 See the
-[vignette](yadavrishikesh.github.io/JM.landslide/JM.landslide.html) file
-for detailed description of the packages.
+[Vignette](https://yadavrishikesh.github.io/JM.landslide/JM.landslide.html)
+file for detailed description of the packages.
 
 ## References
 
