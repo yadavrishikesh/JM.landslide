@@ -32,7 +32,7 @@ devtools::install_github("yadavrishikesh/JM.landslide")
 
 See the
 [Vignette](https://yadavrishikesh.github.io/JM.landslide/JM.landslide.html)
-file for detailed description of the packages.
+for detailed description of the package.
 
 ## References
 
