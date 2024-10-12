@@ -17,7 +17,7 @@ the package provides estimates of landslide hazards and susceptibility
 maps over the study regions, key components often sought in landslide
 literature. Moreover, the package also generates outputs that provide
 estimates and summaries of fixed and random effects, along with the
-fitted counts and sizes. See the vignette file for details description:
+fitted counts and sizes.
 
 ## Installation
 
@@ -27,6 +27,12 @@ You can install the development version of JM.landslide from
 ``` r
 devtools::install_github("yadavrishikesh/JM.landslide")
 ```
+
+## Vignette
+
+See the
+[vignette](yadavrishikesh.github.io/JM.landslide/JM.landslide.html) file
+for detailed description of the packages.
 
 ## References
 
