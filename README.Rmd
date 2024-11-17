@@ -13,7 +13,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# JM.landslide: Joint Modeling of landsldie Counts and Sizes 
+# JM.landslide: Joint Modeling of Landslide Counts and Sizes 
 
 <!-- badges: start -->
 <!-- badges: end -->

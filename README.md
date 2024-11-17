@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# JM.landslide: Joint Modeling of landsldie Counts and Sizes
+# JM.landslide: Joint Modeling of Landslide Counts and Sizes
 
 <!-- badges: start -->
 <!-- badges: end -->
