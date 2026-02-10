@@ -29,9 +29,10 @@ devtools::install_github("yadavrishikesh/JM.landslide")
 
 ## Access to Landslide data
 
-You may access the partial information of the Wenchaun landslide data in the R packages using 
+You may access the partial information of the Wenchaun landslide data using: 
 
 ``` r
+library(JM.landslide)
 data("landslide_data_chapter27")
 ??landslide_data
 ```
@@ -53,4 +54,5 @@ for detailed description of the package.
     point processes with sub-asymptotic mark distributions.*
     `Journal of the Royal Statistical Society Series C (JRSSC): Applied Statistics, qlad077`.
     <https://doi.org/10.1093/jrsssc/qlad077>
+
 
