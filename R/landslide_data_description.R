@@ -49,15 +49,20 @@
 #' Jibson, R.W., Godt, J.W., Sato, H.P., Schmitt, R.G., Marc, O. and Hovius, N. (2017).
 #' Presentation and analysis of a worldwide database of earthquake-induced
 #' landslide inventories. Journal of Geophysical Research: Earth Surface,
-#' 122(10), 1991–2015.
+#' 122(10), 1991--2015.
 #'
 #' Lombardo, L., Tanyas, H., Huser, R., Guzzetti, F. and Castro-Camilo, D. (2021).
 #' Landslide size matters: A new data-driven, spatial prototype.
 #' Engineering Geology, 293, 106288.
 #'
-#' @contact l.lombardo@utwente.nl; rishikesh@iitmandi.ac.in
+#' @author
+#' Lorenzo Lombardo <l.lombardo@utwente.nl>,
+#' Rishikesh Yadav <rishikesh@iitmandi.ac.in>
 #'
 #' @note
 #' No external funding supported the data creation. The authors acknowledge
 #' the work of Hakan Tanyas for preparing the original landslide inventory.
-"landslide_data_chapter27.RData"
+#'
+#' @docType data
+#' @name landslide_data_chapter27
+NULL
